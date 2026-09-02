@@ -31,7 +31,7 @@ const PermissionSchema = new mongoose.Schema({
     of: modulePermissionSchema,
     default: {},
   },
-});
+},{timestamps:true});
 
 const Permission = mongoose.model("Permission", PermissionSchema);
 

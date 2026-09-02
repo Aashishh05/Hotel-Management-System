@@ -31,7 +31,7 @@ const roleSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-});
+},{timestamps:true});
 
 const Role = mongoose.model("Role", roleSchema);
 export default Role;
