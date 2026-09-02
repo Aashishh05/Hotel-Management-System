@@ -1,4 +1,4 @@
-const createDefultPermissions = () => ({
+const createDefaultPermissions = () => ({
   bookings: {
     create: false,
     read: false,
@@ -209,4 +209,4 @@ const rolePermissions = {
   },
 };
 
-export { createDefultPermissions, rolePermissions };
+export { createDefaultPermissions, rolePermissions };

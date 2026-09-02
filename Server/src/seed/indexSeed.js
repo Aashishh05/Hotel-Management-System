@@ -21,7 +21,7 @@ const seedDatabase = async () => {
     // Seed roles
     for (const roleData of roles) {
       await Role.findOneAndUpdate({ name: roleData.name }, roleData, {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         setDefaultsOnInsert: true,
       });
@@ -52,7 +52,7 @@ const seedDatabase = async () => {
           permissions,
         },
         {
-          new: true,
+          returnDocument: "after",
           upsert: true,
           setDefaultsOnInsert: true,
         },
