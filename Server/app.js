@@ -14,7 +14,7 @@ app.use(morgan("dev"));
 
 app.use("/api", mainRoutes);
 
-app.get("/", (res) => {
+app.get("/", (req, res) => {
   res
     .status(200)
     .json({ success: true, message: "Hotel Management API is running" });
