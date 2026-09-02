@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import mainRoutes from "./src/routes/mainRoutes.js";
+import errorMiddleware from "../Server/src/middleware/errorMiddleware.js";
 
 const app = express();
 
@@ -18,5 +19,7 @@ app.get("/", (res) => {
     .status(200)
     .json({ success: true, message: "Hotel Management API is running" });
 });
+
+app.use(errorMiddleware);
 
 export default app;
