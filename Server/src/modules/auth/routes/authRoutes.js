@@ -1,12 +1,14 @@
 import express from "express";
+import { body } from "express-validator";
+
 import {
   register,
   login,
   logout,
   getMe,
 } from "../controller/authController.js";
+
 import { validate } from "../../../middleware/validateMiddleware.js";
-import { body } from "express-validator";
 import protect from "../../../middleware/authMiddleware.js";
 import { loginRateLimiter } from "../../../middleware/rateLimiter.js";
 
@@ -14,17 +16,27 @@ const router = express.Router();
 
 const registerValidation = [
   body("name").trim().notEmpty().withMessage("Name is required"),
-  body("email").isEmail().withMessage("Valid email is required"),
+
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Valid email is required")
+    .normalizeEmail(),
+
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
-  body("role")
-    .isIn(["buyer", "seller"])
-    .withMessage("Role must be buyer or seller"),
+
+  body("role").notEmpty().withMessage("Role is required"),
 ];
 
 const loginValidation = [
-  body("email").isEmail().withMessage("Valid email is required"),
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Valid email is required")
+    .normalizeEmail(),
+
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
