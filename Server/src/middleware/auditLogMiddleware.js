@@ -1,4 +1,4 @@
-import AuditLog from "../modules/auditlog/model/auditlogModel";
+import AuditLog from "../modules/auditlog/model/auditlogModel.js";
 
 const auditLog = (action, module) => async (req, res, next) => {
   res.on("finish", async () => {

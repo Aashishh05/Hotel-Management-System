@@ -1,5 +1,5 @@
-import ErrorHandler from "../../../utils/errorHandler";
-import roleRepository from "../repository/roleRepository";
+import ErrorHandler from "../../../utils/errorHandler.js";
+import roleRepository from "../repository/roleRepository.js";
 
 const createRole = async (roleData) => {
   const existingRole = await roleRepository.getRoleByName(roleData.name);

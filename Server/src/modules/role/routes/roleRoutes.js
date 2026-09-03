@@ -7,8 +7,8 @@ import {
   deleteRole,
   getAllRoles,
   updateRole,
-} from "../controller/roleController";
-import { getRoleById } from "../services/roleService";
+} from "../controller/roleController.js";
+import { getRoleById } from "../services/roleService.js";
 const router = express.Router();
 
 router.post(

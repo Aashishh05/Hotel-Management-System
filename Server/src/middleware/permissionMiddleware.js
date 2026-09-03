@@ -1,4 +1,4 @@
-import Permission from "../modules/permission/model/permissionModel";
+import Permission from "../modules/permission/model/permissionModel.js";
 
 const checkPermission = (module, action) => async (req, res, next) => {
   try {
