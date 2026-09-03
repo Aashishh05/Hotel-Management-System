@@ -1,6 +1,6 @@
 import roleRepository from "../../role/repository/roleRepository.js";
 import errorHandler from "../../../utils/ErrorHandler.js";
-import permissionRepository from "../repository/permissionRepository";
+import permissionRepository from "../repository/permissionRepository.js";
 
 const createPermission = async (permissionData) => {
   const role = await roleRepository.getRoleById(permissionData.role);
