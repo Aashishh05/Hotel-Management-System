@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const bookingSchema = new mongoose.Schema(
   {
     guest: {
@@ -38,6 +37,14 @@ const bookingSchema = new mongoose.Schema(
         message: "Invalid booking status",
       },
       default: "pending",
+    },
+
+    actualCheckIn: {
+      type: Date,
+    },
+
+    actualCheckOut: {
+      type: Date,
     },
 
     totalAmount: {

@@ -3,6 +3,7 @@ import express from "express";
 import protect from "../../../middleware/authMiddleware.js";
 import checkPermission from "../../../middleware/permissionMiddleware.js";
 import auditLog from "../../../middleware/auditLogMiddleware.js";
+
 import {
   createBooking,
   deleteBooking,
@@ -12,7 +13,10 @@ import {
   getBookingsByRoom,
   getBookingsByStatus,
   updateBooking,
+  checkInBooking,
+  checkOutBooking,
 } from "../controller/bookingController.js";
+
 const router = express.Router();
 
 router.post(
@@ -32,7 +36,7 @@ router.get(
 );
 
 router.get(
-  "/get/:guestId",
+  "/get/guest/:guestId",
   protect,
   checkPermission("bookings", "read"),
   auditLog,
@@ -40,7 +44,7 @@ router.get(
 );
 
 router.get(
-  "/get/:roomId",
+  "/get/room/:roomId",
   protect,
   checkPermission("bookings", "read"),
   auditLog,
@@ -48,7 +52,7 @@ router.get(
 );
 
 router.get(
-  "/get/:status",
+  "/get/status/:status",
   protect,
   checkPermission("bookings", "read"),
   auditLog,
@@ -69,6 +73,22 @@ router.put(
   checkPermission("bookings", "update"),
   auditLog,
   updateBooking,
+);
+
+router.patch(
+  "/check-in/:id",
+  protect,
+  checkPermission("bookings", "update"),
+  auditLog,
+  checkInBooking,
+);
+
+router.patch(
+  "/check-out/:id",
+  protect,
+  checkPermission("bookings", "update"),
+  auditLog,
+  checkOutBooking,
 );
 
 router.delete(

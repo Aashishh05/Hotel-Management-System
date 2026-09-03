@@ -75,3 +75,22 @@ export const deleteBooking = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const checkInBooking = asyncErrorHandler(async (req, res) => {
+  const booking = await bookingServices.checkInBooking(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: "Guest checked in successfully",
+    booking,
+  });
+});
+
+export const checkOutBooking = asyncErrorHandler(async (req, res) => {
+  const booking = await bookingServices.checkOutBooking(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    message: "Guest checked out successfully",
+    booking,
+  });
+});

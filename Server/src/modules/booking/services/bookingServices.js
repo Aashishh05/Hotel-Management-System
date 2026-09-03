@@ -176,6 +176,77 @@ const deleteBooking = async (id) => {
   return await bookingRepository.deleteBooking(id);
 };
 
+// Check-in booking
+const checkInBooking = async (bookingId) => {
+  const booking = await bookingRepository.getBookingById(bookingId);
+
+  if (!booking) {
+    throw new ErrorHandler("Booking not found", 404);
+  }
+
+  // Only confirmed bookings can be checked in
+  if (booking.status !== "confirmed") {
+    throw new ErrorHandler("Only confirmed bookings can be checked in", 400);
+  }
+
+  const room = await roomRepository.getRoomById(booking.room._id);
+
+  if (!room) {
+    throw new ErrorHandler("Room not found", 404);
+  }
+
+  // Room must be available
+  if (room.status !== "available") {
+    throw new ErrorHandler("Room is not available for check-in", 400);
+  }
+
+  // Update booking status and actual check-in time
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
+    status: "checked-in",
+    actualCheckIn: new Date(),
+  });
+
+  // Update room status
+  await roomRepository.updateRoom(booking.room._id, {
+    status: "occupied",
+  });
+
+  return updatedBooking;
+};
+
+// Check-out booking
+const checkOutBooking = async (bookingId) => {
+  const booking = await bookingRepository.getBookingById(bookingId);
+
+  if (!booking) {
+    throw new ErrorHandler("Booking not found", 404);
+  }
+
+  // Only checked-in bookings can be checked out
+  if (booking.status !== "checked-in") {
+    throw new ErrorHandler("Only checked-in bookings can be checked out", 400);
+  }
+
+  const room = await roomRepository.getRoomById(booking.room._id);
+
+  if (!room) {
+    throw new ErrorHandler("Room not found", 404);
+  }
+
+  // Update booking status and actual check-out time
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, {
+    status: "checked-out",
+    actualCheckOut: new Date(),
+  });
+
+  // Room needs cleaning after checkout
+  await roomRepository.updateRoom(booking.room._id, {
+    status: "cleaning",
+  });
+
+  return updatedBooking;
+};
+
 export default {
   createBooking,
   getAllBookings,
@@ -185,4 +256,6 @@ export default {
   getBookingsByStatus,
   updateBooking,
   deleteBooking,
+  checkInBooking,
+  checkOutBooking,
 };
