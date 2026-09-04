@@ -1,7 +1,7 @@
 import roomRepository from "../../room/repository/roomRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import userRepository from "../../user/repository/userRepository.js";
-import houseKeepingRepository from "../repository/houseKeepingRepository";
+import houseKeepingRepository from "../repository/houseKeepingRepository.js";
 
 const createTask = async (taskData) => {
   const { room, assignedTo, type, status, notes, scheduledAt } = taskData;
