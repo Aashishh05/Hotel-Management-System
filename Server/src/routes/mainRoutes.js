@@ -10,6 +10,7 @@ import houseKeepingRoutes from "../modules/houseKeeping/routes/houseKeepingRoute
 import maintenanceRoutes from "../modules/maintenance/routes/maintenanceRoutes.js";
 import billingRoutes from "../modules/billing/routes/billingRoutes.js";
 import paymentRoutes from "../modules/payment/routes/paymentRoutes.js";
+import resturantOrderRoutes from "../modules/resturantOrder/routes/resturantOrderRoutes.js"
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use("/houseKeeping", houseKeepingRoutes);
 router.use("/maintenance", maintenanceRoutes);
 router.use("/billing", billingRoutes);
 router.use("/payment", paymentRoutes);
+router.use("/resturant",resturantOrderRoutes);
 
 export default router;

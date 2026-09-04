@@ -3,13 +3,13 @@ import mongoose from "mongoose";
 const restaurantOrderSchema = new mongoose.Schema(
   {
     guest: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Guest",
       required: [true, "Guest is required"],
     },
 
     room: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
       required: [true, "Room is required"],
     },
@@ -18,7 +18,7 @@ const restaurantOrderSchema = new mongoose.Schema(
       type: [
         {
           menuItem: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "MenuItem",
             required: [true, "Menu item is required"],
           },
@@ -60,19 +60,19 @@ const restaurantOrderSchema = new mongoose.Schema(
     },
 
     takenBy: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Order taken by user is required"],
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const RestaurantOrder = mongoose.model(
   "RestaurantOrder",
-  restaurantOrderSchema
+  restaurantOrderSchema,
 );
 
 export default RestaurantOrder;
