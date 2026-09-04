@@ -6,6 +6,8 @@ import userRoutes from "../modules/user/routes/userRoutes.js";
 import roomRoutes from "../modules/room/routes/roomRoutes.js";
 import guestRoutes from "../modules/guest/routes/guestRoutes.js";
 import bookingRoutes from "../modules/booking/routes/bookingRoutes.js";
+import houseKeepingRoutes from "../modules/houseKeeping/routes/houseKeepingRoutes.js";
+import maintenanceRoutes from "../modules/maintenance/routes/maintenanceRoutes.js";
 
 const router = express.Router();
 
@@ -16,5 +18,7 @@ router.use("/user", userRoutes);
 router.use("/room", roomRoutes);
 router.use("/guest", guestRoutes);
 router.use("/bookings", bookingRoutes);
+router.use("/houseKeeping", houseKeepingRoutes);
+router.use("/maintenance", maintenanceRoutes);
 
 export default router;
