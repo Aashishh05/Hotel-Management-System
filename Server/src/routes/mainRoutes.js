@@ -9,6 +9,7 @@ import bookingRoutes from "../modules/booking/routes/bookingRoutes.js";
 import houseKeepingRoutes from "../modules/houseKeeping/routes/houseKeepingRoutes.js";
 import maintenanceRoutes from "../modules/maintenance/routes/maintenanceRoutes.js";
 import billingRoutes from "../modules/billing/routes/billingRoutes.js";
+import paymentRoutes from "../modules/payment/routes/paymentRoutes.js";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use("/bookings", bookingRoutes);
 router.use("/houseKeeping", houseKeepingRoutes);
 router.use("/maintenance", maintenanceRoutes);
 router.use("/billing", billingRoutes);
+router.use("/payment", paymentRoutes);
 
 export default router;
