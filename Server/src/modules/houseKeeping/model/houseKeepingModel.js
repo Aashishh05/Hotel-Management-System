@@ -41,6 +41,15 @@ const housekeepingSchema = new mongoose.Schema(
     scheduledAt: {
       type: Date,
     },
+    startedAt: {
+      type: Date,
+      default: null,
+    },
+
+    completedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
