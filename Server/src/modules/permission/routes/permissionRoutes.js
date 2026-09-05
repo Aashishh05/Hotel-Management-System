@@ -3,6 +3,7 @@ import express from "express";
 import checkPermission from "../../../middleware/permissionMiddleware.js";
 import auditLog from "../../../middleware/auditLogMiddleware.js";
 import protect from "../../../middleware/authMiddleware.js";
+
 import {
   createPermission,
   deletePermissionByRole,
@@ -22,6 +23,7 @@ router.post(
   auditLog,
   createPermission,
 );
+
 router.get(
   "/get",
   protect,
@@ -29,21 +31,25 @@ router.get(
   auditLog,
   getAllPermissions,
 );
+
 router.get("/my-permissions", protect, auditLog, getMyPermissions);
+
 router.get(
-  "/get/:id",
+  "/get/id/:id",
   protect,
   checkPermission("permissions", "read"),
   auditLog,
   getPermissionById,
 );
+
 router.get(
-  "/get/:roleId",
+  "/get/role/:roleId",
   protect,
   checkPermission("permissions", "read"),
   auditLog,
   getPermissionByRole,
 );
+
 router.put(
   "/update/:roleId",
   protect,
@@ -51,6 +57,7 @@ router.put(
   auditLog,
   updatePermissionByRole,
 );
+
 router.delete(
   "/delete/:roleId",
   protect,
@@ -58,4 +65,5 @@ router.delete(
   auditLog,
   deletePermissionByRole,
 );
+
 export default router;
