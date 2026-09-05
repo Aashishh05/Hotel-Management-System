@@ -13,6 +13,8 @@ import paymentRoutes from "../modules/payment/routes/paymentRoutes.js";
 import resturantOrderRoutes from "../modules/resturantOrder/routes/resturantOrderRoutes.js"
 import menuRoutes from "../modules/menu/routes/menuRoutes.js"
 import reportRoutes from "../modules/reports/routes/reportRoutes.js"
+import auditLogRoutes from "../modules/auditlog/routes/auditLogRoutes.js"
+
 const router = express.Router();
 
 router.use("/auth", authRoutes);
@@ -29,5 +31,6 @@ router.use("/payment", paymentRoutes);
 router.use("/resturant",resturantOrderRoutes);
 router.use("/menu",menuRoutes);
 router.use("/reports",reportRoutes)
+router.use("/auditLog",auditLogRoutes)
 
 export default router;
