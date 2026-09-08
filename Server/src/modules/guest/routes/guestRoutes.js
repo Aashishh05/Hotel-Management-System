@@ -10,6 +10,7 @@ import {
   getGuestById,
   updateGuest,
 } from "../controller/guestController.js";
+import MODULES from "../../../constants/modulesConstant.js";
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ router.get(
   "/",
   protect,
   checkPermission("guests", "read"),
+  // checkPermission(MODULES.GUESTS,"read"),
   auditLog,
   getAllGuests,
 );
