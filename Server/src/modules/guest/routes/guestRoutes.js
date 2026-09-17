@@ -3,6 +3,7 @@ import express from "express";
 import protect from "../../../middleware/authMiddleware.js";
 import auditLog from "../../../middleware/auditLogMiddleware.js";
 import checkPermission from "../../../middleware/permissionMiddleware.js";
+
 import {
   createGuest,
   deleteGuest,
@@ -10,12 +11,11 @@ import {
   getGuestById,
   updateGuest,
 } from "../controller/guestController.js";
-import MODULES from "../../../constants/modulesConstant.js";
 
 const router = express.Router();
 
 router.post(
-  "/",
+  "/create",
   protect,
   checkPermission("guests", "create"),
   auditLog,
@@ -23,16 +23,15 @@ router.post(
 );
 
 router.get(
-  "/",
+  "/get",
   protect,
   checkPermission("guests", "read"),
-  // checkPermission(MODULES.GUESTS,"read"),
   auditLog,
   getAllGuests,
 );
 
 router.get(
-  "/:id",
+  "/get/:id",
   protect,
   checkPermission("guests", "read"),
   auditLog,
@@ -40,7 +39,7 @@ router.get(
 );
 
 router.put(
-  "/:id",
+  "/update/:id",
   protect,
   checkPermission("guests", "update"),
   auditLog,
@@ -48,7 +47,7 @@ router.put(
 );
 
 router.delete(
-  "/:id",
+  "/delete/:id",
   protect,
   checkPermission("guests", "delete"),
   auditLog,
