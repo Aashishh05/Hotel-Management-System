@@ -31,7 +31,7 @@ router.get(
 );
 
 router.get(
-  "/get/:roleId",
+  "/get/role/:roleId",
   protect,
   checkPermission("users", "read"),
   auditLog,
