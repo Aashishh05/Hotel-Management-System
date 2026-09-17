@@ -18,6 +18,7 @@ const loadAuthState = () => {
         user,
         token,
         isAuthenticated: true,
+        loading: false,
       };
     }
   } catch (error) {
@@ -28,6 +29,7 @@ const loadAuthState = () => {
     user: null,
     token: null,
     isAuthenticated: false,
+    loading: false,
   };
 };
 
@@ -56,8 +58,12 @@ const authSlice = createSlice({
       removeToken();
       removeUser();
     },
+
+    setLoading(state, action) {
+      state.loading = action.payload;
+    },
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout, setLoading } = authSlice.actions;
 export default authSlice.reducer;
