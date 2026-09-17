@@ -13,7 +13,7 @@ import {
   getOrdersByRoom,
   getOrdersByStatus,
   updateOrder,
-} from "../controller/resturantOrderController.js"
+} from "../controller/resturantOrderController.js";
 
 const router = express.Router();
 
