@@ -40,7 +40,7 @@ router.get(
 );
 
 router.get(
-  "/get/:status",
+  "/get/status/:status",
   protect,
   checkPermission("rooms", "read"),
   auditLog,
@@ -56,7 +56,7 @@ router.get(
 );
 
 router.put(
-  "update/:id",
+  "/update/:id",
   protect,
   checkPermission("rooms", "update"),
   auditLog,
@@ -64,7 +64,7 @@ router.put(
 );
 
 router.delete(
-  "delete/:id",
+  "/delete/:id",
   protect,
   checkPermission("rooms", "delete"),
   auditLog,
