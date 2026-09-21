@@ -6,6 +6,7 @@ import * as Yup from "yup";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Hexagon } from "lucide-react";
 import { loginApi } from "../../api/authApi";
 import { login } from "../../redux/authSlice";
+import { showToast } from "../../components/common/Toast";
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -33,17 +34,22 @@ const Login = () => {
           password: values.password,
         });
         dispatch(login({ user: res?.data, token: res?.token ?? null }));
+        showToast({
+          type: "success",
+          message: "Logged in successfully. Welcome back!",
+        });
         navigate("/", { replace: true });
       } catch (err) {
-        setAuthError(
+        const message =
           err?.response?.data?.message ||
-            "We couldn't sign you in. Check your details and try again.",
-        );
+          "We couldn't sign you in. Check your details and try again.";
+        setAuthError(message);
+        showToast({ type: "error", message });
       }
     },
   });
 
-return (
+  return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
@@ -52,7 +58,9 @@ return (
 
       <div
         className="w-full max-w-md bg-white rounded-xl border border-slate-200 shadow-xl p-8"
-        style={{ fontFamily: "'Montserrat', ui-sans-serif, system-ui, sans-serif" }}
+        style={{
+          fontFamily: "'Montserrat', ui-sans-serif, system-ui, sans-serif",
+        }}
       >
         <div className="flex flex-col items-center text-center mb-8">
           <Hexagon className="w-10 h-10 text-[#C9A15A]" strokeWidth={2.5} />
@@ -62,7 +70,6 @@ return (
           <h2 className="font-display text-3xl text-slate-900 mt-4">
             Welcome back
           </h2>
-        
         </div>
 
         <form onSubmit={formik.handleSubmit} noValidate className="space-y-5">
@@ -181,8 +188,6 @@ return (
             )}
           </button>
         </form>
-
-       
       </div>
     </div>
   );
