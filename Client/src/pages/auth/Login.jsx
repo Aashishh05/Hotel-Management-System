@@ -5,7 +5,9 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Hexagon } from "lucide-react";
 import { loginApi } from "../../api/authApi";
+import { getMyPermissions } from "../../api/permissionApi";
 import { login } from "../../redux/authSlice";
+import { setPermission } from "../../redux/permissionSlice";
 import { showToast } from "../../components/common/Toast";
 
 const validationSchema = Yup.object({
@@ -34,6 +36,14 @@ const Login = () => {
           password: values.password,
         });
         dispatch(login({ user: res?.data }));
+
+        try {
+          const permRes = await getMyPermissions();
+          dispatch(setPermission(permRes?.permission));
+        } catch {
+          dispatch(setPermission(null));
+        }
+
         showToast({
           type: "success",
           message: "Logged in successfully. Welcome back!",

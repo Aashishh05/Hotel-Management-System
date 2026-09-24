@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getMeApi } from "../../api/authApi";
+import { getMyPermissions } from "../../api/permissionApi";
 import { logout, setLoading, setUser } from "../../redux/authSlice";
+import { setPermission } from "../../redux/permissionSlice";
 
 const AuthInitializer = ({ children }) => {
   const dispatch = useDispatch();
@@ -13,6 +15,13 @@ const AuthInitializer = ({ children }) => {
 
         if (res?.data) {
           dispatch(setUser(res.data));
+
+          try {
+            const permRes = await getMyPermissions();
+            dispatch(setPermission(permRes?.permission));
+          } catch {
+            dispatch(setPermission(null));
+          }
         } else {
           dispatch(logout());
         }

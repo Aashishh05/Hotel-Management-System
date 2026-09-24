@@ -3,12 +3,13 @@ import { Toaster } from "react-hot-toast";
 import Login from "./pages/auth/Login";
 import ProtectedRoute from "./components/guards/ProtectedRoute";
 
-
 const App = () => {
   return (
     <>
       <Routes>
         <Route path="/" element={<Login />} />
+
+        <Route element={<ProtectedRoute />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

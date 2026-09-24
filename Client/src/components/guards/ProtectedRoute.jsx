@@ -2,7 +2,7 @@ import React from "react";
 import useAuth from "../../hooks/useAuth.js";
 import { Navigate, Outlet } from "react-router-dom";
 
-const protectedRoute = () => {
+const ProtectedRoute = () => {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
@@ -12,4 +12,4 @@ const protectedRoute = () => {
   return <Outlet />;
 };
 
-export default protectedRoute;
+export default ProtectedRoute;
