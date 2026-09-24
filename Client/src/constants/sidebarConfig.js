@@ -14,7 +14,6 @@ import {
   UserRound,
   BarChart3,
   ScrollText,
-  Settings,
 } from "lucide-react";
 
 export const sidebarItems = [
@@ -33,5 +32,4 @@ export const sidebarItems = [
   { label: "Guests", path: "/guests", module: "guests", Icon: UserRound },
   { label: "Reports", path: "/reports", module: "reports", Icon: BarChart3 },
   { label: "Audit Logs", path: "/audit-logs", module: "audit-logs", Icon: ScrollText },
-  { label: "Settings", path: "/settings", module: "settings", Icon: Settings },
 ];

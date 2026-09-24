@@ -1,19 +1,59 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Hexagon, X } from "lucide-react";
+import { Hexagon, X, LogOut } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import { sidebarItems } from "../../constants/sidebarConfig.js";
+import { logoutApi } from "../../api/authApi.js";
+import ConfirmDialog from "../common/ConfirmDialog.jsx";
+
+const ROLE_LABELS = {
+  superadmin: "Super Admin",
+  hoteladmin: "Hotel Admin",
+  frontdesk: "Front Desk",
+  housekeeper: "Housekeeper",
+  maintenance: "Maintenance",
+  accountant: "Accountant",
+  restaurantmanager: "Restaurant Manager",
+  chef: "Chef",
+  securitystaff: "Security Staff",
+  guest: "Guest",
+};
 
 const Sidebar = ({ open, onClose }) => {
-  const { user } = useAuth();
+  const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
   const { permissions } = useSelector((state) => state.permission);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isSuperAdmin = user?.role?.name === "superadmin";
+
+  const roleName = user?.role?.name;
+  const displayName = user?.name || "User";
+  const initials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   const visibleItems = sidebarItems.filter((item) => {
     if (isSuperAdmin) return true;
     return permissions?.modules?.[item.module]?.read === true;
   });
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await logoutApi();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      logoutUser();
+      navigate("/login", { replace: true });
+    }
+  };
 
   return (
     <>
@@ -71,6 +111,42 @@ const Sidebar = ({ open, onClose }) => {
             </NavLink>
           ))}
         </nav>
+
+        <div className="border-t border-slate-800 px-4 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-[#D9B872] to-[#C9A15A] text-white flex items-center justify-center text-sm font-semibold">
+              {initials}
+            </div>
+            <div className="leading-tight min-w-0 flex-1">
+              <p className="text-sm font-medium text-white truncate">
+                {displayName}
+              </p>
+              <p className="text-xs text-slate-400 truncate">
+                {ROLE_LABELS[roleName] || roleName}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(true)}
+              aria-label="Log out"
+              className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-800 transition-colors"
+            >
+              <LogOut className="w-4.5 h-4.5" />
+            </button>
+          </div>
+        </div>
+
+        <ConfirmDialog
+          open={confirmOpen}
+          title="Log out"
+          message="Are you sure you want to log out?"
+          busy={loggingOut}
+          onConfirm={() => {
+            setConfirmOpen(false);
+            handleLogout();
+          }}
+          onCancel={() => setConfirmOpen(false)}
+        />
       </aside>
     </>
   );

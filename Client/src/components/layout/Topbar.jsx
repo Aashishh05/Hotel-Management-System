@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Menu, Bell, LogOut, Search } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import { logoutApi } from "../../api/authApi.js";
+import ConfirmDialog from "../common/ConfirmDialog.jsx";
 
 const ROLE_LABELS = {
   superadmin: "Super Admin",
@@ -21,6 +22,7 @@ const Topbar = ({ onMenuClick }) => {
   const { user, logoutUser } = useAuth();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const roleName = user?.role?.name;
   const displayName = user?.name || "User";
@@ -35,10 +37,11 @@ const Topbar = ({ onMenuClick }) => {
     try {
       setLoggingOut(true);
       await logoutApi();
-    } catch {
+    } catch(error) {
+      console.log(error)
     } finally {
       logoutUser();
-      navigate("/", { replace: true });
+      navigate("/login", { replace: true });
     }
   };
 
@@ -75,13 +78,9 @@ const Topbar = ({ onMenuClick }) => {
 
       <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 ml-auto">
         <div className="hidden sm:block text-right leading-tight">
-          <Link to="/settings">
-            <p className="text-sm font-medium text-slate-800 hover:text-[#C9A15A] transition-colors">
-              {displayName}
-            </p>
-          </Link>
+          <p className="text-sm font-medium text-slate-800">{displayName}</p>
           <p className="text-xs text-slate-400">
             {ROLE_LABELS[roleName] || roleName}
           </p>
@@ -93,15 +92,26 @@ const Topbar = ({ onMenuClick }) => {
 
         <button
           type="button"
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-60"
+          onClick={() => setConfirmOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
           aria-label="Log out"
         >
           <LogOut className="w-4.5 h-4.5" />
           <span className="hidden xl:inline">Logout</span>
         </button>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Log out"
+        message="Are you sure you want to log out?"
+        busy={loggingOut}
+        onConfirm={() => {
+          setConfirmOpen(false);
+          handleLogout();
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </header>
   );
 };

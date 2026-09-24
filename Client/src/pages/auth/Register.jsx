@@ -40,7 +40,7 @@ const Register = () => {
           type: "success",
           message: "Account created successfully",
         });
-        navigate("/", { replace: true });
+        navigate("/login", { replace: true });
       } catch (err) {
         const message =
           err?.response?.data?.message ||
@@ -268,7 +268,7 @@ const Register = () => {
         <p className="mt-6 text-center text-sm text-slate-500">
           Already have an account?{" "}
           <Link
-            to="/"
+            to="/login"
             className="text-[#C9A15A] hover:text-[#B89150] transition-colors hover:underline"
           >
             Sign in
