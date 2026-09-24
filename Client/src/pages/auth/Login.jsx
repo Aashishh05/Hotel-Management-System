@@ -33,7 +33,7 @@ const Login = () => {
           email: values.email,
           password: values.password,
         });
-        dispatch(login({ user: res?.data, token: res?.token ?? null }));
+        dispatch(login({ user: res?.data }));
         showToast({
           type: "success",
           message: "Logged in successfully. Welcome back!",
