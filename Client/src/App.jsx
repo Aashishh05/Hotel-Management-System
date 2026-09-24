@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Login from "./pages/auth/Login";
 import ProtectedRoute from "./components/guards/ProtectedRoute";
+import DashboardLayout from "./components/layout/DashboardLayout.jsx";
+import Dashboard from "./pages/dashboard/Dashboard.jsx";
 
 const App = () => {
   return (
@@ -9,9 +11,11 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Login />} />
 
-        <Route element={<ProtectedRoute />} />
-
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+        </Route>
       </Routes>
 
       <Toaster

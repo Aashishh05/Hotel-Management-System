@@ -48,7 +48,7 @@ const Login = () => {
           type: "success",
           message: "Logged in successfully. Welcome back!",
         });
-        navigate("/", { replace: true });
+        navigate("/dashboard", { replace: true });
       } catch (err) {
         const message =
           err?.response?.data?.message ||
