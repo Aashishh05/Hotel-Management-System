@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import { generateToken } from "../../../utils/jwt.js";
 import ErrorHandler from "../../../utils/errorHandler.js";
 
+const DEFAULT_ROLE = "guest";
+
 const register = async ({ name, email, password, role }) => {
   const existingUser = await authRepository.findUserByEmail(email);
 
@@ -12,11 +14,28 @@ const register = async ({ name, email, password, role }) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  let roleId = role;
+
+  if (!roleId) {
+    const defaultRole = await authRepository.findRoleByName(DEFAULT_ROLE);
+    roleId = defaultRole?._id;
+  } else if (typeof role === "string" && !/^[0-9a-fA-F]{24}$/.test(role)) {
+    const roleDoc = await authRepository.findRoleByName(role);
+    roleId = roleDoc?._id || role;
+  }
+
+  if (!roleId) {
+    throw new ErrorHandler(
+      "Default role not found. Please run the seed script.",
+      500
+    );
+  }
+
   const user = await authRepository.createUser({
     name,
     email,
     password: hashedPassword,
-    role,
+    role: roleId,
   });
 
   const populatedUser = await authRepository.findUserById(user._id);
