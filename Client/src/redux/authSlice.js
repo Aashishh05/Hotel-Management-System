@@ -1,62 +1,32 @@
-import {
-  getToken,
-  getUser,
-  removeToken,
-  removeUser,
-  setToken,
-  setUser,
-} from "../localStorage/storage.js";
 import { createSlice } from "@reduxjs/toolkit";
 
-const loadAuthState = () => {
-  try {
-    const user = getUser();
-    const token = getToken();
-
-    if (user && token) {
-      return {
-        user,
-        token,
-        isAuthenticated: true,
-        loading: false,
-      };
-    }
-  } catch (error) {
-    console.log("Failed to load auth state", error);
-  }
-
-  return {
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    loading: false,
-  };
+const initialState = {
+  user: null,
+  isAuthenticated: false,
+  loading: true,
 };
-
-const initialState = loadAuthState();
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
+
   reducers: {
     login(state, action) {
-      const { user, token } = action.payload;
-
-      state.user = user;
-      state.token = token;
+      state.user = action.payload.user;
       state.isAuthenticated = true;
-
-      setUser(user);
-      setToken(token);
+      state.loading = false;
     },
 
     logout(state) {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
+      state.loading = false;
+    },
 
-      removeToken();
-      removeUser();
+    setUser(state, action) {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.loading = false;
     },
 
     setLoading(state, action) {
@@ -65,5 +35,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { login, logout, setLoading } = authSlice.actions;
+export const { login, logout, setUser, setLoading } = authSlice.actions;
+
 export default authSlice.reducer;

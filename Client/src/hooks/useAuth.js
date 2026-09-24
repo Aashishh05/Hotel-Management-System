@@ -4,7 +4,7 @@ import { login, logout } from "../redux/authSlice";
 const useAuth = () => {
   const dispatch = useDispatch();
 
-  const { user, token, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, loading } = useSelector((state) => state.auth);
 
   const loginUser = (userData) => {
     dispatch(login(userData));
@@ -16,8 +16,8 @@ const useAuth = () => {
 
   return {
     user,
-    token,
     isAuthenticated,
+    loading,
     loginUser,
     logoutUser,
   };
