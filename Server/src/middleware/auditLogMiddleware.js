@@ -1,6 +1,9 @@
 import AuditLog from "../modules/auditlog/model/auditlogModel.js";
 
-const auditLog = (action, module) => async (req, res, next) => {
+const auditLog = (req, res, next) => {
+  const action = req.method;
+  const module = req.baseUrl.split("/")[1] || req.path;
+
   res.on("finish", async () => {
     try {
       await AuditLog.create({

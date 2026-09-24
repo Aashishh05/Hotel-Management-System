@@ -54,7 +54,7 @@ export const deletePermissionByRole = asyncErrorHandler(async (req, res) => {
   });
 });
 export const getMyPermissions = asyncErrorHandler(async (req, res) => {
-  const permission = await permissionServices.getMyPermissions(req.user.role);
+  const permission = await permissionServices.getMypermission(req.user.role?._id || req.user.role);
   res.status(200).json({
     success: true,
     permission,
