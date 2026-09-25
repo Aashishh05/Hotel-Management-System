@@ -12,8 +12,8 @@ const getRoomById = async (id) => {
   return await Room.findById(id);
 };
 
-const getRoomByNumber = async (roomNumber) => {
-  return await Room.findOne({ roomNumber });
+const getRoomByNumber = async (number) => {
+  return await Room.findOne({ number });
 };
 
 const getRoomsByStatus = async (status) => {

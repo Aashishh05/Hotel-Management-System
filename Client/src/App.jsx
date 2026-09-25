@@ -6,6 +6,7 @@ import Register from "./pages/auth/Register";
 import ProtectedRoute from "./components/guards/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
+import Rooms from "./pages/rooms/Rooms.jsx";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/rooms" element={<Rooms />} />
           </Route>
         </Route>
       </Routes>

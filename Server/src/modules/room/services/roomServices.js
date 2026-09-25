@@ -2,9 +2,9 @@ import roomRepository from "../repository/roomRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 
 const createRoom = async (roomData) => {
-  const { roomNumber } = roomData;
+  const { number } = roomData;
 
-  const existingRoom = await roomRepository.getRoomByNumber(roomNumber);
+  const existingRoom = await roomRepository.getRoomByNumber(number);
 
   if (existingRoom) {
     throw new ErrorHandler("Room number already exists", 400);
@@ -54,9 +54,9 @@ const updateRoom = async (id, roomData) => {
     throw new ErrorHandler("Room not found", 404);
   }
 
-  if (roomData.roomNumber && roomData.roomNumber !== room.roomNumber) {
+  if (roomData.number && roomData.number !== room.number) {
     const existingRoom = await roomRepository.getRoomByNumber(
-      roomData.roomNumber,
+      roomData.number,
     );
 
     if (existingRoom) {
