@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/guards/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import Rooms from "./pages/rooms/Rooms.jsx";
+import RoomDetails from "./pages/rooms/RoomDetails.jsx";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/rooms" element={<Rooms />} />
+            <Route path="/rooms/:id" element={<RoomDetails />} />
           </Route>
         </Route>
       </Routes>

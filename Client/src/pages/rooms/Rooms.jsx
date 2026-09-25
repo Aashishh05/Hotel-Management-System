@@ -1,8 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { Plus, Pencil, Trash2, BedDouble } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  BedDouble,
+  ImagePlus,
+  DoorOpen,
+  Home,
+  Sparkles,
+  Wrench,
+  CalendarClock,
+} from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import {
   getAllRooms,
@@ -12,13 +24,7 @@ import {
 } from "../../api/roomApi";
 import { showToast } from "../../components/common/Toast";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
+import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { Input } from "../../components/ui/input";
@@ -75,23 +81,7 @@ const STATUS_STYLES = {
 
 const errorClass = "mt-1.5 text-xs text-destructive";
 
-const quickSchema = Yup.object({
-  number: Yup.string()
-    .trim()
-    .max(20, "Room number cannot exceed 20 characters")
-    .required("Room number is required"),
-  type: Yup.string().required("Room type is required"),
-  floor: Yup.number()
-    .transform((value) => (value === "" ? null : value))
-    .nullable()
-    .min(0, "Floor cannot be negative")
-    .max(200, "Floor cannot exceed 200"),
-  pricePerNight: Yup.number()
-    .min(0, "Price cannot be negative")
-    .required("Price is required"),
-});
-
-const editSchema = Yup.object({
+const roomSchema = Yup.object({
   number: Yup.string()
     .trim()
     .max(20, "Room number cannot exceed 20 characters")
@@ -108,6 +98,41 @@ const editSchema = Yup.object({
   status: Yup.string().required("Status is required"),
 });
 
+const RoomStatCard = ({ stat, delay }) => {
+  const { label, value, Icon } = stat;
+
+  return (
+    <Card
+      className={`transition-all duration-300 hover:-translate-y-0.5 hover:ring-primary/40 animate-fade-in-up animate-delay-${delay}`}
+    >
+      <CardContent className="py-3 flex items-center gap-3">
+        <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
+          <Icon className="w-4 h-4" />
+        </div>
+        <div className="min-w-0 space-y-0.5">
+          <p className="truncate text-xs text-muted-foreground">{label}</p>
+          <p className="text-lg font-semibold leading-none tracking-tight">
+            {value}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const buildPayload = (values) => ({
+  number: values.number,
+  type: values.type,
+  floor: values.floor === "" ? undefined : Number(values.floor),
+  pricePerNight: Number(values.pricePerNight),
+  status: values.status,
+  amenities: values.amenities
+    .split(",")
+    .map((a) => a.trim())
+    .filter(Boolean),
+  description: values.description.trim() || undefined,
+});
+
 const Rooms = () => {
   const { user } = useAuth();
   const { permissions } = useSelector((state) => state.permission);
@@ -116,7 +141,9 @@ const Rooms = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
-  const [editing, setEditing] = useState(null);
+  const [formTarget, setFormTarget] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const fileInputRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -144,70 +171,56 @@ const Rooms = () => {
     loadRooms();
   }, []);
 
-  const quickForm = useFormik({
-    initialValues: {
-      number: "",
-      type: "single",
-      floor: "",
-      pricePerNight: "",
-    },
-    validationSchema: quickSchema,
-    onSubmit: async (values) => {
-      try {
-        const res = await createRoom({
-          number: values.number,
-          type: values.type,
-          floor: values.floor === "" ? undefined : Number(values.floor),
-          pricePerNight: Number(values.pricePerNight),
-        });
-        setRooms((prev) => [res?.room, ...prev].filter(Boolean));
-        quickForm.resetForm();
-        showToast({ type: "success", message: "Room added successfully" });
-      } catch (err) {
-        showToast({
-          type: "error",
-          message: err?.response?.data?.message || "Could not add room",
-        });
-      }
-    },
-  });
+  const isCreate = formTarget === "new";
+  const targetRoom = isCreate ? null : formTarget;
 
-  const editForm = useFormik({
+  const openCreate = () => {
+    setImageFiles([]);
+    setFormTarget("new");
+  };
+
+  const openEdit = (room) => {
+    setImageFiles([]);
+    setFormTarget(room);
+  };
+
+  const closeForm = () => setFormTarget(null);
+
+  const form = useFormik({
     enableReinitialize: true,
     initialValues: {
-      number: editing?.number || "",
-      type: editing?.type || "single",
-      floor: editing?.floor != null ? String(editing.floor) : "",
-      pricePerNight: editing?.pricePerNight ?? "",
-      status: editing?.status || "available",
-      amenities: editing?.amenities?.join(", ") || "",
-      description: editing?.description || "",
+      number: targetRoom?.number || "",
+      type: targetRoom?.type || "single",
+      floor: targetRoom?.floor != null ? String(targetRoom.floor) : "",
+      pricePerNight: targetRoom?.pricePerNight ?? "",
+      status: targetRoom?.status || "available",
+      amenities: targetRoom?.amenities?.join(", ") || "",
+      description: targetRoom?.description || "",
     },
-    validationSchema: editSchema,
+    validationSchema: roomSchema,
     onSubmit: async (values) => {
       try {
         setSaving(true);
-        const res = await updateRoom(editing._id, {
-          number: values.number,
-          type: values.type,
-          floor: values.floor === "" ? undefined : Number(values.floor),
-          pricePerNight: Number(values.pricePerNight),
-          status: values.status,
-          amenities: values.amenities
-            .split(",")
-            .map((a) => a.trim())
-            .filter(Boolean),
-          description: values.description.trim() || undefined,
-        });
-        setRooms((prev) =>
-          prev.map((room) => (room._id === editing._id ? res?.room : room)),
-        );
-        setEditing(null);
-        showToast({ type: "success", message: "Room updated successfully" });
+        const payload = buildPayload(values);
+        if (isCreate) {
+          const res = await createRoom(payload);
+          setRooms((prev) => [res?.room, ...prev].filter(Boolean));
+          setFormTarget(null);
+          showToast({ type: "success", message: "Room added successfully" });
+        } else {
+          const res = await updateRoom(targetRoom._id, payload);
+          setRooms((prev) =>
+            prev.map((room) => (room._id === targetRoom._id ? res?.room : room)),
+          );
+          setFormTarget(null);
+          showToast({ type: "success", message: "Room updated successfully" });
+        }
       } catch (err) {
         showToast({
           type: "error",
-          message: err?.response?.data?.message || "Could not update room",
+          message:
+            err?.response?.data?.message ||
+            (isCreate ? "Could not add room" : "Could not update room"),
         });
       } finally {
         setSaving(false);
@@ -238,140 +251,78 @@ const Rooms = () => {
       ? rooms
       : rooms.filter((room) => room.status === activeFilter);
 
-  const q = quickForm;
+  const roomCount = (status) =>
+    rooms.filter((room) => room.status === status).length;
+
+  const roomStats = [
+    {
+      label: "Total Rooms",
+      value: rooms.length,
+      hint: "All rooms registered",
+      Icon: BedDouble,
+    },
+    {
+      label: "Available",
+      value: roomCount("available"),
+      hint: "Ready to book",
+      Icon: DoorOpen,
+    },
+    {
+      label: "Occupied",
+      value: roomCount("occupied"),
+      hint: "Guests in house",
+      Icon: Home,
+    },
+    {
+      label: "Cleaning",
+      value: roomCount("cleaning"),
+      hint: "Being serviced",
+      Icon: Sparkles,
+    },
+    {
+      label: "Maintenance",
+      value: roomCount("maintenance"),
+      hint: "Needs repair",
+      Icon: Wrench,
+    },
+    {
+      label: "Reserved",
+      value: roomCount("reserved"),
+      hint: "Pre-booked",
+      Icon: CalendarClock,
+    },
+  ];
+
+  const f = form;
+  const editingLabel = isCreate ? "Add room" : `Edit room ${targetRoom?.number}`;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <div>
-        <h1 className="font-display text-2xl text-foreground">Rooms</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage your hotel&apos;s rooms, prices and availability.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="font-display text-2xl text-foreground">Rooms</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your hotel&apos;s rooms, prices and availability.
+          </p>
+        </div>
+        {canCreate && (
+          <Button onClick={openCreate}>
+            <Plus className="w-4 h-4" />
+            Add room
+          </Button>
+        )}
       </div>
 
-      {canCreate && (
-        <Card className="animate-fade-in-up animate-delay-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Plus className="w-4.5 h-4.5 text-primary" />
-              Add a room
-            </CardTitle>
-            <CardDescription>
-              Create a room and it appears in the grid right away.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form
-              onSubmit={quickForm.handleSubmit}
-              noValidate
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="q-number">Room number</Label>
-                <Input
-                  id="q-number"
-                  name="number"
-                  value={q.values.number}
-                  onChange={q.handleChange}
-                  onBlur={q.handleBlur}
-                  placeholder="101"
-                  disabled={q.isSubmitting}
-                  aria-invalid={
-                    q.submitCount > 0 && q.errors.number ? true : undefined
-                  }
-                  className={
-                    q.submitCount > 0 && q.errors.number ? "aria-invalid" : ""
-                  }
-                />
-                {q.submitCount > 0 && q.errors.number && (
-                  <p className={errorClass}>{q.errors.number}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="q-type">Type</Label>
-                <Select
-                  value={q.values.type}
-                  onValueChange={(value) => q.setFieldValue("type", value)}
-                >
-                  <SelectTrigger id="q-type" className="w-full">
-                    <SelectValue placeholder="Room type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ROOM_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {roomTypeLabel[type]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="q-floor">Floor</Label>
-                <Input
-                  id="q-floor"
-                  name="floor"
-                  type="number"
-                  min="0"
-                  max="200"
-                  value={q.values.floor}
-                  onChange={q.handleChange}
-                  onBlur={q.handleBlur}
-                  placeholder="1"
-                  disabled={q.isSubmitting}
-                  aria-invalid={
-                    q.submitCount > 0 && q.errors.floor ? true : undefined
-                  }
-                  className={
-                    q.submitCount > 0 && q.errors.floor ? "aria-invalid" : ""
-                  }
-                />
-                {q.submitCount > 0 && q.errors.floor && (
-                  <p className={errorClass}>{q.errors.floor}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="q-price">Price / night</Label>
-                <Input
-                  id="q-price"
-                  name="pricePerNight"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={q.values.pricePerNight}
-                  onChange={q.handleChange}
-                  onBlur={q.handleBlur}
-                  placeholder="120"
-                  disabled={q.isSubmitting}
-                  aria-invalid={
-                    q.submitCount > 0 && q.errors.pricePerNight
-                      ? true
-                      : undefined
-                  }
-                  className={
-                    q.submitCount > 0 && q.errors.pricePerNight
-                      ? "aria-invalid"
-                      : ""
-                  }
-                />
-                {q.submitCount > 0 && q.errors.pricePerNight && (
-                  <p className={errorClass}>{q.errors.pricePerNight}</p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="uppercase tracking-wider"
-                disabled={q.isSubmitting}
-              >
-                <Plus className="w-4 h-4" />
-                {q.isSubmitting ? "Adding…" : "Add room"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+      {!loading && (
+        <div className="grid grid-cols-3 gap-3">
+          {roomStats.map((stat, index) => (
+            <RoomStatCard
+              key={stat.label}
+              stat={stat}
+              delay={(index + 1) * 100}
+            />
+          ))}
+        </div>
       )}
 
       <div className="flex flex-wrap gap-2">
@@ -402,6 +353,7 @@ const Rooms = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Room No</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Floor</TableHead>
               <TableHead>Price / night</TableHead>
@@ -417,6 +369,9 @@ const Rooms = () => {
                 <TableRow key={i}>
                   <TableCell>
                     <Skeleton className="h-5 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-10 w-14" />
                   </TableCell>
                   <TableCell>
                     <Skeleton className="h-4 w-24" />
@@ -440,7 +395,7 @@ const Rooms = () => {
             ) : visibleRooms.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={canUpdate || canDelete ? 6 : 5}
+                  colSpan={canUpdate || canDelete ? 7 : 6}
                   className="py-14 text-center"
                 >
                   <BedDouble className="mx-auto w-9 h-9 text-primary" />
@@ -449,7 +404,7 @@ const Rooms = () => {
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {activeFilter === "all"
-                      ? "Add your first room using the form above."
+                      ? "Add your first room using the Add room button."
                       : `No rooms with status "${activeFilter}" right now.`}
                   </p>
                 </TableCell>
@@ -457,8 +412,29 @@ const Rooms = () => {
             ) : (
               visibleRooms.map((room) => (
                 <TableRow key={room._id} className="animate-fade-in-up">
-                  <TableCell className="font-semibold text-foreground">
-                    {room.number}
+                  <TableCell className="font-semibold">
+                    <Link
+                      to={`/rooms/${room._id}`}
+                      className="text-foreground hover:text-primary hover:underline"
+                    >
+                      {room.number}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {room.images?.[0] ? (
+                      <img
+                        src={room.images[0]}
+                        alt={`Room ${room.number}`}
+                        className="h-10 w-14 rounded object-cover bg-muted"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-10 w-14 items-center justify-center rounded bg-muted">
+                        <BedDouble className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>{roomTypeLabel[room.type] || room.type}</TableCell>
                   <TableCell>{room.floor ?? "—"}</TableCell>
@@ -481,7 +457,7 @@ const Rooms = () => {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setEditing(room)}
+                            onClick={() => openEdit(room)}
                           >
                             <Pencil className="w-3.5 h-3.5" />
                             Edit
@@ -511,59 +487,56 @@ const Rooms = () => {
       </Card>
 
       <Dialog
-        open={editing !== null}
-        onOpenChange={(open) => !open && setEditing(null)}
+        open={formTarget !== null}
+        onOpenChange={(open) => !open && closeForm()}
       >
-        {editing && (
+        {formTarget !== null && (
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Edit room {editing.number}</DialogTitle>
+              <DialogTitle>{editingLabel}</DialogTitle>
               <DialogDescription>
-                Update the room details below.
+                {isCreate
+                  ? "Fill in the details to add a new room."
+                  : "Update the room details below."}
               </DialogDescription>
             </DialogHeader>
 
             <form
-              onSubmit={editForm.handleSubmit}
+              onSubmit={form.handleSubmit}
               noValidate
               className="space-y-4"
-              id="edit-room-form"
+              id="room-form"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="e-number">Room number</Label>
+                  <Label htmlFor="f-number">Room number</Label>
                   <Input
-                    id="e-number"
+                    id="f-number"
                     name="number"
-                    value={editForm.values.number}
-                    onChange={editForm.handleChange}
-                    onBlur={editForm.handleBlur}
+                    value={f.values.number}
+                    onChange={f.handleChange}
+                    onBlur={f.handleBlur}
                     disabled={saving}
+                    placeholder="101"
                     aria-invalid={
-                      editForm.submitCount > 0 && editForm.errors.number
-                        ? true
-                        : undefined
+                      f.submitCount > 0 && f.errors.number ? true : undefined
                     }
                     className={
-                      editForm.submitCount > 0 && editForm.errors.number
-                        ? "aria-invalid"
-                        : ""
+                      f.submitCount > 0 && f.errors.number ? "aria-invalid" : ""
                     }
                   />
-                  {editForm.submitCount > 0 && editForm.errors.number && (
-                    <p className={errorClass}>{editForm.errors.number}</p>
+                  {f.submitCount > 0 && f.errors.number && (
+                    <p className={errorClass}>{f.errors.number}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="e-type">Type</Label>
+                  <Label htmlFor="f-type">Type</Label>
                   <Select
-                    value={editForm.values.type}
-                    onValueChange={(value) =>
-                      editForm.setFieldValue("type", value)
-                    }
+                    value={f.values.type}
+                    onValueChange={(value) => f.setFieldValue("type", value)}
                   >
-                    <SelectTrigger id="e-type" className="w-full">
+                    <SelectTrigger id="f-type" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -577,14 +550,12 @@ const Rooms = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="e-status">Status</Label>
+                  <Label htmlFor="f-status">Status</Label>
                   <Select
-                    value={editForm.values.status}
-                    onValueChange={(value) =>
-                      editForm.setFieldValue("status", value)
-                    }
+                    value={f.values.status}
+                    onValueChange={(value) => f.setFieldValue("status", value)}
                   >
-                    <SelectTrigger id="e-status" className="w-full">
+                    <SelectTrigger id="f-status" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -598,46 +569,133 @@ const Rooms = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="e-price">Price / night</Label>
+                  <Label htmlFor="f-floor">Floor</Label>
                   <Input
-                    id="e-price"
+                    id="f-floor"
+                    name="floor"
+                    type="number"
+                    min="0"
+                    max="200"
+                    value={f.values.floor}
+                    onChange={f.handleChange}
+                    onBlur={f.handleBlur}
+                    disabled={saving}
+                    placeholder="1"
+                    aria-invalid={
+                      f.submitCount > 0 && f.errors.floor ? true : undefined
+                    }
+                    className={
+                      f.submitCount > 0 && f.errors.floor ? "aria-invalid" : ""
+                    }
+                  />
+                  {f.submitCount > 0 && f.errors.floor && (
+                    <p className={errorClass}>{f.errors.floor}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="f-price">Price / night</Label>
+                  <Input
+                    id="f-price"
                     name="pricePerNight"
                     type="number"
                     min="0"
                     step="0.01"
-                    value={editForm.values.pricePerNight}
-                    onChange={editForm.handleChange}
-                    onBlur={editForm.handleBlur}
+                    value={f.values.pricePerNight}
+                    onChange={f.handleChange}
+                    onBlur={f.handleBlur}
                     disabled={saving}
+                    placeholder="120"
                     aria-invalid={
-                      editForm.submitCount > 0 && editForm.errors.pricePerNight
+                      f.submitCount > 0 && f.errors.pricePerNight
                         ? true
                         : undefined
                     }
                     className={
-                      editForm.submitCount > 0 && editForm.errors.pricePerNight
+                      f.submitCount > 0 && f.errors.pricePerNight
                         ? "aria-invalid"
                         : ""
                     }
                   />
-                  {editForm.submitCount > 0 &&
-                    editForm.errors.pricePerNight && (
-                      <p className={errorClass}>
-                        {editForm.errors.pricePerNight}
-                      </p>
-                    )}
+                  {f.submitCount > 0 && f.errors.pricePerNight && (
+                    <p className={errorClass}>{f.errors.pricePerNight}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="e-description">Description</Label>
+                  <Label htmlFor="f-amenities">Amenities (comma separated)</Label>
                   <Input
-                    id="e-description"
+                    id="f-amenities"
+                    name="amenities"
+                    value={f.values.amenities}
+                    onChange={f.handleChange}
+                    disabled={saving}
+                    placeholder="Wi-Fi, TV, Mini bar"
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="f-description">Description</Label>
+                  <Input
+                    id="f-description"
                     name="description"
-                    value={editForm.values.description}
-                    onChange={editForm.handleChange}
+                    value={f.values.description}
+                    onChange={f.handleChange}
                     disabled={saving}
                     placeholder="Optional room description"
                   />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="f-images">Room images</Label>
+                  <input
+                    ref={fileInputRef}
+                    id="f-images"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      setImageFiles(Array.from(e.target.files || []));
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={saving}
+                  >
+                    <ImagePlus className="w-4 h-4" />
+                    {imageFiles.length > 0
+                      ? `${imageFiles.length} image${imageFiles.length > 1 ? "s" : ""} selected`
+                      : "Choose images"}
+                  </Button>
+                  {imageFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {imageFiles.map((file, index) => (
+                        <div
+                          key={`${file.name}-${index}`}
+                          className="flex items-center gap-2 rounded-lg border border-border p-2"
+                        >
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={file.name}
+                            className="h-14 w-14 rounded object-cover bg-muted"
+                          />
+                          <div className="min-w-0">
+                            <p className="max-w-40 truncate text-xs font-medium text-foreground">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </form>
@@ -646,13 +704,17 @@ const Rooms = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setEditing(null)}
+                onClick={closeForm}
                 disabled={saving}
               >
                 Cancel
               </Button>
-              <Button type="submit" form="edit-room-form" disabled={saving}>
-                {saving ? "Saving…" : "Save changes"}
+              <Button type="submit" form="room-form" disabled={saving}>
+                {saving
+                  ? "Saving…"
+                  : isCreate
+                    ? "Add room"
+                    : "Save changes"}
               </Button>
             </DialogFooter>
           </DialogContent>
