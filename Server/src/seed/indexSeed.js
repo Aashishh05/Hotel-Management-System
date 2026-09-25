@@ -49,7 +49,7 @@ const seedDatabase = async () => {
         { role: role._id },
         {
           role: role._id,
-          permissions,
+          modules: permissions,
         },
         {
           returnDocument: "after",

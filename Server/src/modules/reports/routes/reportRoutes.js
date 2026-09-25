@@ -16,4 +16,11 @@ router.get(
 getDashboardReport
 );
 
+router.get(
+  "/summary",
+  protect,
+  auditLog,
+getDashboardReport
+);
+
 export default router;
