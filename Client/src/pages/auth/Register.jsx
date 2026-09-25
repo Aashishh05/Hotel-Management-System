@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { registerApi } from "../../api/authApi";
 import { showToast } from "../../components/common/Toast";
+import ThemeToggle from "../../components/common/ThemeToggle";
 import {
   Card,
   CardContent,
@@ -82,6 +83,9 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }

@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 import Reveal from "../../components/common/Reveal";
+import ThemeToggle from "../../components/common/ThemeToggle";
 
 const roomTypeLabel = (type) => {
   const labels = {
@@ -134,6 +135,7 @@ const Home = () => {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full px-1.5 py-1 outline-none focus-visible:ring-2 focus-visible:ring-ring/40">

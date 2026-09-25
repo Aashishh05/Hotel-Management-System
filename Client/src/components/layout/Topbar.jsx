@@ -3,6 +3,7 @@ import { Menu, Bell, LogOut, Search } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import { logoutApi } from "../../api/authApi.js";
 import ConfirmDialog from "../common/ConfirmDialog.jsx";
+import ThemeToggle from "../common/ThemeToggle.jsx";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -68,6 +69,8 @@ const Topbar = ({ onMenuClick }) => {
       </div>
 
       <div className="flex-1 md:hidden" />
+
+      <ThemeToggle />
 
       <Button
         type="button"

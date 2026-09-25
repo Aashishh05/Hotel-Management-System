@@ -9,6 +9,7 @@ import { getMyPermissions } from "../../api/permissionApi";
 import { login } from "../../redux/authSlice";
 import { setPermission } from "../../redux/permissionSlice";
 import { showToast } from "../../components/common/Toast";
+import ThemeToggle from "../../components/common/ThemeToggle";
 import {
   Card,
   CardContent,
@@ -86,6 +87,9 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
