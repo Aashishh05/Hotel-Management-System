@@ -4,6 +4,8 @@ import { Menu, Bell, LogOut, Search } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import { logoutApi } from "../../api/authApi.js";
 import ConfirmDialog from "../common/ConfirmDialog.jsx";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 const ROLE_LABELS = {
   superadmin: "Super Admin",
@@ -46,59 +48,65 @@ const Topbar = ({ onMenuClick }) => {
   };
 
   return (
-    <header className="sticky top-0 z-20 h-16 bg-white border-b border-slate-200 flex items-center gap-4 px-4 lg:px-6">
-      <button
+    <header className="sticky top-0 z-20 h-16 bg-background/80 backdrop-blur border-b border-border flex items-center gap-4 px-4 lg:px-6">
+      <Button
         type="button"
+        variant="ghost"
+        size="icon-sm"
         onClick={onMenuClick}
-        className="text-slate-500 hover:text-slate-900 transition-colors lg:hidden"
+        className="lg:hidden"
         aria-label="Open menu"
       >
         <Menu className="w-5 h-5" />
-      </button>
+      </Button>
 
-      <div className="hidden md:flex items-center flex-1 gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 max-w-md">
-        <Search className="w-4 h-4 text-slate-400" />
-        <input
+      <div className="hidden md:flex items-center flex-1 gap-2 relative max-w-md">
+        <Search className="pointer-events-none absolute left-3 w-4 h-4 text-muted-foreground" />
+        <Input
           type="text"
           placeholder="Search..."
-          className="bg-transparent outline-none text-sm text-slate-700 w-full placeholder:text-slate-400"
+          className="pl-10"
         />
       </div>
 
       <div className="flex-1 md:hidden" />
 
-      <button
+      <Button
         type="button"
-        className="relative p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+        variant="ghost"
+        size="icon-sm"
+        className="relative text-muted-foreground hover:text-foreground"
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
-        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#C9A15A]" />
-      </button>
+        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
+      </Button>
 
-      <div className="h-8 w-px bg-slate-200 hidden sm:block" />
+      <div className="h-8 w-px bg-border hidden sm:block" />
 
       <div className="flex items-center gap-3 ml-auto">
         <div className="hidden sm:block text-right leading-tight">
-          <p className="text-sm font-medium text-slate-800">{displayName}</p>
-          <p className="text-xs text-slate-400">
+          <p className="text-sm font-medium text-foreground">{displayName}</p>
+          <p className="text-xs text-muted-foreground">
             {ROLE_LABELS[roleName] || roleName}
           </p>
         </div>
 
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D9B872] to-[#C9A15A] text-white flex items-center justify-center text-sm font-semibold">
+        <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-semibold">
           {initials}
         </div>
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
           onClick={() => setConfirmOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+          className="text-muted-foreground hover:text-destructive"
           aria-label="Log out"
         >
           <LogOut className="w-4.5 h-4.5" />
           <span className="hidden xl:inline">Logout</span>
-        </button>
+        </Button>
       </div>
 
       <ConfirmDialog

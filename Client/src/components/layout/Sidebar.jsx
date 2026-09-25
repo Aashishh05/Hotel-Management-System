@@ -6,6 +6,7 @@ import useAuth from "../../hooks/useAuth.js";
 import { sidebarItems } from "../../constants/sidebarConfig.js";
 import { logoutApi } from "../../api/authApi.js";
 import ConfirmDialog from "../common/ConfirmDialog.jsx";
+import { Button } from "../ui/button";
 
 const ROLE_LABELS = {
   superadmin: "Super Admin",
@@ -59,37 +60,39 @@ const Sidebar = ({ open, onClose }) => {
     <>
       {open && (
         <div
-          className="fixed inset-0 z-30 bg-slate-900/60 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
           onClick={onClose}
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 flex flex-col bg-slate-900 text-slate-300 transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 flex flex-col bg-sidebar text-sidebar-foreground/80 transition-transform duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-5 h-16 border-b border-slate-800">
+        <div className="flex items-center justify-between px-5 h-16 border-b border-sidebar-border">
           <div className="flex items-center gap-2.5">
-            <Hexagon className="w-6 h-6 text-[#C9A15A]" strokeWidth={2.5} />
+            <Hexagon className="w-6 h-6 text-sidebar-primary" strokeWidth={2.5} />
             <div className="leading-tight">
-              <p className="text-sm font-semibold text-white tracking-wide">
+              <p className="text-sm font-semibold text-sidebar-foreground tracking-wide">
                 Grand Horizon
               </p>
-              <p className="text-[10px] uppercase tracking-[0.25em] text-[#C9A15A]">
+              <p className="text-[10px] uppercase tracking-[0.25em] text-sidebar-primary">
                 Hotel Management
               </p>
             </div>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors lg:hidden"
+            className="lg:hidden"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
@@ -101,8 +104,8 @@ const Sidebar = ({ open, onClose }) => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-[#C9A15A] text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                 }`
               }
             >
@@ -112,27 +115,29 @@ const Sidebar = ({ open, onClose }) => {
           ))}
         </nav>
 
-        <div className="border-t border-slate-800 px-4 py-4">
+        <div className="border-t border-sidebar-border px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-[#D9B872] to-[#C9A15A] text-white flex items-center justify-center text-sm font-semibold">
+            <div className="w-9 h-9 shrink-0 rounded-full bg-sidebar-primary text-sidebar-primary-foreground flex items-center justify-center text-sm font-semibold">
               {initials}
             </div>
             <div className="leading-tight min-w-0 flex-1">
-              <p className="text-sm font-medium text-white truncate">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
                 {displayName}
               </p>
-              <p className="text-xs text-slate-400 truncate">
+              <p className="text-xs text-sidebar-foreground/50 truncate">
                 {ROLE_LABELS[roleName] || roleName}
               </p>
             </div>
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={() => setConfirmOpen(true)}
               aria-label="Log out"
-              className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-800 transition-colors"
+              className="text-sidebar-foreground/60 hover:text-destructive"
             >
               <LogOut className="w-4.5 h-4.5" />
-            </button>
+            </Button>
           </div>
         </div>
 

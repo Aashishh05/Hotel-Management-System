@@ -1,4 +1,6 @@
 import useAuth from "../../hooks/useAuth.js";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -7,25 +9,24 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-800">
-          Welcome back, {firstName}
-        </h2>
-        <p className="text-sm text-slate-500">
-          Your dashboard is ready. Module pages will be added here next.
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Welcome back, {firstName}</CardTitle>
+          <CardDescription>
+            Your dashboard is ready. Module pages will be added here next.
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {["Rooms", "Bookings", "Guests", "Revenue"].map((label) => (
-          <div
-            key={label}
-            className="bg-white rounded-xl border border-slate-200 p-5 animate-pulse"
-          >
-            <div className="h-2.5 w-16 bg-slate-200 rounded mb-4" />
-            <div className="h-7 w-10 bg-slate-200 rounded mb-2" />
-            <div className="h-2 w-24 bg-slate-100 rounded" />
-          </div>
+          <Card key={label} className="animate-pulse p-5">
+            <CardContent className="space-y-4 px-0">
+              <Skeleton className="h-2.5 w-16" />
+              <Skeleton className="h-7 w-10" />
+              <Skeleton className="h-2 w-24 bg-muted-foreground/10" />
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
