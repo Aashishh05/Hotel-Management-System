@@ -12,6 +12,12 @@ export const getAllRooms = async () => {
   return res.data;
 };
 
+export const getPublicRooms = async () => {
+  const res = await api.get("/room/public");
+
+  return res.data;
+};
+
 export const getAvailableRooms = async () => {
   const res = await api.get("/room/get/available");
 

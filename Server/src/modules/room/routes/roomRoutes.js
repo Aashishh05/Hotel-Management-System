@@ -8,12 +8,15 @@ import {
   deleteRoom,
   getAllRooms,
   getAvailableRooms,
+  getPublicRooms,
   getRoomById,
   getRoomsByStatus,
   updateRoom,
 } from "../controller/roomController.js";
 
 const router = express.Router();
+
+router.get("/public", getPublicRooms);
 
 router.post(
   "/create",
