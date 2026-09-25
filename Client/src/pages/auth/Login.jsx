@@ -95,7 +95,7 @@ const Login = () => {
       >
         <CardContent className="p-8">
           <CardHeader className="flex flex-col items-center text-center mb-8 px-0">
-            <Hexagon className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100" strokeWidth={2.5} />
+            <Hexagon className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100 cursor-pointer" onClick={() => nav("/")} strokeWidth={2.5} />
             <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary animate-fade-in-up animate-delay-200">
               Grand Horizon Hotel
             </span>
