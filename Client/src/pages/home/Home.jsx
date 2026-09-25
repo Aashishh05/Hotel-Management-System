@@ -170,10 +170,10 @@ const Home = () => {
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" render={<Link to="/login" />}>
+              <Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/login" />}>
                 Sign in
               </Button>
-              <Button size="sm" render={<Link to="/register" />}>
+              <Button size="sm" nativeButton={false} render={<Link to="/register" />}>
                 Get started
               </Button>
             </div>
@@ -227,12 +227,13 @@ const Home = () => {
           <Button
             size="lg"
             className="uppercase tracking-wider"
+            nativeButton={false}
             render={<a href="#rooms" />}
           >
             View our rooms
             <ArrowRight className="w-4 h-4" />
           </Button>
-          <Button variant="outline" size="lg" render={<Link to="/register" />}>
+          <Button variant="outline" size="lg" nativeButton={false} render={<Link to="/register" />}>
             Plan your stay
           </Button>
         </div>
@@ -258,6 +259,7 @@ const Home = () => {
               variant="outline"
               size="sm"
               className="hidden sm:inline-flex"
+              nativeButton={false}
               render={<Link to="/register" />}
             >
               Book a stay
@@ -346,6 +348,7 @@ const Home = () => {
                       variant="outline"
                       size="sm"
                       className="w-full mt-4"
+                      nativeButton={false}
                       render={<Link to="/register" />}
                     >
                       Book this room

@@ -257,6 +257,7 @@ const Dashboard = () => {
                     key={path}
                     variant="outline"
                     className="justify-start h-auto py-3 text-foreground"
+                    nativeButton={false}
                     render={<Link to={path} />}
                   >
                     <Icon className="w-4.5 h-4.5 text-primary" />

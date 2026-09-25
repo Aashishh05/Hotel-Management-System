@@ -32,4 +32,29 @@ const protect = async (req, res, next) => {
   }
 };
 
+const protectOptional = async (req, res, next) => {
+  try {
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id)
+      .select("-password")
+      .populate("role", "name");
+
+    req.user = user;
+
+    next();
+  } catch (error) {
+    req.user = null;
+    next();
+  }
+};
+
 export default protect;
+export { protectOptional };

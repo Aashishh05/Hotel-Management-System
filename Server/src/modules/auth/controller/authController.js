@@ -42,6 +42,10 @@ export const logout = (req, res) => {
 };
 
 export const getMe = asyncErrorHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(200).json({ success: true, data: null });
+  }
+
   const user = await authService.getMe(req.user._id);
 
   res.status(200).json({

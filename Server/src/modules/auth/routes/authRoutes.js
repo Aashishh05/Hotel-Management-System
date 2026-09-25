@@ -9,7 +9,9 @@ import {
 } from "../controller/authController.js";
 
 import { validate } from "../../../middleware/validateMiddleware.js";
-import protect from "../../../middleware/authMiddleware.js";
+import {
+  protectOptional,
+} from "../../../middleware/authMiddleware.js";
 import { loginRateLimiter } from "../../../middleware/rateLimiter.js";
 
 const router = express.Router();
@@ -41,6 +43,6 @@ const loginValidation = [
 router.post("/register", registerValidation, validate, register);
 router.post("/login", loginRateLimiter, loginValidation, validate, login);
 router.post("/logout", logout);
-router.get("/me", protect, getMe);
+router.get("/me", protectOptional, getMe);
 
 export default router;
