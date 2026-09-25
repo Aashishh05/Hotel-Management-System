@@ -87,26 +87,28 @@ const Register = () => {
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
       `}</style>
 
-      <Card
-        className="w-full max-w-2xl shadow-2xl"
+<Card
+        className="w-full max-w-2xl shadow-2xl animate-fade-in-up"
         style={{
           fontFamily: "'Montserrat', ui-sans-serif, system-ui, sans-serif",
         }}
       >
         <CardContent className="p-8">
           <CardHeader className="flex flex-col items-center text-center mb-8 px-0">
-            <Hexagon className="w-10 h-10 text-primary" strokeWidth={2.5} />
-            <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary">
+            <Hexagon className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100" strokeWidth={2.5} />
+            <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary animate-fade-in-up animate-delay-200">
               Grand Horizon Hotel
             </span>
-            <CardTitle className="font-display text-3xl mt-4">
+            <CardTitle className="font-display text-3xl mt-4 animate-fade-in-up animate-delay-300">
               Create your account
             </CardTitle>
-            <CardDescription>Let's get started</CardDescription>
+            <CardDescription className="animate-fade-in-up animate-delay-400">
+              Join Grand Horizon and get started
+            </CardDescription>
           </CardHeader>
 
           <form onSubmit={formik.handleSubmit} noValidate className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 animate-fade-in-up animate-delay-100">
               <div className={`space-y-2 ${nameError ? "sm:col-span-2" : ""}`}>
                 <Label htmlFor="name">Full name</Label>
                 <div className="relative">
@@ -233,7 +235,7 @@ const Register = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full uppercase tracking-wider"
+              className="w-full uppercase tracking-wider animate-fade-in-up animate-delay-200"
               disabled={formik.isSubmitting}
             >
               {formik.isSubmitting ? (
@@ -259,7 +261,7 @@ const Register = () => {
             type="button"
             variant="outline"
             size="lg"
-            className="w-full mt-5 h-auto py-3"
+            className="w-full mt-5 h-auto py-3 animate-fade-in-up animate-delay-300"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -282,7 +284,7 @@ const Register = () => {
             Sign up with Google
           </Button>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-sm text-muted-foreground animate-fade-in-up animate-delay-400">
             Already have an account?{" "}
             <Link
               to="/login"

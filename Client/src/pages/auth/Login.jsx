@@ -41,6 +41,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
+  const nav = useNavigate()
 
   const formik = useFormik({
     initialValues: { email: "", password: "", remember: false },
@@ -86,25 +87,28 @@ const Login = () => {
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
       `}</style>
 
-      <Card
-        className="w-full max-w-md shadow-2xl"
+<Card
+        className="w-full max-w-md shadow-2xl animate-fade-in-up"
         style={{
           fontFamily: "'Montserrat', ui-sans-serif, system-ui, sans-serif",
         }}
       >
         <CardContent className="p-8">
           <CardHeader className="flex flex-col items-center text-center mb-8 px-0">
-            <Hexagon className="w-10 h-10 text-primary" strokeWidth={2.5} />
-            <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary">
+            <Hexagon className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100" strokeWidth={2.5} />
+            <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary animate-fade-in-up animate-delay-200">
               Grand Horizon Hotel
             </span>
-            <CardTitle className="font-display text-3xl mt-4">
+            <CardTitle className="font-display text-3xl mt-4 animate-fade-in-up animate-delay-300">
               Welcome back
             </CardTitle>
+            <CardDescription className="animate-fade-in-up animate-delay-400">
+              Sign in to manage your hotel
+            </CardDescription>
           </CardHeader>
 
           <form onSubmit={formik.handleSubmit} noValidate className="space-y-5">
-            <div className="space-y-2">
+            <div className="space-y-2 animate-fade-in-up animate-delay-100">
               <Label htmlFor="email">Email address</Label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -127,7 +131,7 @@ const Login = () => {
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 animate-fade-in-up animate-delay-200">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -165,7 +169,7 @@ const Login = () => {
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center justify-between pt-1 animate-fade-in-up animate-delay-300">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none">
                 <Checkbox
                   id="remember"
@@ -197,7 +201,7 @@ const Login = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full mt-2 uppercase tracking-wider"
+              className="w-full mt-2 uppercase tracking-wider animate-fade-in-up animate-delay-400"
               disabled={formik.isSubmitting}
             >
               {formik.isSubmitting ? (
@@ -223,7 +227,7 @@ const Login = () => {
             type="button"
             variant="outline"
             size="lg"
-            className="w-full mt-5 h-auto py-3"
+            className="w-full mt-5 h-auto py-3 animate-fade-in-up animate-delay-200"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -246,7 +250,7 @@ const Login = () => {
             Sign in with Google
           </Button>
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
+          <p className="mt-6 text-center text-sm text-muted-foreground animate-fade-in-up animate-delay-300">
             Don't have an account?{" "}
             <Link
               to="/register"
