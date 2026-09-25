@@ -53,7 +53,7 @@ const Sidebar = ({ open, onClose }) => {
       console.log(error);
     } finally {
       logoutUser();
-      navigate("/login", { replace: true });
+      window.location.assign("/");
     }
   };
 
@@ -72,7 +72,11 @@ const Sidebar = ({ open, onClose }) => {
         }`}
       >
         <div className="flex items-center justify-between px-5 h-16 border-b border-sidebar-border">
-          <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2.5 cursor-pointer text-left"
+          >
             <Hexagon className="w-6 h-6 text-sidebar-primary" strokeWidth={2.5} />
             <div className="leading-tight">
               <p className="text-sm font-semibold text-sidebar-foreground tracking-wide">
@@ -82,7 +86,7 @@ const Sidebar = ({ open, onClose }) => {
                 Hotel Management
               </p>
             </div>
-          </div>
+          </button>
 
           <Button
             type="button"

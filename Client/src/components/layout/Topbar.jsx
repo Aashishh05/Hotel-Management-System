@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Menu, Bell, LogOut, Search } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import { logoutApi } from "../../api/authApi.js";
@@ -22,7 +21,6 @@ const ROLE_LABELS = {
 
 const Topbar = ({ onMenuClick }) => {
   const { user, logoutUser } = useAuth();
-  const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -43,7 +41,7 @@ const Topbar = ({ onMenuClick }) => {
       console.log(error)
     } finally {
       logoutUser();
-      navigate("/login", { replace: true });
+      window.location.assign("/");
     }
   };
 

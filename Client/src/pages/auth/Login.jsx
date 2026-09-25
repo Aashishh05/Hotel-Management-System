@@ -41,7 +41,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState("");
-  const nav = useNavigate()
+  const nav = useNavigate();
 
   const formik = useFormik({
     initialValues: { email: "", password: "", remember: false },
@@ -66,7 +66,11 @@ const Login = () => {
           type: "success",
           message: "Logged in successfully. Welcome back!",
         });
-        navigate("/dashboard", { replace: true });
+        
+        const roleName = res?.data?.role?.name;
+        const destination = roleName === "guest" ? "/" : "/dashboard";
+
+        navigate(destination, { replace: true });
       } catch (err) {
         const message =
           err?.response?.data?.message ||
@@ -87,7 +91,7 @@ const Login = () => {
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
       `}</style>
 
-<Card
+      <Card
         className="w-full max-w-md shadow-2xl animate-fade-in-up"
         style={{
           fontFamily: "'Montserrat', ui-sans-serif, system-ui, sans-serif",
@@ -95,7 +99,11 @@ const Login = () => {
       >
         <CardContent className="p-8">
           <CardHeader className="flex flex-col items-center text-center mb-8 px-0">
-            <Hexagon className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100 cursor-pointer" onClick={() => nav("/")} strokeWidth={2.5} />
+            <Hexagon
+              className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100 cursor-pointer"
+              onClick={() => nav("/")}
+              strokeWidth={2.5}
+            />
             <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary animate-fade-in-up animate-delay-200">
               Grand Horizon Hotel
             </span>
