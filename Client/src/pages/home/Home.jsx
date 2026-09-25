@@ -17,6 +17,7 @@ import { Badge } from "../../components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Skeleton } from "../../components/ui/skeleton";
 import { Separator } from "../../components/ui/separator";
+import Reveal from "../../components/common/Reveal";
 
 const roomTypeLabel = (type) => {
   const labels = {
@@ -52,20 +53,20 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
       `}</style>
 
-      <header className="sticky top-0 z-20 h-16 bg-background/80 backdrop-blur border-b border-border flex items-center justify-between px-4 lg:px-8">
+      <header className="sticky top-0 z-20 h-16 bg-background/80 backdrop-blur border-b border-border flex items-center justify-between px-4 lg:px-8 animate-fade-in">
         <Link to="/" className="flex items-center gap-2.5">
           <Hexagon className="w-7 h-7 text-primary" strokeWidth={2.5} />
           <span className="leading-tight">
             <span className="block text-sm font-semibold tracking-wide">
               Grand Horizon
             </span>
-            <span className="block text-[10px] uppercase tracking-[0.25em] text-primary">
+            <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] text-primary">
               Hotel Management
             </span>
           </span>
@@ -95,7 +96,7 @@ const Home = () => {
 
       <section
         id="about"
-        className="relative flex flex-col items-center text-center px-4 pt-20 pb-16 lg:pt-28 lg:pb-24"
+        className="relative overflow-hidden flex flex-col items-center text-center px-4 pt-20 pb-16 lg:pt-28 lg:pb-24"
       >
         <Hexagon
           className="absolute -top-6 right-8 w-64 h-64 text-primary/5 rotate-12 lg:w-96 lg:h-96"
@@ -108,24 +109,24 @@ const Home = () => {
 
         <Badge
           variant="outline"
-          className="bg-primary/10 border-primary/30 text-primary gap-1.5"
+          className="bg-primary/10 border-primary/30 text-primary gap-1.5 animate-fade-in-up"
         >
           <Sparkles className="w-3.5 h-3.5" />
           Luxury stays, reimagined
         </Badge>
 
-        <h1 className="mt-6 max-w-3xl font-display text-4xl sm:text-5xl lg:text-6xl leading-tight text-foreground">
+        <h1 className="mt-6 max-w-3xl font-display text-4xl sm:text-5xl lg:text-6xl leading-tight text-foreground animate-fade-in-up animate-delay-100">
           Experience Luxury,
           <span className="text-primary"> Welcome Home</span>
         </h1>
 
-        <p className="mt-5 max-w-xl text-muted-foreground">
+        <p className="mt-5 max-w-xl text-muted-foreground animate-fade-in-up animate-delay-200">
           Grand Horizon Hotel blends refined comfort with modern convenience.
           Explore our rooms, unwind in our amenities, and let us host an
           unforgettable stay.
         </p>
 
-        <div className="mt-8 flex flex-col sm:flex-row gap-3">
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-in-up animate-delay-300">
           <Button size="lg" className="uppercase tracking-wider" render={<a href="#rooms" />}>
             View our rooms
             <ArrowRight className="w-4 h-4" />
@@ -140,7 +141,7 @@ const Home = () => {
 
       <section id="rooms" className="px-4 py-16 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-end justify-between gap-4 mb-8">
+          <Reveal className="flex items-end justify-between gap-4 mb-8">
             <div>
               <span className="text-xs uppercase tracking-[0.25em] text-primary">
                 Featured rooms
@@ -155,10 +156,10 @@ const Home = () => {
             <Button variant="outline" size="sm" className="hidden sm:inline-flex" render={<Link to="/register" />}>
               Book a stay
             </Button>
-          </div>
+          </Reveal>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Card key={i} className="p-5">
                   <CardContent className="space-y-4 px-0">
@@ -172,6 +173,7 @@ const Home = () => {
               ))}
             </div>
           ) : rooms.length === 0 ? (
+            <Reveal>
             <Card className="p-10 text-center">
               <BedDouble className="mx-auto w-10 h-10 text-primary" />
               <h3 className="mt-4 font-display text-xl text-foreground">
@@ -182,10 +184,12 @@ const Home = () => {
                 the hotel.
               </p>
             </Card>
+          </Reveal>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {rooms.map((room) => (
-                <Card key={room._id} className="flex flex-col p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {rooms.map((room, i) => (
+                <Reveal key={room._id} className="h-full" delay={(i % 3) * 120}>
+                  <Card className="flex flex-col p-5 h-full">
                   <div className="h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
                     <BedDouble className="w-10 h-10 text-primary" />
                   </div>
@@ -228,7 +232,8 @@ const Home = () => {
                   <Button variant="outline" size="sm" className="w-full mt-4" render={<Link to="/register" />}>
                     Book this room
                   </Button>
-                </Card>
+                  </Card>
+                </Reveal>
               ))}
             </div>
           )}
@@ -239,34 +244,34 @@ const Home = () => {
 
       <section id="amenities" className="px-4 py-16 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
+          <Reveal className="text-center mb-10">
             <span className="text-xs uppercase tracking-[0.25em] text-primary">
               What we offer
             </span>
             <h2 className="font-display text-3xl mt-2 text-foreground">
               World-class amenities
             </h2>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {amenitiesSample.map(({ Icon, label }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center"
-              >
+            {amenitiesSample.map(({ Icon, label }, i) => (
+              <Reveal key={label} className="h-full" delay={i * 100}>
+                <div className="flex h-full flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center">
                 <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Icon className="w-5 h-5" />
                 </div>
                 <span className="text-sm font-medium text-foreground">
                   {label}
                 </span>
-              </div>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       <footer className="border-t border-border px-4 py-8 lg:px-8">
+        <Reveal>
         <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 text-center">
           <div className="flex items-center gap-2">
             <Hexagon className="w-6 h-6 text-primary" strokeWidth={2.5} />
@@ -290,6 +295,7 @@ const Home = () => {
             reserved.
           </p>
         </div>
+        </Reveal>
       </footer>
     </div>
   );
