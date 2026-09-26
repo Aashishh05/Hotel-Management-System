@@ -93,8 +93,8 @@ const buildBookingSchema = (isGuest) => {
       .transform((value, original) => (original === "" ? undefined : value))
       .matches(phoneRegex, "Please provide a valid phone number")
       .when("guest", {
-        is: "__new",
-        then: (s) => s,
+        is: (value) => isGuest || value === "__new",
+        then: (s) => s.required("Phone number is required"),
       }),
     room: Yup.string().required("Room is required"),
     checkInDate: Yup.string()
@@ -117,7 +117,12 @@ const buildBookingSchema = (isGuest) => {
       .integer("Guest count must be a whole number")
       .min(1, "At least one guest is required")
       .max(20, "Guest count cannot exceed 20"),
-    idType: Yup.string().oneOf(ID_TYPES, "Invalid ID type"),
+    idType: Yup.string()
+      .oneOf(ID_TYPES, "Invalid ID type")
+      .when("guest", {
+        is: (value) => isGuest || value === "__new",
+        then: (s) => s.required("ID type is required"),
+      }),
     idNumber: Yup.string()
       .trim()
       .max(50, "ID number cannot exceed 50 characters")

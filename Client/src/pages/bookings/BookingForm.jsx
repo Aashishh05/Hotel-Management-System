@@ -37,7 +37,9 @@ import {
 const IdFields = ({ f, saving }) => (
   <>
     <div className="space-y-2">
-      <Label htmlFor="f-idType">ID type</Label>
+      <Label htmlFor="f-idType">
+        ID type <span className="font-medium text-destructive">*</span>
+      </Label>
       <Select
         value={f.values.idType}
         onValueChange={(value) => f.setFieldValue("idType", value)}
@@ -62,7 +64,9 @@ const IdFields = ({ f, saving }) => (
     </div>
 
     <div className="space-y-2">
-      <Label htmlFor="f-idNumber">ID number</Label>
+      <Label htmlFor="f-idNumber">
+        ID number <span className="font-medium text-destructive">*</span>
+      </Label>
       <Input
         id="f-idNumber"
         name="idNumber"
@@ -162,6 +166,7 @@ const BookingForm = ({
 
         if (isGuest) {
           payload.status = "pending";
+          payload.guestPhone = values.guestPhone?.trim() || undefined;
           payload.idType = values.idType || undefined;
           payload.idNumber = values.idNumber?.trim() || undefined;
         } else {
@@ -386,7 +391,9 @@ const BookingForm = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="f-guestPhone">Phone</Label>
+                  <Label htmlFor="f-guestPhone">
+                    Phone <span className="font-medium text-destructive">*</span>
+                  </Label>
                   <Input
                     id="f-guestPhone"
                     name="guestPhone"
@@ -412,9 +419,7 @@ const BookingForm = ({
                 <div className="sm:col-span-2">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                     Identity document{" "}
-                    <span className="font-normal normal-case text-muted-foreground/70">
-                      (optional)
-                    </span>
+                    <span className="font-medium text-destructive">*</span>
                   </p>
                 </div>
                 <IdFields f={f} saving={saving}
@@ -449,11 +454,38 @@ const BookingForm = ({
             {isGuest && (
               <>
                 <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="f-guestPhone">
+                    Phone number{" "}
+                    <span className="font-medium text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="f-guestPhone"
+                    name="guestPhone"
+                    value={f.values.guestPhone}
+                    onChange={f.handleChange}
+                    onBlur={f.handleBlur}
+                    disabled={saving}
+                    placeholder="+1 555 123 4567"
+                    aria-invalid={
+                      f.submitCount > 0 && f.errors.guestPhone
+                        ? true
+                        : undefined
+                    }
+                    className={
+                      f.submitCount > 0 && f.errors.guestPhone
+                        ? "aria-invalid"
+                        : ""
+                    }
+                  />
+                  {f.submitCount > 0 && f.errors.guestPhone && (
+                    <p className={errorClass}>{f.errors.guestPhone}</p>
+                  )}
+                </div>
+
+                <div className="sm:col-span-2">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
                     Identity document{" "}
-                    <span className="font-normal normal-case text-muted-foreground/70">
-                      (optional)
-                    </span>
+                    <span className="font-medium text-destructive">*</span>
                   </p>
                 </div>
                 <IdFields f={f} saving={saving} />

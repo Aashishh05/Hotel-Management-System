@@ -65,6 +65,7 @@ const createBooking = async (bookingData, userId) => {
     guestsCount,
     idType,
     idNumber,
+    guestPhone,
     status,
   } = bookingData;
 
@@ -78,6 +79,14 @@ const createBooking = async (bookingData, userId) => {
     guestId = ownGuest._id;
     bookingStatus = "pending";
 
+    const phone = guestPhone?.trim();
+
+    if (!phone) {
+      throw new ErrorHandler("Phone number is required", 400);
+    }
+
+    const guestUpdates = { phone };
+
     if (idType) {
       if (!idNumber?.trim()) {
         throw new ErrorHandler(
@@ -86,11 +95,11 @@ const createBooking = async (bookingData, userId) => {
         );
       }
 
-      await guestRepository.updateGuest(ownGuest._id, {
-        idType,
-        idNumber: idNumber.trim(),
-      });
+      guestUpdates.idType = idType;
+      guestUpdates.idNumber = idNumber.trim();
     }
+
+    await guestRepository.updateGuest(ownGuest._id, guestUpdates);
   } else {
     const existingGuest = await guestRepository.getGuestById(guestId);
 
