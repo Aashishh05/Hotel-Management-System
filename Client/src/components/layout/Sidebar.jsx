@@ -42,7 +42,7 @@ const Sidebar = ({ open, onClose }) => {
   const visibleItems = sidebarItems.filter((item) => {
     if (isSuperAdmin) return true;
     if (item.module === "dashboard") return true;
-    return permissions?.modules?.[item.module]?.read === true;
+    return permissions?.modules?.[item.module]?.[item.action || "read"] === true;
   });
 
   const handleLogout = async () => {

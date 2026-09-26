@@ -16,6 +16,9 @@ const Bookings = lazy(() => import("./pages/bookings/Bookings.jsx"));
 const BookingDetails = lazy(() =>
   import("./pages/bookings/BookingDetails.jsx")
 );
+const CheckInCheckout = lazy(() =>
+  import("./pages/checkin-checkout/CheckInCheckout.jsx")
+);
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -41,6 +44,7 @@ const App = () => {
               <Route path="/guests/:id" element={<GuestDetails />} />
               <Route path="/bookings" element={<Bookings />} />
               <Route path="/bookings/:id" element={<BookingDetails />} />
+              <Route path="/checkin-checkout" element={<CheckInCheckout />} />
             </Route>
           </Route>
         </Routes>

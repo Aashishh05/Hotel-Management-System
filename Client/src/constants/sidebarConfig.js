@@ -23,7 +23,7 @@ export const sidebarItems = [
   { label: "Permissions", path: "/permissions", module: "permissions", Icon: KeyRound },
   { label: "Rooms", path: "/rooms", module: "rooms", Icon: BedDouble },
   { label: "Bookings", path: "/bookings", module: "bookings", Icon: CalendarCheck },
-  { label: "Check In / Out", path: "/checkin-checkout", module: "checkin-checkout", Icon: DoorOpen },
+  { label: "Check In / Out", path: "/checkin-checkout", module: "bookings", action: "update", Icon: DoorOpen },
   { label: "Housekeeping", path: "/housekeeping", module: "housekeeping", Icon: Sparkles },
   { label: "Maintenance", path: "/maintenance", module: "maintenance", Icon: Wrench },
   { label: "Billing", path: "/billing", module: "billing", Icon: ReceiptText },
