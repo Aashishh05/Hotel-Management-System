@@ -31,12 +31,12 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/rooms/:id" element={<RoomDetails />} />
 
           <Route element={<DashboardLayout />}>
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/rooms" element={<Rooms />} />
-              <Route path="/rooms/:id" element={<RoomDetails />} />
               <Route path="/guests" element={<Guests />} />
               <Route path="/guests/:id" element={<GuestDetails />} />
               <Route path="/bookings" element={<Bookings />} />

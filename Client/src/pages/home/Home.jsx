@@ -8,6 +8,7 @@ import {
   Car,
   Sparkles,
   ArrowRight,
+  ArrowUpRight,
   BedDouble,
   LayoutGrid,
   LayoutDashboard,
@@ -381,7 +382,7 @@ const Home = () => {
                     className="h-full"
                     delay={(i % 3) * 120}
                   >
-                    <Card className="flex flex-col p-5 h-full">
+                    <Card className="flex flex-col p-5 h-full transition-all hover:ring-2 hover:ring-primary/30">
                       <div className="h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
                         <BedDouble className="w-10 h-10 text-primary" />
                       </div>
@@ -391,12 +392,23 @@ const Home = () => {
                           <CardTitle>
                             Room {room.number} · {roomTypeLabel(room.type)}
                           </CardTitle>
-                          <Badge
-                            variant="outline"
-                            className={`${statusInfo.className} shrink-0`}
-                          >
-                            {statusInfo.label}
-                          </Badge>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge
+                              variant="outline"
+                              className={statusInfo.className}
+                            >
+                              {statusInfo.label}
+                            </Badge>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="size-8"
+                              aria-label={`View details for room ${room.number}`}
+                              onClick={() => navigate(`/rooms/${room._id}`)}
+                            >
+                              <ArrowUpRight className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                         <CardDescription>
                           Floor {room.floor ?? "—"} ·{" "}
