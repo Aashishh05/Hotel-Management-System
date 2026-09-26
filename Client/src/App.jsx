@@ -1,34 +1,44 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import Home from "./pages/home/Home";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
 import ProtectedRoute from "./components/guards/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
-import Dashboard from "./pages/dashboard/Dashboard.jsx";
-import Rooms from "./pages/rooms/Rooms.jsx";
-import RoomDetails from "./pages/rooms/RoomDetails.jsx";
-import Guests from "./pages/guests/Guests.jsx";
-import GuestDetails from "./pages/guests/GuestDetails.jsx";
+
+const Home = lazy(() => import("./pages/home/Home"));
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
+const Dashboard = lazy(() => import("./pages/dashboard/Dashboard.jsx"));
+const Rooms = lazy(() => import("./pages/rooms/Rooms.jsx"));
+const RoomDetails = lazy(() => import("./pages/rooms/RoomDetails.jsx"));
+const Guests = lazy(() => import("./pages/guests/Guests.jsx"));
+const GuestDetails = lazy(() => import("./pages/guests/GuestDetails.jsx"));
+
+const PageLoader = () => (
+  <div className="grid min-h-svh place-items-center">
+    <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+  </div>
+);
 
 const App = () => {
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/rooms/:id" element={<RoomDetails />} />
-            <Route path="/guests" element={<Guests />} />
-            <Route path="/guests/:id" element={<GuestDetails />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/rooms" element={<Rooms />} />
+              <Route path="/rooms/:id" element={<RoomDetails />} />
+              <Route path="/guests" element={<Guests />} />
+              <Route path="/guests/:id" element={<GuestDetails />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
+        </Routes>
+      </Suspense>
 
       <Toaster
         position="top-right"
