@@ -297,7 +297,7 @@ const Home = () => {
               variant="outline"
               size="lg"
               nativeButton={false}
-              render={<Link to="/register" />}
+              render={<Link to="/login" />}
             >
               Plan your stay
             </Button>
@@ -337,7 +337,7 @@ const Home = () => {
                 size="sm"
                 className="hidden sm:inline-flex"
                 nativeButton={false}
-                render={<Link to="/register" />}
+                render={<Link to="/login" />}
               >
                 Book a stay
               </Button>
@@ -459,7 +459,7 @@ const Home = () => {
                             size="sm"
                             className="w-full mt-2"
                             nativeButton={false}
-                            render={<Link to="/register" />}
+                            render={<Link to="/login" />}
                           >
                             Book this room
                           </Button>

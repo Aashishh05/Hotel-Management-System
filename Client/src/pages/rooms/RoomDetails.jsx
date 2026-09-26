@@ -160,7 +160,7 @@ const RoomDetails = () => {
     if (user) {
       setBookingOpen(true);
     } else {
-      navigate("/register");
+      navigate("/login");
     }
   };
 
