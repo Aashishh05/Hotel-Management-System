@@ -24,6 +24,14 @@ export const getAvailableRooms = async () => {
   return res.data;
 };
 
+export const getRoomAvailability = async (checkIn, checkOut) => {
+  const res = await api.get("/room/get/availability", {
+    params: { checkIn, checkOut },
+  });
+
+  return res.data;
+};
+
 export const getRoomsByStatus = async (status) => {
   const res = await api.get(`/room/get/status/${status}`);
 

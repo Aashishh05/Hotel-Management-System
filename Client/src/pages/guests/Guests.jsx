@@ -446,6 +446,9 @@ const Guests = () => {
                   <Select
                     value={f.values.idType}
                     onValueChange={(value) => f.setFieldValue("idType", value)}
+                    items={Object.fromEntries(
+                      ID_TYPES.map((idType) => [idType, ID_TYPE_LABELS[idType]])
+                    )}
                   >
                     <SelectTrigger id="f-idType" className="w-full">
                       <SelectValue placeholder="Select ID type" />

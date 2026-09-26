@@ -78,12 +78,10 @@ const billingSchema = new Schema(
   },
 );
 
-billingSchema.pre("validate", function (next) {
+billingSchema.pre("validate", function () {
   if (this.paidAmount > this.totalAmount) {
-    return next(new Error("Paid amount cannot exceed total amount"));
+    throw new Error("Paid amount cannot exceed total amount");
   }
-
-  next();
 });
 
 billingSchema.index({ booking: 1 });

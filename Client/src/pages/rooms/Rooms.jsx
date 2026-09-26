@@ -535,6 +535,9 @@ const Rooms = () => {
                   <Select
                     value={f.values.type}
                     onValueChange={(value) => f.setFieldValue("type", value)}
+                    items={Object.fromEntries(
+                      ROOM_TYPES.map((type) => [type, roomTypeLabel[type]])
+                    )}
                   >
                     <SelectTrigger id="f-type" className="w-full">
                       <SelectValue />
@@ -554,6 +557,12 @@ const Rooms = () => {
                   <Select
                     value={f.values.status}
                     onValueChange={(value) => f.setFieldValue("status", value)}
+                    items={Object.fromEntries(
+                      ROOM_STATUSES.map((status) => [
+                        status,
+                        status.charAt(0).toUpperCase() + status.slice(1),
+                      ])
+                    )}
                   >
                     <SelectTrigger id="f-status" className="w-full">
                       <SelectValue />

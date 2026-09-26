@@ -47,6 +47,18 @@ export const getAvailableRooms = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const getRoomAvailability = asyncErrorHandler(async (req, res) => {
+  const rooms = await roomServices.getRoomAvailability({
+    checkIn: req.query.checkIn,
+    checkOut: req.query.checkOut,
+  });
+
+  res.status(200).json({
+    success: true,
+    rooms,
+  });
+});
+
 export const getPublicRooms = asyncErrorHandler(async (req, res) => {
   const rooms = await roomServices.getAvailableRooms();
 

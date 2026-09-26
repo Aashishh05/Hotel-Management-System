@@ -9,6 +9,7 @@ import {
   getAllRooms,
   getAvailableRooms,
   getPublicRooms,
+  getRoomAvailability,
   getRoomById,
   getRoomsByStatus,
   updateRoom,
@@ -40,6 +41,14 @@ router.get(
   checkPermission("rooms", "read"),
   auditLog,
   getAvailableRooms,
+);
+
+router.get(
+  "/get/availability",
+  protect,
+  checkPermission("rooms", "read"),
+  auditLog,
+  getRoomAvailability,
 );
 
 router.get(

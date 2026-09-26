@@ -4,6 +4,56 @@ import userRepository from "../../../modules/user/repository/userRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import bookingRepository from "../repository/bookingRepository.js";
 
+const GUEST_ROLE = "guest";
+
+const getActor = async (userId) => {
+  const user = await userRepository.getUserById(userId);
+
+  if (!user) {
+    throw new ErrorHandler("Booking user not found", 404);
+  }
+
+  return user;
+};
+
+const isGuestRole = (user) => user?.role?.name === GUEST_ROLE;
+
+const resolveGuestForUser = async (user) => {
+  if (!user?.email) return null;
+  return await guestRepository.getGuestByEmail(user.email);
+};
+
+const ensureOwnGuest = async (user) => {
+  const existing = await resolveGuestForUser(user);
+
+  if (existing) {
+    return existing;
+  }
+
+  return await guestRepository.createGuest({
+    name: user.name,
+    email: user.email,
+  });
+};
+
+const getOwnBookings = async (userId) => {
+  const actor = await getActor(userId);
+  const ownGuest = await resolveGuestForUser(actor);
+
+  if (!ownGuest) {
+    return [];
+  }
+
+  return await bookingRepository.getBookingsByGuest(ownGuest._id);
+};
+
+const bookingOwnedByUser = (booking, user) => {
+  const ownGuestId = String(user?._id || "");
+  const bookingGuestId = String(booking?.guest?._id || "");
+
+  return ownGuestId && bookingGuestId === ownGuestId;
+};
+
 const createBooking = async (bookingData, userId) => {
   const {
     guest,
@@ -12,12 +62,24 @@ const createBooking = async (bookingData, userId) => {
     checkOutDate,
     totalAmount,
     specialRequests,
+    status,
   } = bookingData;
 
-  const existingGuest = await guestRepository.getGuestById(guest);
+  const actor = await getActor(userId);
 
-  if (!existingGuest) {
-    throw new ErrorHandler("Guest not found", 404);
+  let guestId = guest;
+  let bookingStatus = status || "pending";
+
+  if (isGuestRole(actor)) {
+    const ownGuest = await ensureOwnGuest(actor);
+    guestId = ownGuest._id;
+    bookingStatus = "pending";
+  } else {
+    const existingGuest = await guestRepository.getGuestById(guestId);
+
+    if (!existingGuest) {
+      throw new ErrorHandler("Guest not found", 404);
+    }
   }
 
   const existingRoom = await roomRepository.getRoomById(room);
@@ -26,7 +88,6 @@ const createBooking = async (bookingData, userId) => {
     throw new ErrorHandler("Room not found", 404);
   }
 
-  // Check room availability for selected dates
   const overlappingBooking = await bookingRepository.findOverlappingBooking(
     room,
     checkInDate,
@@ -34,57 +95,72 @@ const createBooking = async (bookingData, userId) => {
   );
 
   if (overlappingBooking) {
-    throw new ErrorHandler(
-      "Room is already booked for the selected dates",
-      409,
-    );
-  }
-
-  // Validate bookedBy user if provided
-  if (userId) {
-    const user = await userRepository.getUserById(userId);
-
-    if (!user) {
-      throw new ErrorHandler("Booking user not found", 404);
-    }
+    throw new ErrorHandler("Room is already booked for the selected dates", 409);
   }
 
   return await bookingRepository.createBooking({
-    guest,
+    guest: guestId,
     room,
     checkInDate,
     checkOutDate,
     totalAmount,
     specialRequests,
+    status: bookingStatus,
     bookedBy: userId || null,
   });
 };
 
-const getAllBookings = async () => {
+const getAllBookings = async (userId) => {
+  if (isGuestRole(await getActor(userId))) {
+    return await getOwnBookings(userId);
+  }
+
   return await bookingRepository.getAllBookings();
 };
 
-const getBookingById = async (id) => {
+const getBookingById = async (id, userId) => {
   const booking = await bookingRepository.getBookingById(id);
 
   if (!booking) {
     throw new ErrorHandler("Booking not found", 404);
   }
 
+  const actor = await getActor(userId);
+
+  if (isGuestRole(actor) && !bookingOwnedByUser(booking, await resolveGuestForUser(actor))) {
+    throw new ErrorHandler("Booking not found", 404);
+  }
+
   return booking;
 };
 
-const getBookingsByGuest = async (guestId) => {
+const getBookingsByGuest = async (guestId, userId) => {
   const guest = await guestRepository.getGuestById(guestId);
 
   if (!guest) {
     throw new ErrorHandler("Guest not found", 404);
   }
 
+  const actor = await getActor(userId);
+
+  if (isGuestRole(actor)) {
+    const ownGuest = await resolveGuestForUser(actor);
+
+    if (!ownGuest || String(ownGuest._id) !== guestId) {
+      throw new ErrorHandler("Guest not found", 404);
+    }
+
+    return await bookingRepository.getBookingsByGuest(ownGuest._id);
+  }
+
   return await bookingRepository.getBookingsByGuest(guestId);
 };
 
-const getBookingsByRoom = async (roomId) => {
+const getBookingsByRoom = async (roomId, userId) => {
+  if (isGuestRole(await getActor(userId))) {
+    return await getOwnBookings(userId);
+  }
+
   const room = await roomRepository.getRoomById(roomId);
 
   if (!room) {
@@ -94,7 +170,11 @@ const getBookingsByRoom = async (roomId) => {
   return await bookingRepository.getBookingsByRoom(roomId);
 };
 
-const getBookingsByStatus = async (status) => {
+const getBookingsByStatus = async (status, userId) => {
+  if (isGuestRole(await getActor(userId))) {
+    return await getOwnBookings(userId);
+  }
+
   const allowedStatuses = [
     "pending",
     "confirmed",
@@ -110,11 +190,54 @@ const getBookingsByStatus = async (status) => {
   return await bookingRepository.getBookingsByStatus(status);
 };
 
-const updateBooking = async (id, bookingData) => {
+const confirmBooking = async (bookingId, userId) => {
+  const booking = await bookingRepository.getBookingById(bookingId);
+
+  if (!booking) {
+    throw new ErrorHandler("Booking not found", 404);
+  }
+
+  if (isGuestRole(await getActor(userId))) {
+    throw new ErrorHandler("Only staff can confirm bookings", 403);
+  }
+
+  if (booking.status !== "pending") {
+    throw new ErrorHandler("Only pending bookings can be confirmed", 400);
+  }
+
+  return await bookingRepository.updateBooking(bookingId, {
+    status: "confirmed",
+  });
+};
+
+const updateBooking = async (id, bookingData, userId) => {
   const booking = await bookingRepository.getBookingById(id);
 
   if (!booking) {
     throw new ErrorHandler("Booking not found", 404);
+  }
+
+  const actor = await getActor(userId);
+
+  if (isGuestRole(actor)) {
+    const ownGuest = await resolveGuestForUser(actor);
+
+    if (!bookingOwnedByUser(booking, ownGuest)) {
+      throw new ErrorHandler("Booking not found", 404);
+    }
+
+    if (bookingData.status !== "cancelled") {
+      throw new ErrorHandler("Guests can only cancel their own bookings", 403);
+    }
+
+    if (!["pending", "confirmed"].includes(booking.status)) {
+      throw new ErrorHandler(
+        "Only pending or confirmed bookings can be cancelled",
+        400,
+      );
+    }
+
+    return await bookingRepository.updateBooking(id, { status: "cancelled" });
   }
 
   const guestId = bookingData.guest || booking.guest._id;
@@ -149,21 +272,22 @@ const updateBooking = async (id, bookingData) => {
     );
 
     if (overlappingBooking) {
-      throw new ErrorHandler(
-        "Room is already booked for the selected dates",
-        409,
-      );
+      throw new ErrorHandler("Room is already booked for the selected dates", 409);
     }
   }
 
   return await bookingRepository.updateBooking(id, bookingData);
 };
 
-const deleteBooking = async (id) => {
+const deleteBooking = async (id, userId) => {
   const booking = await bookingRepository.getBookingById(id);
 
   if (!booking) {
     throw new ErrorHandler("Booking not found", 404);
+  }
+
+  if (isGuestRole(await getActor(userId))) {
+    throw new ErrorHandler("Only staff can delete bookings", 403);
   }
 
   if (booking.status === "checked-in" || booking.status === "checked-out") {
@@ -176,15 +300,17 @@ const deleteBooking = async (id) => {
   return await bookingRepository.deleteBooking(id);
 };
 
-// Check-in booking
-const checkInBooking = async (bookingId) => {
+const checkInBooking = async (bookingId, userId) => {
   const booking = await bookingRepository.getBookingById(bookingId);
 
   if (!booking) {
     throw new ErrorHandler("Booking not found", 404);
   }
 
-  // Only confirmed bookings can be checked in
+  if (isGuestRole(await getActor(userId))) {
+    throw new ErrorHandler("Only staff can check in bookings", 403);
+  }
+
   if (booking.status !== "confirmed") {
     throw new ErrorHandler("Only confirmed bookings can be checked in", 400);
   }
@@ -195,18 +321,15 @@ const checkInBooking = async (bookingId) => {
     throw new ErrorHandler("Room not found", 404);
   }
 
-  // Room must be available
   if (room.status !== "available") {
     throw new ErrorHandler("Room is not available for check-in", 400);
   }
 
-  // Update booking status and actual check-in time
   const updatedBooking = await bookingRepository.updateBooking(bookingId, {
     status: "checked-in",
     actualCheckIn: new Date(),
   });
 
-  // Update room status
   await roomRepository.updateRoom(booking.room._id, {
     status: "occupied",
   });
@@ -214,15 +337,17 @@ const checkInBooking = async (bookingId) => {
   return updatedBooking;
 };
 
-// Check-out booking
-const checkOutBooking = async (bookingId) => {
+const checkOutBooking = async (bookingId, userId) => {
   const booking = await bookingRepository.getBookingById(bookingId);
 
   if (!booking) {
     throw new ErrorHandler("Booking not found", 404);
   }
 
-  // Only checked-in bookings can be checked out
+  if (isGuestRole(await getActor(userId))) {
+    throw new ErrorHandler("Only staff can check out bookings", 403);
+  }
+
   if (booking.status !== "checked-in") {
     throw new ErrorHandler("Only checked-in bookings can be checked out", 400);
   }
@@ -233,13 +358,11 @@ const checkOutBooking = async (bookingId) => {
     throw new ErrorHandler("Room not found", 404);
   }
 
-  // Update booking status and actual check-out time
   const updatedBooking = await bookingRepository.updateBooking(bookingId, {
     status: "checked-out",
     actualCheckOut: new Date(),
   });
 
-  // Room needs cleaning after checkout
   await roomRepository.updateRoom(booking.room._id, {
     status: "cleaning",
   });
@@ -254,6 +377,7 @@ export default {
   getBookingsByGuest,
   getBookingsByRoom,
   getBookingsByStatus,
+  confirmBooking,
   updateBooking,
   deleteBooking,
   checkInBooking,

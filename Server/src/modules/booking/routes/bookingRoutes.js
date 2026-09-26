@@ -13,6 +13,7 @@ import {
   getBookingsByRoom,
   getBookingsByStatus,
   updateBooking,
+  confirmBooking,
   checkInBooking,
   checkOutBooking,
 } from "../controller/bookingController.js";
@@ -73,6 +74,14 @@ router.put(
   checkPermission("bookings", "update"),
   auditLog,
   updateBooking,
+);
+
+router.patch(
+  "/confirm/:id",
+  protect,
+  checkPermission("bookings", "update"),
+  auditLog,
+  confirmBooking,
 );
 
 router.patch(

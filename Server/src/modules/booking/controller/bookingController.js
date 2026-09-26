@@ -12,7 +12,7 @@ export const createBooking = asyncErrorHandler(async (req, res) => {
 });
 
 export const getAllBookings = asyncErrorHandler(async (req, res) => {
-  const bookings = await bookingServices.getAllBookings();
+  const bookings = await bookingServices.getAllBookings(req.user._id);
 
   res.status(200).json({
     success: true,
@@ -21,7 +21,10 @@ export const getAllBookings = asyncErrorHandler(async (req, res) => {
 });
 
 export const getBookingById = asyncErrorHandler(async (req, res) => {
-  const booking = await bookingServices.getBookingById(req.params.id);
+  const booking = await bookingServices.getBookingById(
+    req.params.id,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -30,7 +33,10 @@ export const getBookingById = asyncErrorHandler(async (req, res) => {
 });
 
 export const getBookingsByGuest = asyncErrorHandler(async (req, res) => {
-  const bookings = await bookingServices.getBookingsByGuest(req.params.guestId);
+  const bookings = await bookingServices.getBookingsByGuest(
+    req.params.guestId,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -39,7 +45,10 @@ export const getBookingsByGuest = asyncErrorHandler(async (req, res) => {
 });
 
 export const getBookingsByRoom = asyncErrorHandler(async (req, res) => {
-  const bookings = await bookingServices.getBookingsByRoom(req.params.roomId);
+  const bookings = await bookingServices.getBookingsByRoom(
+    req.params.roomId,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -48,7 +57,10 @@ export const getBookingsByRoom = asyncErrorHandler(async (req, res) => {
 });
 
 export const getBookingsByStatus = asyncErrorHandler(async (req, res) => {
-  const bookings = await bookingServices.getBookingsByStatus(req.params.status);
+  const bookings = await bookingServices.getBookingsByStatus(
+    req.params.status,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -57,7 +69,11 @@ export const getBookingsByStatus = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateBooking = asyncErrorHandler(async (req, res) => {
-  const booking = await bookingServices.updateBooking(req.params.id, req.body);
+  const booking = await bookingServices.updateBooking(
+    req.params.id,
+    req.body,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -66,8 +82,21 @@ export const updateBooking = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const confirmBooking = asyncErrorHandler(async (req, res) => {
+  const booking = await bookingServices.confirmBooking(
+    req.params.id,
+    req.user._id,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Booking confirmed successfully",
+    booking,
+  });
+});
+
 export const deleteBooking = asyncErrorHandler(async (req, res) => {
-  await bookingServices.deleteBooking(req.params.id);
+  await bookingServices.deleteBooking(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,
@@ -76,7 +105,10 @@ export const deleteBooking = asyncErrorHandler(async (req, res) => {
 });
 
 export const checkInBooking = asyncErrorHandler(async (req, res) => {
-  const booking = await bookingServices.checkInBooking(req.params.id);
+  const booking = await bookingServices.checkInBooking(
+    req.params.id,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -86,7 +118,10 @@ export const checkInBooking = asyncErrorHandler(async (req, res) => {
 });
 
 export const checkOutBooking = asyncErrorHandler(async (req, res) => {
-  const booking = await bookingServices.checkOutBooking(req.params.id);
+  const booking = await bookingServices.checkOutBooking(
+    req.params.id,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,

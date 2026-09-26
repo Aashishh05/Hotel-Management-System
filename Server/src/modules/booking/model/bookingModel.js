@@ -70,16 +70,14 @@ const bookingSchema = new mongoose.Schema(
   },
 );
 
-bookingSchema.pre("validate", function (next) {
+bookingSchema.pre("validate", function () {
   if (
     this.checkInDate &&
     this.checkOutDate &&
     this.checkOutDate <= this.checkInDate
   ) {
-    return next(new Error("Check-out date must be after check-in date"));
+    throw new Error("Check-out date must be after check-in date");
   }
-
-  next();
 });
 
 bookingSchema.index({ room: 1, checkInDate: 1, checkOutDate: 1 });
