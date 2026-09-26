@@ -10,10 +10,12 @@ import {
   MessageSquare,
   ShieldCheck,
   Check,
+  Circle,
   DoorOpen,
   LogOut,
   X,
   Trash2,
+  CalendarClock,
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import {
@@ -35,6 +37,7 @@ import {
 import { Button } from "../../components/ui/button";
 import { Skeleton } from "../../components/ui/skeleton";
 import { Badge } from "../../components/ui/badge";
+import { Separator } from "../../components/ui/separator";
 import {
   STATUS_LABELS,
   STATUS_BADGE,
@@ -43,6 +46,14 @@ import {
   formatDate,
   nightCount,
 } from "./bookingUtils.js";
+
+const STATUS_STEPS = ["pending", "confirmed", "checked-in", "checked-out"];
+const STEP_LABELS = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  "checked-in": "Checked in",
+  "checked-out": "Checked out",
+};
 
 const DetailRow = ({ label, children }) => (
   <div className="flex items-center justify-between gap-4 border-b border-border pb-3 last:border-0 last:pb-0">
@@ -54,10 +65,12 @@ const DetailRow = ({ label, children }) => (
 );
 
 const DetailBlock = ({ Icon, title, children }) => (
-  <Card>
+  <Card className="rounded-2xl">
     <CardHeader>
       <div className="flex items-center gap-2">
-        <Icon className="w-4 h-4 text-primary" />
+        <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="w-4 h-4" />
+        </span>
         <CardTitle>{title}</CardTitle>
       </div>
     </CardHeader>
@@ -66,6 +79,49 @@ const DetailBlock = ({ Icon, title, children }) => (
     </CardContent>
   </Card>
 );
+
+const TimelineStep = ({ label, state, isLast }) => {
+  const done = state === "done";
+  const current = state === "current";
+
+  return (
+    <div className="flex items-center flex-1 last:flex-none">
+      <div className="flex flex-col items-center gap-1.5">
+        <span
+          className={`flex size-8 items-center justify-center rounded-full border transition-colors ${
+            done
+              ? "bg-emerald-500 border-emerald-500 text-white"
+              : current
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-muted/40 text-muted-foreground"
+          }`}
+        >
+          {done ? (
+            <Check className="w-4 h-4" />
+          ) : current ? (
+            <span className="size-2 rounded-full bg-primary" />
+          ) : (
+            <Circle className="w-3.5 h-3.5" />
+          )}
+        </span>
+        <span
+          className={`text-xs font-medium ${
+            current ? "text-foreground" : "text-muted-foreground"
+          }`}
+        >
+          {label}
+        </span>
+      </div>
+      {!isLast && (
+        <div
+          className={`mx-2 mb-5 h-0.5 flex-1 rounded-full ${
+            done ? "bg-emerald-500" : "bg-border"
+          }`}
+        />
+      )}
+    </div>
+  );
+};
 
 const BookingDetails = () => {
   const { id } = useParams();
@@ -158,10 +214,13 @@ const BookingDetails = () => {
           <Skeleton className="h-4 w-28" />
           <Skeleton className="h-8 w-48" />
         </div>
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-2xl" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-40 w-full rounded-xl" />
-          <Skeleton className="h-40 w-full rounded-xl" />
-          <Skeleton className="h-44 w-full rounded-xl" />
+          <Skeleton className="h-52 w-full rounded-2xl" />
+          <Skeleton className="h-52 w-full rounded-2xl" />
+          <Skeleton className="h-52 w-full rounded-2xl" />
+          <Skeleton className="h-52 w-full rounded-2xl" />
         </div>
       </div>
     );
@@ -193,6 +252,11 @@ const BookingDetails = () => {
   });
 
   const nights = nightCount(booking.checkInDate, booking.checkOutDate);
+  const rate = Number(booking.room?.pricePerNight || 0);
+  const computedTotal = rate * nights;
+  const total = Number(booking.totalAmount || 0) || computedTotal;
+  const isCancelled = booking.status === "cancelled";
+  const stepIndex = STATUS_STEPS.indexOf(booking.status);
 
   const actions = [];
   const busyLabel = busy ? "Working…" : undefined;
@@ -201,7 +265,7 @@ const BookingDetails = () => {
     actions.push(
       <Button key="confirm" onClick={handleConfirm} disabled={busy}>
         <Check className="w-4 h-4" />
-        {busyLabel || "Confirm"}
+        {busyLabel || "Confirm booking"}
       </Button>,
     );
   }
@@ -258,31 +322,85 @@ const BookingDetails = () => {
 
   return (
     <div className="space-y-6 animate-fade-in-up">
-      <div>
-        <Link
-          to="/bookings"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to bookings
-        </Link>
-        <div className="mt-2 flex items-center gap-3 flex-wrap">
-          <h1 className="font-display text-2xl text-foreground">
-            Booking · {booking.guest?.name || "Guest"}
-          </h1>
-          <Badge className={STATUS_BADGE[booking.status]}>
-            {STATUS_LABELS[booking.status] || booking.status}
-          </Badge>
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <CalendarDays className="w-3.5 h-3.5" />
-            Booked {createdDate}
-          </span>
-        </div>
+      <Link
+        to="/bookings"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Back to bookings
+      </Link>
+
+      <Card className="rounded-2xl overflow-hidden">
+        <CardContent className="py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-5">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-display text-2xl text-foreground truncate">
+                  {booking.guest?.name || "Guest"}
+                </h1>
+                <Badge className={STATUS_BADGE[booking.status]}>
+                  {STATUS_LABELS[booking.status] || booking.status}
+                </Badge>
+              </div>
+              <div className="mt-1 flex items-center gap-3 flex-wrap text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarClock className="w-3.5 h-3.5" />
+                  Booked on {createdDate}
+                </span>
+                {booking.guest?.phone && (
+                  <span>· {booking.guest.phone}</span>
+                )}
+              </div>
+            </div>
+
+            <div className="lg:ml-auto text-left lg:text-right">
+              <p className="text-xs text-muted-foreground">
+                Total for {nights} night{nights === 1 ? "" : "s"}
+              </p>
+              <p className="text-3xl font-semibold text-foreground">
+                ${total.toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </CardContent>
 
         {actions.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">{actions}</div>
+          <>
+            <Separator />
+            <CardContent className="py-4 flex flex-wrap gap-2 justify-end">
+              {actions}
+            </CardContent>
+          </>
         )}
-      </div>
+      </Card>
+
+      <Card className="rounded-2xl">
+        <CardContent className="py-5">
+          {isCancelled ? (
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <X className="w-4 h-4" />
+              This booking was cancelled.
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2 overflow-x-auto">
+              {STATUS_STEPS.map((step, index) => (
+                <TimelineStep
+                  key={step}
+                  label={STEP_LABELS[step]}
+                  state={
+                    index < stepIndex
+                      ? "done"
+                      : index === stepIndex
+                        ? "current"
+                        : "upcoming"
+                  }
+                  isLast={index === STATUS_STEPS.length - 1}
+                />
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DetailBlock Icon={UserRound} title="Guest">
@@ -329,11 +447,11 @@ const BookingDetails = () => {
               : "—"}
           </DetailRow>
           <DetailRow label="Rate per night">
-            {booking.room
-              ? `$${Number(booking.room.pricePerNight).toLocaleString()}`
-              : "—"}
+            {rate ? `$${rate.toLocaleString()}` : "—"}
           </DetailRow>
-          <DetailRow label="Room status">{booking.room?.status || "—"}</DetailRow>
+          <DetailRow label="Room status">
+            {booking.room?.status || "—"}
+          </DetailRow>
         </DetailBlock>
 
         <DetailBlock Icon={CalendarDays} title="Stay">
@@ -351,9 +469,16 @@ const BookingDetails = () => {
         </DetailBlock>
 
         <DetailBlock Icon={DollarSign} title="Payment">
+          <DetailRow label="Rate / night">
+            {rate ? `$${rate.toLocaleString()}` : "—"}
+          </DetailRow>
+          <DetailRow label="Nights">{nights}</DetailRow>
+          <DetailRow label="Room total">
+            {computedTotal ? `$${computedTotal.toLocaleString()}` : "—"}
+          </DetailRow>
           <DetailRow label="Total amount">
             <span className="font-semibold text-foreground">
-              ${Number(booking.totalAmount || 0).toLocaleString()}
+              ${total.toLocaleString()}
             </span>
           </DetailRow>
           {booking.bookedBy && (
@@ -370,10 +495,12 @@ const BookingDetails = () => {
         </DetailBlock>
       </div>
 
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-primary" />
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <MessageSquare className="w-4 h-4" />
+            </span>
             <CardTitle>Special requests</CardTitle>
           </div>
         </CardHeader>
