@@ -63,6 +63,8 @@ const createBooking = async (bookingData, userId) => {
     totalAmount,
     specialRequests,
     guestsCount,
+    idType,
+    idNumber,
     status,
   } = bookingData;
 
@@ -75,6 +77,20 @@ const createBooking = async (bookingData, userId) => {
     const ownGuest = await ensureOwnGuest(actor);
     guestId = ownGuest._id;
     bookingStatus = "pending";
+
+    if (idType) {
+      if (!idNumber?.trim()) {
+        throw new ErrorHandler(
+          "ID number is required when ID type is selected",
+          400,
+        );
+      }
+
+      await guestRepository.updateGuest(ownGuest._id, {
+        idType,
+        idNumber: idNumber.trim(),
+      });
+    }
   } else {
     const existingGuest = await guestRepository.getGuestById(guestId);
 
@@ -366,7 +382,7 @@ const checkOutBooking = async (bookingId, userId) => {
   });
 
   await roomRepository.updateRoom(booking.room._id, {
-    status: "cleaning",
+    status: "available",
   });
 
   return updatedBooking;

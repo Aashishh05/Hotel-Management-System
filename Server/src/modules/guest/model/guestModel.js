@@ -33,7 +33,7 @@ const guestSchema = new mongoose.Schema(
     idType: {
       type: String,
       enum: {
-        values: ["passport", "national-id", "drivers-license"],
+        values: ["passport", "citizenship", "drivers-license"],
         message: "Invalid ID type",
       },
     },

@@ -39,6 +39,7 @@ import {
   STATUS_LABELS,
   STATUS_BADGE,
   ROOM_TYPE_LABELS,
+  ID_TYPE_LABELS,
   formatDate,
   nightCount,
 } from "./bookingUtils.js";
@@ -299,6 +300,14 @@ const BookingDetails = () => {
           </DetailRow>
           <DetailRow label="Email">{booking.guest?.email || "—"}</DetailRow>
           <DetailRow label="Phone">{booking.guest?.phone || "—"}</DetailRow>
+          <DetailRow label="ID type">
+            {booking.guest?.idType
+              ? ID_TYPE_LABELS[booking.guest.idType] || booking.guest.idType
+              : "—"}
+          </DetailRow>
+          <DetailRow label="ID number">
+            {booking.guest?.idNumber || "—"}
+          </DetailRow>
         </DetailBlock>
 
         <DetailBlock Icon={BedDouble} title="Room">

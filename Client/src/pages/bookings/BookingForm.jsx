@@ -26,11 +26,62 @@ import {
 import {
   EMPTY_FORM_VALUES,
   ROOM_TYPE_LABELS,
+  ID_TYPES,
+  ID_TYPE_LABELS,
   buildBookingSchema,
   errorClass,
   nightCount,
   todayStr,
 } from "./bookingUtils.js";
+
+const IdFields = ({ f, saving }) => (
+  <>
+    <div className="space-y-2">
+      <Label htmlFor="f-idType">ID type</Label>
+      <Select
+        value={f.values.idType}
+        onValueChange={(value) => f.setFieldValue("idType", value)}
+        items={Object.fromEntries(
+          ID_TYPES.map((idType) => [idType, ID_TYPE_LABELS[idType]])
+        )}
+      >
+        <SelectTrigger id="f-idType" className="w-full">
+          <SelectValue placeholder="Select an ID document" />
+        </SelectTrigger>
+        <SelectContent>
+          {ID_TYPES.map((idType) => (
+            <SelectItem key={idType} value={idType}>
+              {ID_TYPE_LABELS[idType]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {f.submitCount > 0 && f.errors.idType && (
+        <p className={errorClass}>{f.errors.idType}</p>
+      )}
+    </div>
+
+    <div className="space-y-2">
+      <Label htmlFor="f-idNumber">ID number</Label>
+      <Input
+        id="f-idNumber"
+        name="idNumber"
+        value={f.values.idNumber}
+        onChange={f.handleChange}
+        onBlur={f.handleBlur}
+        disabled={saving}
+        placeholder="Document number"
+        aria-invalid={
+          f.submitCount > 0 && f.errors.idNumber ? true : undefined
+        }
+        className={f.submitCount > 0 && f.errors.idNumber ? "aria-invalid" : ""}
+      />
+      {f.submitCount > 0 && f.errors.idNumber && (
+        <p className={errorClass}>{f.errors.idNumber}</p>
+      )}
+    </div>
+  </>
+);
 
 const BookingForm = ({
   open,
@@ -82,6 +133,8 @@ const BookingForm = ({
                 name: values.guestName.trim(),
                 email: values.guestEmail?.trim() || undefined,
                 phone: values.guestPhone?.trim() || undefined,
+                idType: values.idType || undefined,
+                idNumber: values.idNumber?.trim() || undefined,
               });
               guestId = res?.guest?._id;
               if (guestId) {
@@ -109,6 +162,8 @@ const BookingForm = ({
 
         if (isGuest) {
           payload.status = "pending";
+          payload.idType = values.idType || undefined;
+          payload.idNumber = values.idNumber?.trim() || undefined;
         } else {
           payload.guest = guestId;
           payload.status = values.status;
@@ -354,6 +409,17 @@ const BookingForm = ({
                   )}
                 </div>
 
+                <div className="sm:col-span-2">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Identity document{" "}
+                    <span className="font-normal normal-case text-muted-foreground/70">
+                      (optional)
+                    </span>
+                  </p>
+                </div>
+                <IdFields f={f} saving={saving}
+                />
+
                 {existingMatch && (
                   <div className="sm:col-span-2 flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
                     <span className="text-muted-foreground">
@@ -377,6 +443,20 @@ const BookingForm = ({
                     </Button>
                   </div>
                 )}
+              </>
+            )}
+
+            {isGuest && (
+              <>
+                <div className="space-y-2 sm:col-span-2">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium">
+                    Identity document{" "}
+                    <span className="font-normal normal-case text-muted-foreground/70">
+                      (optional)
+                    </span>
+                  </p>
+                </div>
+                <IdFields f={f} saving={saving} />
               </>
             )}
 

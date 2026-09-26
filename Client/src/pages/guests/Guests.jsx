@@ -42,11 +42,11 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 
-const ID_TYPES = ["passport", "national-id", "drivers-license"];
+const ID_TYPES = ["passport", "citizenship", "drivers-license"];
 
 const ID_TYPE_LABELS = {
   passport: "Passport",
-  "national-id": "National ID",
+  citizenship: "Citizenship",
   "drivers-license": "Driver's License",
 };
 

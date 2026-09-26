@@ -23,6 +23,14 @@ const ROOM_TYPE_LABELS = {
   deluxe: "Deluxe",
 };
 
+const ID_TYPES = ["passport", "citizenship", "drivers-license"];
+
+const ID_TYPE_LABELS = {
+  passport: "Passport",
+  citizenship: "Citizenship",
+  "drivers-license": "Driver's License",
+};
+
 const errorClass = "mt-1.5 text-xs text-destructive";
 
 const todayStr = () => {
@@ -53,6 +61,8 @@ const EMPTY_FORM_VALUES = {
   guestName: "",
   guestEmail: "",
   guestPhone: "",
+  idType: "",
+  idNumber: "",
   room: "",
   checkInDate: "",
   checkOutDate: "",
@@ -107,6 +117,14 @@ const buildBookingSchema = (isGuest) => {
       .integer("Guest count must be a whole number")
       .min(1, "At least one guest is required")
       .max(20, "Guest count cannot exceed 20"),
+    idType: Yup.string().oneOf(ID_TYPES, "Invalid ID type"),
+    idNumber: Yup.string()
+      .trim()
+      .max(50, "ID number cannot exceed 50 characters")
+      .when("idType", {
+        is: (value) => Boolean(value),
+        then: (schema) => schema.required("ID number is required"),
+      }),
   };
 
   if (!isGuest) {
@@ -123,6 +141,8 @@ export {
   STATUS_LABELS,
   STATUS_BADGE,
   ROOM_TYPE_LABELS,
+  ID_TYPES,
+  ID_TYPE_LABELS,
   errorClass,
   todayStr,
   formatDate,

@@ -21,7 +21,7 @@ import { Skeleton } from "../../components/ui/skeleton";
 
 const ID_TYPE_LABELS = {
   passport: "Passport",
-  "national-id": "National ID",
+  citizenship: "Citizenship",
   "drivers-license": "Driver's License",
 };
 
