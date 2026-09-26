@@ -8,7 +8,6 @@ import {
   Car,
   Sparkles,
   ArrowRight,
-  ArrowUpRight,
   BedDouble,
   LayoutGrid,
   LayoutDashboard,
@@ -392,23 +391,12 @@ const Home = () => {
                           <CardTitle>
                             Room {room.number} · {roomTypeLabel(room.type)}
                           </CardTitle>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <Badge
-                              variant="outline"
-                              className={statusInfo.className}
-                            >
-                              {statusInfo.label}
-                            </Badge>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="size-8"
-                              aria-label={`View details for room ${room.number}`}
-                              onClick={() => navigate(`/rooms/${room._id}`)}
-                            >
-                              <ArrowUpRight className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          <Badge
+                            variant="outline"
+                            className={statusInfo.className}
+                          >
+                            {statusInfo.label}
+                          </Badge>
                         </div>
                         <CardDescription>
                           Floor {room.floor ?? "—"} ·{" "}
@@ -443,12 +431,24 @@ const Home = () => {
                         )}
                       </CardContent>
 
+                      <div className="flex justify-end pt-2">
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          className="text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                          aria-label={`View details for room ${room.number}`}
+                          onClick={() => navigate(`/rooms/${room._id}`)}
+                        >
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+
                       {statusInfo.bookable ? (
                         user ? (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="w-full mt-4"
+                            className="w-full mt-2"
                             onClick={() => bookRoom(room)}
                           >
                             Book this room
@@ -457,7 +457,7 @@ const Home = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="w-full mt-4"
+                            className="w-full mt-2"
                             nativeButton={false}
                             render={<Link to="/register" />}
                           >
@@ -468,7 +468,7 @@ const Home = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full mt-4"
+                          className="w-full mt-2"
                           disabled
                         >
                           {statusInfo.label}
