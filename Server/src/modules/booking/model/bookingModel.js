@@ -53,6 +53,13 @@ const bookingSchema = new mongoose.Schema(
       default: 0,
     },
 
+    guestsCount: {
+      type: Number,
+      min: [1, "At least one guest is required"],
+      max: [20, "Guest count cannot exceed 20"],
+      default: 1,
+    },
+
     specialRequests: {
       type: String,
       trim: true,

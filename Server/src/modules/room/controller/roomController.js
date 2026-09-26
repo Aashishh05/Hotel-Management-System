@@ -60,7 +60,7 @@ export const getRoomAvailability = asyncErrorHandler(async (req, res) => {
 });
 
 export const getPublicRooms = asyncErrorHandler(async (req, res) => {
-  const rooms = await roomServices.getAvailableRooms();
+  const rooms = await roomServices.getAllRooms();
 
   res.status(200).json({
     success: true,

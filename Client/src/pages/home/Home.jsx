@@ -18,6 +18,8 @@ import { logoutApi } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth.js";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
+import { showToast } from "../../components/common/Toast";
+import BookingForm from "../bookings/BookingForm.jsx";
 import {
   Card,
   CardContent,
@@ -49,6 +51,43 @@ const roomTypeLabel = (type) => {
   return labels[type] || type;
 };
 
+const roomStatus = (status) => {
+  const map = {
+    available: {
+      label: "Available",
+      className: "text-primary border-primary/40 bg-primary/10",
+      bookable: true,
+    },
+    reserved: {
+      label: "Reserved",
+      className: "border-sky-500/30 bg-sky-500/10 text-sky-600",
+      bookable: false,
+    },
+    cleaning: {
+      label: "Cleaning",
+      className: "border-amber-500/30 bg-amber-500/10 text-amber-600",
+      bookable: false,
+    },
+    occupied: {
+      label: "Occupied",
+      className: "border-border bg-muted/60 text-foreground",
+      bookable: false,
+    },
+    maintenance: {
+      label: "Maintenance",
+      className: "border-destructive/30 bg-destructive/10 text-destructive",
+      bookable: false,
+    },
+  };
+  return (
+    map[status] || {
+      label: status,
+      className: "border-border bg-muted/60 text-foreground",
+      bookable: false,
+    }
+  );
+};
+
 const amenitiesSample = [
   { Icon: Wifi, label: "High-Speed Wi-Fi" },
   { Icon: UtensilsCrossed, label: "Fine Dining" },
@@ -63,6 +102,18 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const { user, logoutUser } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingRoomId, setBookingRoomId] = useState(null);
+
+  const openBookingForm = () => {
+    setBookingRoomId(null);
+    setBookingOpen(true);
+  };
+
+  const bookRoom = (room) => {
+    setBookingRoomId(room._id);
+    setBookingOpen(true);
+  };
 
   const firstName = user?.name?.split(" ")[0] || "there";
   const initials = (user?.name || "?")
@@ -233,9 +284,24 @@ const Home = () => {
             View our rooms
             <ArrowRight className="w-4 h-4" />
           </Button>
-          <Button variant="outline" size="lg" nativeButton={false} render={<Link to="/register" />}>
-            Plan your stay
-          </Button>
+          {user ? (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={openBookingForm}
+            >
+              Plan your stay
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="lg"
+              nativeButton={false}
+              render={<Link to="/register" />}
+            >
+              Plan your stay
+            </Button>
+          )}
         </div>
       </section>
 
@@ -252,18 +318,30 @@ const Home = () => {
                 Rooms & Suites
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Currently available rooms at Grand Horizon.
+                Every room Grand Horizon has to offer — see what's available
+                and what's already booked.
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="hidden sm:inline-flex"
-              nativeButton={false}
-              render={<Link to="/register" />}
-            >
-              Book a stay
-            </Button>
+            {user ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex"
+                onClick={openBookingForm}
+              >
+                Book a stay
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex"
+                nativeButton={false}
+                render={<Link to="/register" />}
+              >
+                Book a stay
+              </Button>
+            )}
           </Reveal>
 
           {loading ? (
@@ -295,67 +373,99 @@ const Home = () => {
             </Reveal>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {rooms.map((room, i) => (
-                <Reveal key={room._id} className="h-full" delay={(i % 3) * 120}>
-                  <Card className="flex flex-col p-5 h-full">
-                    <div className="h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
-                      <BedDouble className="w-10 h-10 text-primary" />
-                    </div>
-
-                    <CardHeader className="px-0 pt-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <CardTitle>
-                          Room {room.number} · {roomTypeLabel(room.type)}
-                        </CardTitle>
-                        <Badge
-                          variant="outline"
-                          className="text-primary border-primary/40 bg-primary/10 shrink-0"
-                        >
-                          {room.status}
-                        </Badge>
+              {rooms.map((room, i) => {
+                const statusInfo = roomStatus(room.status);
+                return (
+                  <Reveal
+                    key={room._id}
+                    className="h-full"
+                    delay={(i % 3) * 120}
+                  >
+                    <Card className="flex flex-col p-5 h-full">
+                      <div className="h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
+                        <BedDouble className="w-10 h-10 text-primary" />
                       </div>
-                      <CardDescription>
-                        Floor {room.floor ?? "—"} ·{" "}
-                        <span className="text-primary font-semibold text-base">
-                          ${room.pricePerNight}
-                        </span>
-                        <span className="text-muted-foreground"> / night</span>
-                      </CardDescription>
-                    </CardHeader>
 
-                    <CardContent className="px-0 pt-3 space-y-3 flex-1">
-                      {room.amenities?.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
-                          {room.amenities.map((amenity) => (
-                            <Badge
-                              key={amenity}
-                              variant="secondary"
-                              className="text-muted-foreground"
-                            >
-                              {amenity}
-                            </Badge>
-                          ))}
+                      <CardHeader className="px-0 pt-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <CardTitle>
+                            Room {room.number} · {roomTypeLabel(room.type)}
+                          </CardTitle>
+                          <Badge
+                            variant="outline"
+                            className={`${statusInfo.className} shrink-0`}
+                          >
+                            {statusInfo.label}
+                          </Badge>
                         </div>
-                      )}
-                      {room.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {room.description}
-                        </p>
-                      )}
-                    </CardContent>
+                        <CardDescription>
+                          Floor {room.floor ?? "—"} ·{" "}
+                          <span className="text-primary font-semibold text-base">
+                            ${room.pricePerNight}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {" "}
+                            / night
+                          </span>
+                        </CardDescription>
+                      </CardHeader>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-4"
-                      nativeButton={false}
-                      render={<Link to="/register" />}
-                    >
-                      Book this room
-                    </Button>
-                  </Card>
-                </Reveal>
-              ))}
+                      <CardContent className="px-0 pt-3 space-y-3 flex-1">
+                        {room.amenities?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {room.amenities.map((amenity) => (
+                              <Badge
+                                key={amenity}
+                                variant="secondary"
+                                className="text-muted-foreground"
+                              >
+                                {amenity}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        {room.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {room.description}
+                          </p>
+                        )}
+                      </CardContent>
+
+                      {statusInfo.bookable ? (
+                        user ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full mt-4"
+                            onClick={() => bookRoom(room)}
+                          >
+                            Book this room
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full mt-4"
+                            nativeButton={false}
+                            render={<Link to="/register" />}
+                          >
+                            Book this room
+                          </Button>
+                        )
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-4"
+                          disabled
+                        >
+                          {statusInfo.label}
+                        </Button>
+                      )}
+                    </Card>
+                  </Reveal>
+                );
+              })}
             </div>
           )}
         </div>
@@ -421,6 +531,22 @@ const Home = () => {
           </div>
         </Reveal>
       </footer>
+
+      {bookingOpen && (
+        <BookingForm
+          open
+          onOpenChange={(open) => !open && setBookingOpen(false)}
+          rooms={rooms}
+          initialRoomId={bookingRoomId}
+          onCreated={(booking) => {
+            showToast({
+              type: "success",
+              message: "Booking created successfully",
+            });
+            navigate(`/bookings/${booking._id}`);
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -62,6 +62,7 @@ const createBooking = async (bookingData, userId) => {
     checkOutDate,
     totalAmount,
     specialRequests,
+    guestsCount,
     status,
   } = bookingData;
 
@@ -105,6 +106,7 @@ const createBooking = async (bookingData, userId) => {
     checkOutDate,
     totalAmount,
     specialRequests,
+    guestsCount,
     status: bookingStatus,
     bookedBy: userId || null,
   });
