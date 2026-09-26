@@ -8,6 +8,8 @@ import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import Rooms from "./pages/rooms/Rooms.jsx";
 import RoomDetails from "./pages/rooms/RoomDetails.jsx";
+import Guests from "./pages/guests/Guests.jsx";
+import GuestDetails from "./pages/guests/GuestDetails.jsx";
 
 const App = () => {
   return (
@@ -22,6 +24,8 @@ const App = () => {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/rooms/:id" element={<RoomDetails />} />
+            <Route path="/guests" element={<Guests />} />
+            <Route path="/guests/:id" element={<GuestDetails />} />
           </Route>
         </Route>
       </Routes>

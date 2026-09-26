@@ -8,7 +8,7 @@ const createGuest = async (guestData) => {
     const existingEmail = await guestRepository.getGuestByEmail(email);
 
     if (existingEmail) {
-      throw new ErrorHandler("Guest with this emaiil already exists", 409);
+      throw new ErrorHandler("Guest with this email already exists", 409);
     }
   }
 
@@ -61,7 +61,7 @@ const updateGuest = async (id, guestData) => {
     );
 
     if (existingEmail) {
-      throw new ErrorHandler("Guest with this emaiil already exists", 409);
+      throw new ErrorHandler("Guest with this email already exists", 409);
     }
   }
 
@@ -84,7 +84,7 @@ const updateGuest = async (id, guestData) => {
     );
 
     if (existingId) {
-      throw new ErrorHandler("Guest with this IdNumber already exists", 409);
+      throw new ErrorHandler("Guest with this ID number already exists", 409);
     }
   }
 

@@ -21,7 +21,7 @@ const getGuestByPhone = async (phone) => {
 };
 
 const getGuestByIdNumber = async (idNumber) => {
-  return await Guest.findOne(idNumber);
+  return await Guest.findOne({ idNumber });
 };
 
 const updateGuest = async (id, guestData) => {
