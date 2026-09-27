@@ -1,11 +1,11 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
 const emailKeyGenerator = (req) => {
   const email = req.body?.email;
 
   return typeof email === "string" && email.trim()
     ? email.trim().toLowerCase()
-    : req.ip;
+    : ipKeyGenerator()(req);
 };
 
 export const loginRateLimiter = rateLimit({
