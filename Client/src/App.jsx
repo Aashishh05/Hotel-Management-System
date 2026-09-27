@@ -20,6 +20,7 @@ const CheckInCheckout = lazy(() =>
   import("./pages/checkin-checkout/CheckInCheckout.jsx")
 );
 const Users = lazy(() => import("./pages/users/Users.jsx"));
+const UserDetails = lazy(() => import("./pages/users/UserDetails.jsx"));
 const Roles = lazy(() => import("./pages/roles/Roles.jsx"));
 const Permissions = lazy(() => import("./pages/permissions/Permissions.jsx"));
 
@@ -49,6 +50,7 @@ const App = () => {
               <Route path="/bookings/:id" element={<BookingDetails />} />
               <Route path="/checkin-checkout" element={<CheckInCheckout />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/users/:id" element={<UserDetails />} />
               <Route path="/roles" element={<Roles />} />
               <Route path="/permissions" element={<Permissions />} />
             </Route>

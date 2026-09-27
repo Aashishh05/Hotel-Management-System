@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Plus, Pencil, Trash2, Users as UsersIcon } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
@@ -94,6 +95,7 @@ const initials = (name = "") =>
 const Users = () => {
   const { user: me } = useAuth();
   const { permissions } = useSelector((state) => state.permission);
+  const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
@@ -349,7 +351,8 @@ const Users = () => {
                 return (
                   <TableRow
                     key={user._id}
-                    className="animate-fade-in-up transition-colors hover:bg-muted/40"
+                    className="cursor-pointer animate-fade-in-up transition-colors hover:bg-muted/40"
+                    onClick={() => navigate(`/users/${user._id}`)}
                   >
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -358,7 +361,13 @@ const Users = () => {
                         </div>
                         <div>
                           <p className="font-semibold text-foreground">
-                            {user.name}
+                            <Link
+                              to={`/users/${user._id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-foreground hover:text-primary hover:underline"
+                            >
+                              {user.name}
+                            </Link>
                             {isSelf && (
                               <span className="ml-2 text-xs font-normal text-muted-foreground">
                                 (you)
