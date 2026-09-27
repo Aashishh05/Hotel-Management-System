@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { KeyRound, Save, ShieldAlert } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
+import { setPermission } from "../../redux/permissionSlice";
 import { getAllRoles } from "../../api/roleApi";
 import {
   getPermissionByRole,
@@ -63,6 +64,7 @@ const countEnabled = (modules) =>
 
 const Permissions = () => {
   const { user: me } = useAuth();
+  const dispatch = useDispatch();
   const { permissions } = useSelector((state) => state.permission);
 
   const [roles, setRoles] = useState([]);
@@ -158,11 +160,22 @@ const Permissions = () => {
       setSaving(true);
       const payload = { modules };
       if (permissionDoc) {
-        await updatePermissionByRole(selectedRole._id, payload);
+        const res = await updatePermissionByRole(selectedRole._id, payload);
+        if (isOwnRole) {
+          dispatch(
+            setPermission({
+              ...permissionDoc,
+              modules: res?.permission?.modules || modules,
+            }),
+          );
+        }
         showToast({ type: "success", message: "Permissions updated" });
       } else {
         const res = await createPermission({ role: selectedRole._id, ...payload });
         setPermissionDoc(res?.permission || null);
+        if (isOwnRole && res?.permission) {
+          dispatch(setPermission(res.permission));
+        }
         showToast({ type: "success", message: "Permissions created" });
       }
     } catch (err) {
