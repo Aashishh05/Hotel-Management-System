@@ -25,7 +25,7 @@ export const getRoleById = async (id) => {
 };
 
 const updateRole = async (id, roleData) => {
-  const role = await roleRepository.updateRole(id);
+  const role = await roleRepository.getRoleById(id);
 
   if (!role) {
     throw new ErrorHandler("Role not found", 404);

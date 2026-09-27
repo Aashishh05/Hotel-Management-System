@@ -11,7 +11,7 @@ export const createPermission = asyncErrorHandler(async (req, res) => {
   });
 });
 export const getAllPermissions = asyncErrorHandler(async (req, res) => {
-  const permissions = await permissionServices.getAllPermissions();
+  const permissions = await permissionServices.getAllPermission();
 
   res.status(200).json({
     success: true,

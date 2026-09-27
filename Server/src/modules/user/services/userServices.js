@@ -37,7 +37,7 @@ const getAllUsers = async () => {
   return await userRepository.getAllUser();
 };
 
-const getuserById = async (id) => {
+const getUserById = async (id) => {
   const user = await userRepository.getUserById(id);
 
   if (!user) {
@@ -47,7 +47,7 @@ const getuserById = async (id) => {
   return user;
 };
 
-const getUserByRole = async (roleId) => {
+const getUsersByRole = async (roleId) => {
   const role = await roleRepository.getRoleById(roleId);
 
   if (!role) {
@@ -58,7 +58,7 @@ const getUserByRole = async (roleId) => {
 };
 
 const updateUser = async (id, userData) => {
-  const user = await userRepository.getuserbyid(id);
+  const user = await userRepository.getUserById(id);
 
   if (!user) {
     throw new ErrorHandler("User not found", 404);
@@ -100,8 +100,8 @@ const deleteUser = async (id) => {
 export default {
   createUser,
   getAllUsers,
-  getuserById,
-  getUserByRole,
+  getUserById,
+  getUsersByRole,
   updateUser,
   deleteUser,
 };
