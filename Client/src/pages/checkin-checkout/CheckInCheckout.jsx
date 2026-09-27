@@ -77,11 +77,9 @@ const CheckInCheckout = () => {
   const [search, setSearch] = useState("");
 
   const roleName = user?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const isGuest = roleName === "guest";
   const canManage =
-    (isSuperAdmin || permissions?.modules?.bookings?.update === true) &&
-    !isGuest;
+    permissions?.modules?.bookings?.update === true && !isGuest;
 
   const loadBookings = async () => {
     try {

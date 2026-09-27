@@ -15,7 +15,6 @@ import {
   Wrench,
   CalendarClock,
 } from "lucide-react";
-import useAuth from "../../hooks/useAuth.js";
 import {
   getAllRooms,
   createRoom,
@@ -134,7 +133,6 @@ const buildPayload = (values) => ({
 });
 
 const Rooms = () => {
-  const { user } = useAuth();
   const { permissions } = useSelector((state) => state.permission);
 
   const [rooms, setRooms] = useState([]);
@@ -148,12 +146,10 @@ const Rooms = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const roleName = user?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const roomsPerm = permissions?.modules?.rooms;
-  const canCreate = isSuperAdmin || roomsPerm?.create === true;
-  const canUpdate = isSuperAdmin || roomsPerm?.update === true;
-  const canDelete = isSuperAdmin || roomsPerm?.delete === true;
+  const canCreate = roomsPerm?.create === true;
+  const canUpdate = roomsPerm?.update === true;
+  const canDelete = roomsPerm?.delete === true;
 
   const loadRooms = async () => {
     try {

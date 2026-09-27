@@ -28,8 +28,6 @@ const Sidebar = ({ open, onClose }) => {
   const [loggingOut, setLoggingOut] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const isSuperAdmin = user?.role?.name === "superadmin";
-
   const roleName = user?.role?.name;
   const displayName = user?.name || "User";
   const initials = displayName
@@ -40,7 +38,6 @@ const Sidebar = ({ open, onClose }) => {
     .toUpperCase();
 
   const visibleItems = sidebarItems.filter((item) => {
-    if (isSuperAdmin) return true;
     if (item.module === "dashboard") return true;
     return permissions?.modules?.[item.module]?.[item.action || "read"] === true;
   });

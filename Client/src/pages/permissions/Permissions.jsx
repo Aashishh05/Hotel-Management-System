@@ -73,11 +73,9 @@ const Permissions = () => {
   const [loadingPerm, setLoadingPerm] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const roleName = me?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const permPerm = permissions?.modules?.permissions;
-  const canRead = isSuperAdmin || permPerm?.read === true;
-  const canUpdate = isSuperAdmin || permPerm?.update === true;
+  const canRead = permPerm?.read === true;
+  const canUpdate = permPerm?.update === true;
 
   useEffect(() => {
     let active = true;
@@ -149,11 +147,7 @@ const Permissions = () => {
   const handleSave = async () => {
     if (!selectedRole) return;
     const isOwnRole = selectedRole._id === me?.role?._id;
-    if (
-      !isSuperAdmin &&
-      isOwnRole &&
-      !(modules.permissions?.read ?? false)
-    ) {
+    if (isOwnRole && !(modules.permissions?.read ?? false)) {
       showToast({
         type: "error",
         message: "You cannot remove your own access to Permissions.",
@@ -366,9 +360,7 @@ const Permissions = () => {
 
                 <div className="flex items-center justify-end gap-3 border-t border-border px-5 py-4">
                   <Label className="text-sm text-muted-foreground">
-                    {isSuperAdmin
-                      ? "Super admin always has full access regardless of these."
-                      : "Changes take effect immediately for that role."}
+                    Changes take effect immediately for that role.
                   </Label>
                   <Button onClick={handleSave} disabled={saving}>
                     <Save className="w-4 h-4" />

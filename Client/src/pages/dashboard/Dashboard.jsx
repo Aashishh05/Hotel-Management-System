@@ -170,7 +170,6 @@ const Dashboard = () => {
   const roleName = user?.role?.name;
   const firstName = user?.name?.split(" ")[0] || "there";
   const roleLabel = ROLE_LABELS[roleName] || roleName;
-  const isSuperAdmin = roleName === "superadmin";
 
   useEffect(() => {
     let mounted = true;
@@ -198,7 +197,6 @@ const Dashboard = () => {
 
   const quickLinks = sidebarItems
     .filter((item) => {
-      if (isSuperAdmin) return true;
       if (item.module === "dashboard") return false;
       return permissions?.modules?.[item.module]?.read === true;
     })

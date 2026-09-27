@@ -57,12 +57,11 @@ const Bookings = () => {
   const [formOpen, setFormOpen] = useState(false);
 
   const roleName = user?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const isGuest = roleName === "guest";
   const bookingsPerm = permissions?.modules?.bookings;
-  const canCreate = isSuperAdmin || bookingsPerm?.create === true;
-  const canUpdate = isSuperAdmin || bookingsPerm?.update === true;
-  const canDelete = isSuperAdmin || bookingsPerm?.delete === true;
+  const canCreate = bookingsPerm?.create === true;
+  const canUpdate = bookingsPerm?.update === true;
+  const canDelete = bookingsPerm?.delete === true;
   const canManage = canUpdate && !isGuest;
 
   const loadBookings = async () => {

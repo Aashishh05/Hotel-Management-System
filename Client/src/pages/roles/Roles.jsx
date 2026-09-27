@@ -3,13 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
 import { Plus, Pencil, Trash2, Shield } from "lucide-react";
-import useAuth from "../../hooks/useAuth.js";
-import {
-  createRole,
-  getAllRoles,
-  updateRole,
-  deleteRole,
-} from "../../api/roleApi";
+import { getAllRoles, createRole, updateRole, deleteRole } from "../../api/roleApi";
 import { getAllUsers } from "../../api/userApi";
 import { showToast } from "../../components/common/Toast";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
@@ -72,7 +66,6 @@ const formatDate = (value) => {
 };
 
 const Roles = () => {
-  const { user: me } = useAuth();
   const { permissions } = useSelector((state) => state.permission);
 
   const [roles, setRoles] = useState([]);
@@ -85,12 +78,10 @@ const Roles = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const roleName = me?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const rolesPerm = permissions?.modules?.roles;
-  const canCreate = isSuperAdmin || rolesPerm?.create === true;
-  const canUpdate = isSuperAdmin || rolesPerm?.update === true;
-  const canDelete = isSuperAdmin || rolesPerm?.delete === true;
+  const canCreate = rolesPerm?.create === true;
+  const canUpdate = rolesPerm?.update === true;
+  const canDelete = rolesPerm?.delete === true;
 
   const loadRoles = async () => {
     try {

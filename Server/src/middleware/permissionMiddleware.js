@@ -11,9 +11,11 @@ const checkPermission = (module, action) => async (req, res, next) => {
       });
     }
 
-    if (user.role?.name === "superadmin") {
-      return next();
-    }
+    // Superadmin is no longer exempted: it follows the permission document
+    // like every other role, so toggles in the Permissions page apply to it too.
+    // if (user.role?.name === "superadmin") {
+    //   return next();
+    // }
 
     const permission = await Permission.findOne({
       role: user.role._id,

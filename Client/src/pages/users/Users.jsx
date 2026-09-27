@@ -108,12 +108,10 @@ const Users = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const roleName = me?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const usersPerm = permissions?.modules?.users;
-  const canCreate = isSuperAdmin || usersPerm?.create === true;
-  const canUpdate = isSuperAdmin || usersPerm?.update === true;
-  const canDelete = isSuperAdmin || usersPerm?.delete === true;
+  const canCreate = usersPerm?.create === true;
+  const canUpdate = usersPerm?.update === true;
+  const canDelete = usersPerm?.delete === true;
 
   const loadUsers = async () => {
     try {

@@ -4,7 +4,6 @@ import * as Yup from "yup";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Plus, Pencil, Trash2, UserRound } from "lucide-react";
-import useAuth from "../../hooks/useAuth.js";
 import {
   createGuest,
   getAllGuests,
@@ -93,7 +92,6 @@ const buildPayload = (values) => ({
 });
 
 const Guests = () => {
-  const { user } = useAuth();
   const { permissions } = useSelector((state) => state.permission);
   const navigate = useNavigate();
 
@@ -105,12 +103,10 @@ const Guests = () => {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const roleName = user?.role?.name;
-  const isSuperAdmin = roleName === "superadmin";
   const guestsPerm = permissions?.modules?.guests;
-  const canCreate = isSuperAdmin || guestsPerm?.create === true;
-  const canUpdate = isSuperAdmin || guestsPerm?.update === true;
-  const canDelete = isSuperAdmin || guestsPerm?.delete === true;
+  const canCreate = guestsPerm?.create === true;
+  const canUpdate = guestsPerm?.update === true;
+  const canDelete = guestsPerm?.delete === true;
 
   const loadGuests = async () => {
     try {
