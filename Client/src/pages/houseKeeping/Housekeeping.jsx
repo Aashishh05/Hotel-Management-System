@@ -13,7 +13,6 @@ import {
   ClipboardList,
   Clock3,
   CalendarDays,
-  UserRound,
 } from "lucide-react";
 import {
   getAllTasks,
@@ -74,8 +73,10 @@ const STATUS_STYLES = {
 
 const errorClass = "mt-1.5 text-xs text-destructive";
 
-const roomLabel = (room) => (room ? `Room ${room.number}` : "Unknown room");
-const assigneeLabel = (user) => (user ? user.name : "Unassigned");
+const roomLabel = (room) =>
+  room && typeof room === "object" ? `Room ${room.number}` : "Unknown room";
+const assigneeLabel = (user) =>
+  user && typeof user === "object" ? user.name : "Unassigned";
 
 const formatDate = (value) => {
   if (!value) return "—";
@@ -349,7 +350,7 @@ const Housekeeping = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Room</TableHead>
+              <TableHead>Room_No</TableHead>
               <TableHead>Task</TableHead>
               <TableHead>Assigned to</TableHead>
               <TableHead>Status</TableHead>
@@ -410,19 +411,11 @@ const Housekeeping = () => {
                       to={`/rooms/${task.room?._id}`}
                       className="text-foreground hover:text-primary hover:underline"
                     >
-                      {roomLabel(task.room).replace("Room ", "")}
+{task.room?.number ?? "—"}
                     </Link>
-                    <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                      {task.room?.type}
-                    </span>
                   </TableCell>
                   <TableCell>{TASK_LABELS[task.type] || task.type}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center gap-1.5">
-                      <UserRound className="w-3.5 h-3.5 text-muted-foreground" />
-                      {assigneeLabel(task.assignedTo)}
-                    </span>
-                  </TableCell>
+                  <TableCell>{assigneeLabel(task.assignedTo)}</TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"
@@ -533,7 +526,7 @@ const Housekeeping = () => {
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="f-room">Room</Label>
+                  <Label htmlFor="f-room">Room_No</Label>
                   <Select
                     value={f.values.room}
                     onValueChange={(value) => f.setFieldValue("room", value)}
@@ -548,7 +541,7 @@ const Housekeeping = () => {
                     <SelectContent>
                       {rooms.map((room) => (
                         <SelectItem key={room._id} value={room._id}>
-                          Room {room.number}
+                          {room.number}
                         </SelectItem>
                       ))}
                     </SelectContent>

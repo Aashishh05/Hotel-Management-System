@@ -1,13 +1,15 @@
 import Housekeeping from "../model/houseKeepingModel.js";
 
-const createTask = async (taskData) => {
-  return await Housekeeping.create(taskData);
-};
-
 const populateRefs = [
   { path: "room" },
   { path: "assignedTo", select: "name email avatar" },
 ];
+
+const createTask = async (taskData) => {
+  const task = await Housekeeping.create(taskData);
+
+  return await Housekeeping.findById(task._id).populate(populateRefs);
+};
 
 const getAllTasks = async () => {
   return await Housekeeping.find().populate(populateRefs);
