@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   Plus,
@@ -111,6 +111,7 @@ const TaskStatCard = ({ label, value, hint, Icon }) => (
 );
 
 const Maintenance = () => {
+  const navigate = useNavigate();
   const { permissions } = useSelector((state) => state.permission);
 
   const [requests, setRequests] = useState([]);
@@ -386,12 +387,17 @@ const Maintenance = () => {
               </TableRow>
             ) : (
               visibleRequests.map((request) => (
-                <TableRow key={request._id} className="animate-fade-in-up">
+                <TableRow
+                  key={request._id}
+                  className="cursor-pointer animate-fade-in-up transition-colors hover:bg-muted/40"
+                  onClick={() => navigate(`/maintenance/${request._id}`)}
+                >
                   <TableCell className="font-semibold">
                     {request.room ? (
                       <Link
                         to={`/rooms/${request.room._id}`}
                         className="text-foreground hover:text-primary hover:underline"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {request.room.number}
                       </Link>
@@ -400,7 +406,10 @@ const Maintenance = () => {
                     )}
                   </TableCell>
                   <TableCell>
-                    <p className="max-w-xs truncate text-sm text-foreground">
+                    <p
+                      className="max-w-xs truncate text-sm text-foreground"
+                      title={request.issue}
+                    >
                       {request.issue}
                     </p>
                   </TableCell>
@@ -430,7 +439,10 @@ const Maintenance = () => {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => openEdit(request)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEdit(request);
+                            }}
                           >
                             <Pencil className="w-3.5 h-3.5" />
                             Edit
@@ -442,7 +454,10 @@ const Maintenance = () => {
                             variant="outline"
                             size="sm"
                             className="text-destructive hover:text-destructive"
-                            onClick={() => setConfirmDelete(request)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setConfirmDelete(request);
+                            }}
                             aria-label={`Delete request ${request.issue}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />

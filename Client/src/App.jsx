@@ -29,6 +29,9 @@ const Housekeeping = lazy(() =>
 const Maintenance = lazy(() =>
   import("./pages/maintenance/Maintenance.jsx")
 );
+const MaintenanceDetails = lazy(() =>
+  import("./pages/maintenance/MaintenanceDetails.jsx")
+);
 const MyStay = lazy(() => import("./pages/my-stay/MyStay.jsx"));
 
 const PageLoader = () => (
@@ -66,6 +69,7 @@ const App = () => {
               <Route path="/permissions" element={<Permissions />} />
               <Route path="/housekeeping" element={<Housekeeping />} />
               <Route path="/maintenance" element={<Maintenance />} />
+              <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
             </Route>
           </Route>
         </Routes>
