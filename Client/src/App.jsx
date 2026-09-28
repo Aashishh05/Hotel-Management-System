@@ -23,6 +23,9 @@ const Users = lazy(() => import("./pages/users/Users.jsx"));
 const UserDetails = lazy(() => import("./pages/users/UserDetails.jsx"));
 const Roles = lazy(() => import("./pages/roles/Roles.jsx"));
 const Permissions = lazy(() => import("./pages/permissions/Permissions.jsx"));
+const Housekeeping = lazy(() =>
+  import("./pages/housekeeping/Housekeeping.jsx")
+);
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -53,6 +56,7 @@ const App = () => {
               <Route path="/users/:id" element={<UserDetails />} />
               <Route path="/roles" element={<Roles />} />
               <Route path="/permissions" element={<Permissions />} />
+              <Route path="/housekeeping" element={<Housekeeping />} />
             </Route>
           </Route>
         </Routes>
