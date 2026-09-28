@@ -103,6 +103,17 @@ const DetailBlock = ({ Icon, title, children }) => (
 const userLabel = (user) =>
   user && typeof user === "object" ? user.name : "—";
 
+const capitalize = (value) =>
+  value ? value.charAt(0).toUpperCase() + value.slice(1) : "";
+
+const ROLE_KEYWORDS = {
+  maintenance: "Maintainer",
+  housekeeper: "Maintainer",
+  frontdesk: "Front Desk",
+  superadmin: "Admin",
+  hoteladmin: "Manager",
+};
+
 const formatDate = (value) =>
   value
     ? new Date(value).toLocaleDateString(undefined, {
@@ -184,27 +195,6 @@ const MaintenanceDetails = () => {
       showToast({
         type: "error",
         message: err?.response?.data?.message || "Could not update status",
-      });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleAssign = async (assignedTo) => {
-    setBusy(true);
-    try {
-      const res = await updateRequest(id, { assignedTo: assignedTo || null });
-      if (res?.request) setRequest(res.request);
-      showToast({
-        type: "success",
-        message: assignedTo
-          ? "Request assigned successfully"
-          : "Request unassigned",
-      });
-    } catch (err) {
-      showToast({
-        type: "error",
-        message: err?.response?.data?.message || "Could not assign request",
       });
     } finally {
       setBusy(false);
@@ -303,6 +293,16 @@ const MaintenanceDetails = () => {
     day: "numeric",
   });
 
+  const updatedDate = new Date(request.updatedAt).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const assignedRoleName = staff.find(
+    (member) => member._id === request.assignedTo?._id,
+  )?.role?.name;
+
   return (
     <div className="space-y-6 animate-fade-in-up">
       <Link
@@ -392,35 +392,24 @@ const MaintenanceDetails = () => {
                   </Button>
                 )}
               {canUpdate && (
-                <div className="ml-auto flex items-center gap-2">
+                <div className="ml-auto flex items-center gap-2 text-sm">
                   <UserPlus className="w-4 h-4 text-muted-foreground" />
-                  <Select
-                    value={request.assignedTo?._id || ""}
-                    onValueChange={handleAssign}
-                  >
-                    <SelectTrigger className="w-44" aria-label="Assign staff">
-                      <SelectValue>
-                        <span
-                          className={
-                            request.assignedTo?._id
-                              ? ""
-                              : "text-muted-foreground"
-                          }
-                        >
-                          {userLabel(request.assignedTo)}
-                          {!request.assignedTo && "Unassigned"}
+{request.assignedTo ? (
+                      <>
+                        {assignedRoleName && (
+                          <span className="text-muted-foreground">
+                            {ROLE_KEYWORDS[assignedRoleName] ||
+                              capitalize(assignedRoleName)}
+                            :
+                          </span>
+                        )}
+                        <span className="font-medium text-foreground">
+                          {request.assignedTo.name}
                         </span>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Unassigned</SelectItem>
-                      {staff.map((member) => (
-                        <SelectItem key={member._id} value={member._id}>
-                          {member.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">Unassigned</span>
+                    )}
                 </div>
               )}
             </CardContent>
@@ -591,12 +580,12 @@ const MaintenanceDetails = () => {
                             : "text-muted-foreground"
                         }
                       >
-                        {userLabel(
-                          staff.find(
-                            (member) => member._id === form.values.assignedTo,
-                          ),
-                        )}
-                        {!form.values.assignedTo && "Unassigned"}
+{userLabel(
+                            staff.find(
+                              (member) => member._id === form.values.assignedTo,
+                            ),
+                          )}
+                          {!form.values.assignedTo && "Unassigned"}
                       </span>
                     </SelectValue>
                   </SelectTrigger>
