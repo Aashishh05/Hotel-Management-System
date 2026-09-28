@@ -539,7 +539,11 @@ const Housekeeping = () => {
                     onValueChange={(value) => f.setFieldValue("room", value)}
                   >
                     <SelectTrigger id="f-room" className="w-full">
-                      <SelectValue />
+                      <SelectValue>
+                        {rooms.find((room) => room._id === f.values.room)
+                          ? `Room ${rooms.find((room) => room._id === f.values.room).number}`
+                          : "Select a room"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {rooms.map((room) => (

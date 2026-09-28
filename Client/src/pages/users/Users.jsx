@@ -403,7 +403,10 @@ const Users = () => {
                             size="sm"
                             className="text-emerald-600 hover:text-emerald-600"
                             disabled={isSelf}
-                            onClick={() => openEdit(user)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEdit(user);
+                            }}
                           >
                             <Pencil className="w-3.5 h-3.5" />
                             Edit
@@ -414,7 +417,10 @@ const Users = () => {
                             size="sm"
                             className="text-destructive hover:text-destructive"
                             disabled={isSelf}
-                            onClick={() => setConfirmDelete(user)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setConfirmDelete(user);
+                            }}
                             aria-label={`Delete user ${user.name}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -505,7 +511,10 @@ const Users = () => {
                     onValueChange={(value) => f.setFieldValue("role", value)}
                   >
                     <SelectTrigger id="f-role" className="w-full">
-                      <SelectValue placeholder="Select a role" />
+                      <SelectValue>
+                        {roleOptions.find((role) => role._id === f.values.role)
+                          ?.displayName || "Select a role"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {roleOptions.map((role) => (
