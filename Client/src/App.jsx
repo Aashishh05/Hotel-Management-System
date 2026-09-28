@@ -26,6 +26,10 @@ const Permissions = lazy(() => import("./pages/permissions/Permissions.jsx"));
 const Housekeeping = lazy(() =>
   import("./pages/housekeeping/Housekeeping.jsx")
 );
+const Maintenance = lazy(() =>
+  import("./pages/maintenance/Maintenance.jsx")
+);
+const MyStay = lazy(() => import("./pages/my-stay/MyStay.jsx"));
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -43,6 +47,10 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/rooms/:id" element={<RoomDetails />} />
 
+          <Route element={<ProtectedRoute />}>
+            <Route path="/my-stay" element={<MyStay />} />
+          </Route>
+
           <Route element={<DashboardLayout />}>
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
@@ -57,6 +65,7 @@ const App = () => {
               <Route path="/roles" element={<Roles />} />
               <Route path="/permissions" element={<Permissions />} />
               <Route path="/housekeeping" element={<Housekeeping />} />
+              <Route path="/maintenance" element={<Maintenance />} />
             </Route>
           </Route>
         </Routes>

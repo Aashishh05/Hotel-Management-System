@@ -70,6 +70,16 @@ const findOverlappingBooking = async (
   return await Booking.findOne(query);
 };
 
+const findActiveGuestRoomBooking = async (guestId, roomId) => {
+  return await Booking.findOne({
+    guest: guestId,
+    room: roomId,
+    status: {
+      $in: ["pending", "confirmed", "checked-in"],
+    },
+  });
+};
+
 const updateBooking = async (id, bookingData) => {
   return await Booking.findByIdAndUpdate(id, bookingData, {
     new: true,
@@ -92,6 +102,7 @@ export default {
   getBookingsByRoom,
   getBookingsByStatus,
   findOverlappingBooking,
+  findActiveGuestRoomBooking,
   updateBooking,
   deleteBooking,
 };

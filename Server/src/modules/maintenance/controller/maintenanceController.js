@@ -14,6 +14,31 @@ export const createRequest = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const reportIssue = asyncErrorHandler(async (req, res) => {
+  const request = await maintenanceServices.reportIssue(
+    req.body,
+    req.user._id,
+  );
+
+  res.status(201).json({
+    success: true,
+    message: "Issue reported successfully",
+    request,
+  });
+});
+
+export const checkEligibility = asyncErrorHandler(async (req, res) => {
+  const eligible = await maintenanceServices.checkReportEligibility(
+    req.params.roomId,
+    req.user._id,
+  );
+
+  res.status(200).json({
+    success: true,
+    eligible,
+  });
+});
+
 export const getAllRequests = asyncErrorHandler(async (req, res) => {
   const requests = await maintenanceServices.getAllRequests();
 

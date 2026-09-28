@@ -205,9 +205,19 @@ const Home = () => {
                   </p>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link to="/dashboard" />}>
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
+                <DropdownMenuItem
+                  render={
+                    <Link
+                      to={user?.role?.name === "guest" ? "/my-stay" : "/dashboard"}
+                    />
+                  }
+                >
+                  {user?.role?.name === "guest" ? (
+                    <BedDouble className="w-4 h-4" />
+                  ) : (
+                    <LayoutDashboard className="w-4 h-4" />
+                  )}
+                  {user?.role?.name === "guest" ? "My Stay" : "Dashboard"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   variant="destructive"

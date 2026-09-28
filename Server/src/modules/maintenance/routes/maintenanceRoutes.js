@@ -5,6 +5,7 @@ import checkPermission from "../../../middleware/permissionMiddleware.js";
 import auditLog from "../../../middleware/auditLogMiddleware.js";
 
 import {
+  checkEligibility,
   createRequest,
   deleteRequest,
   getAllRequests,
@@ -13,10 +14,25 @@ import {
   getRequestsByEmployee,
   getRequestsByStatus,
   getRequestsByPriority,
+  reportIssue,
   updateRequest,
 } from "../controller/maintenanceController.js";
 
 const router = express.Router();
+
+router.post(
+  "/report",
+  protect,
+  auditLog,
+  reportIssue,
+);
+
+router.get(
+  "/eligible/:roomId",
+  protect,
+  auditLog,
+  checkEligibility,
+);
 
 router.post(
   "/create",

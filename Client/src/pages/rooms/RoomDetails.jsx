@@ -8,8 +8,10 @@ import {
   Hexagon,
   Ruler,
   Tag,
+  Wrench,
 } from "lucide-react";
 import { getPublicRooms } from "../../api/roomApi";
+import { checkReportEligibility } from "../../api/maintenanceApi";
 import useAuth from "../../hooks/useAuth.js";
 import {
   Card,
@@ -23,6 +25,7 @@ import { Skeleton } from "../../components/ui/skeleton";
 import { Separator } from "../../components/ui/separator";
 import { showToast } from "../../components/common/Toast";
 import BookingForm from "../bookings/BookingForm.jsx";
+import ReportIssueDialog from "../maintenance/ReportIssueDialog.jsx";
 
 const roomTypeLabel = {
   single: "Single Room",
@@ -134,6 +137,8 @@ const RoomDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [canReport, setCanReport] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -155,6 +160,24 @@ const RoomDetails = () => {
       active = false;
     };
   }, [id]);
+
+  useEffect(() => {
+    let active = true;
+    if (user && room?._id) {
+      checkReportEligibility(room._id)
+        .then((res) => active && setCanReport(!!res?.eligible))
+        .catch(() => active && setCanReport(false));
+    } else {
+      setCanReport(false);
+    }
+    return () => {
+      active = false;
+    };
+  }, [user, room?._id]);
+
+  const handleReport = () => {
+    setReportOpen(true);
+  };
 
   const handleBook = () => {
     if (user) {
@@ -386,13 +409,27 @@ const RoomDetails = () => {
 
                 <div className="mt-4">
                   {status.bookable ? (
-                    <Button className="w-full h-11" onClick={handleBook}>
+                    <Button
+                      className="w-full h-11"
+                      onClick={handleBook}
+                      disabled={!user}
+                    >
                       <BedDouble className="w-4 h-4" />
-                      Book this room
+                      {user ? "Book this room" : "Log in to book"}
                     </Button>
                   ) : (
                     <Button className="w-full h-11" disabled>
                       {status.label}
+                    </Button>
+                  )}
+                  {canReport && (
+                    <Button
+                      variant="outline"
+                      className="mt-2 w-full h-10"
+                      onClick={handleReport}
+                    >
+                      <Wrench className="w-4 h-4" />
+                      Report an issue
                     </Button>
                   )}
                 </div>
@@ -491,6 +528,11 @@ const RoomDetails = () => {
           });
           navigate(`/bookings/${booking._id}`);
         }}
+      />
+    <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={(open) => !open && setReportOpen(false)}
+        room={room}
       />
     </div>
   );

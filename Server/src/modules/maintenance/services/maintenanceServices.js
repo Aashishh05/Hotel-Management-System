@@ -1,5 +1,7 @@
 import roomRepository from "../../../modules/room/repository/roomRepository.js";
 import userRepository from "../../../modules/user/repository/userRepository.js";
+import guestRepository from "../../../modules/guest/repository/guestRepository.js";
+import bookingRepository from "../../../modules/booking/repository/bookingRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import maintenanceRepository from "../repository/maintenanceRepository.js";
 
@@ -147,8 +149,71 @@ const deleteRequest = async (id) => {
   return await maintenanceRepository.deleteRequest(id);
 };
 
+const hasActiveBookingForRoom = async (userId, roomId) => {
+  const user = await userRepository.getUserById(userId);
+
+  if (!user?.email) return false;
+
+  const guest = await guestRepository.getGuestByEmail(user.email);
+
+  if (!guest) return false;
+
+  const booking = await bookingRepository.findActiveGuestRoomBooking(
+    guest._id,
+    roomId,
+  );
+
+  return !!booking;
+};
+
+const reportIssue = async (reportData, userId) => {
+  const { room, issue, priority } = reportData;
+
+  if (!room) {
+    throw new ErrorHandler("Room is required", 400);
+  }
+
+  const existingRoom = await roomRepository.getRoomById(room);
+
+  if (!existingRoom) {
+    throw new ErrorHandler("Room not found", 404);
+  }
+
+  const eligible = await hasActiveBookingForRoom(userId, room);
+
+  if (!eligible) {
+    throw new ErrorHandler(
+      "Only guests with a booking for this room can report an issue",
+      403,
+    );
+  }
+
+  if (!issue || !issue.trim() || issue.trim().length < 3) {
+    throw new ErrorHandler("Issue must be at least 3 characters", 400);
+  }
+
+  return await maintenanceRepository.createRequest({
+    room,
+    reportedBy: userId,
+    assignedTo: null,
+    issue: issue.trim(),
+    priority: priority || "medium",
+    status: "open",
+  });
+};
+
+const checkReportEligibility = async (roomId, userId) => {
+  const room = await roomRepository.getRoomById(roomId);
+
+  if (!room) return false;
+
+  return await hasActiveBookingForRoom(userId, roomId);
+};
+
 export default {
   createRequest,
+  reportIssue,
+  checkReportEligibility,
   getAllRequests,
   getRequestById,
   getRequestsByRoom,
