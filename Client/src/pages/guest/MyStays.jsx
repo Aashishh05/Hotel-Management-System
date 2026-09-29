@@ -12,8 +12,6 @@ import ReportIssueDialog from "../maintenance/ReportIssueDialog.jsx";
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -39,28 +37,43 @@ const BookingCard = ({ booking, onReport, index = 0 }) => {
   const active = isActive(booking);
   const room = booking.room;
 
+  const nights = Math.max(
+    1,
+    Math.round(
+      (new Date(booking.checkOutDate) - new Date(booking.checkInDate)) /
+        86400000,
+    ),
+  );
+
   return (
     <Card
       style={{ animationDelay: `${Math.min(index, 5) * 70}ms` }}
-      className="overflow-hidden transition-all hover:ring-2 hover:ring-primary/30 animate-fade-in-up"
+      className="gap-0 overflow-hidden border-border/80 bg-gradient-to-b from-card to-muted/20 py-0 transition-shadow hover:shadow-md animate-fade-in-up"
     >
-      <div className="h-28 bg-gradient-to-br from-primary/20 via-primary/5 to-background border-b border-border flex items-center justify-center">
-        <BedDouble className="w-9 h-9 text-primary/60" strokeWidth={1.5} />
-      </div>
-      <CardHeader>
+      <CardContent className="p-5 space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className="text-base">
-            {room ? (
-              <Link
-                to={`/rooms/${room._id}`}
-                className="hover:text-primary hover:underline"
-              >
-                Room {room.number}
-              </Link>
-            ) : (
-              "Room not found"
-            )}
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <span className="rounded-lg bg-primary/10 p-2 text-primary">
+              <BedDouble className="w-4 h-4" strokeWidth={1.75} />
+            </span>
+            <div className="leading-tight">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                {room?.roomType || "Room"}
+              </p>
+              {room ? (
+                <Link
+                  to={`/rooms/${room._id}`}
+                  className="font-display text-xl text-foreground transition-colors hover:text-primary"
+                >
+                  Room {room.number}
+                </Link>
+              ) : (
+                <p className="font-display text-xl text-foreground">
+                  Room not found
+                </p>
+              )}
+            </div>
+          </div>
           <Badge
             variant="outline"
             className={`capitalize ${STATUS_META[booking.status] || ""}`}
@@ -68,52 +81,54 @@ const BookingCard = ({ booking, onReport, index = 0 }) => {
             {booking.status}
           </Badge>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <CalendarCheck className="w-4 h-4 shrink-0" />
-            <span>
-              {formatDate(booking.checkInDate)} →{" "}
-              {formatDate(booking.checkOutDate)}
-            </span>
-          </p>
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <Users className="w-4 h-4 shrink-0" />
+
+        <div className="flex items-center gap-3 rounded-lg bg-background/70 px-3 py-2 text-xs text-muted-foreground">
+          <CalendarCheck className="w-3.5 h-3.5 shrink-0 text-primary/70" />
+          <span className="tabular-nums">
+            {formatDate(booking.checkInDate)}
+          </span>
+          <span className="text-border">&rarr;</span>
+          <span className="tabular-nums">
+            {formatDate(booking.checkOutDate)}
+          </span>
+          <span className="ml-auto shrink-0 font-medium text-foreground">
+            {nights} {nights === 1 ? "night" : "nights"}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <Users className="w-3.5 h-3.5" />
             {booking.guestsCount} guest{booking.guestsCount > 1 ? "s" : ""}
-          </p>
+          </span>
+          <span className="font-semibold text-primary tabular-nums">
+            ${booking.totalAmount}
+          </span>
         </div>
 
         {booking.specialRequests && (
-          <p className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          <p className="line-clamp-1 text-xs text-muted-foreground">
             {booking.specialRequests}
           </p>
         )}
 
-        <div className="flex items-center justify-between border-t border-border pt-3">
-          <p className="text-sm">
-            <span className="text-muted-foreground">Total </span>
-            <span className="font-semibold text-primary">
-              ${booking.totalAmount}
-            </span>
+        {active ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-muted-foreground"
+            onClick={() => onReport(room)}
+          >
+            <Wrench className="w-3.5 h-3.5" />
+            Report an issue
+          </Button>
+        ) : (
+          <p className="border-t border-border pt-3 text-center text-xs text-muted-foreground">
+            {booking.status === "checked-out"
+              ? "Stay completed"
+              : "Booking cancelled"}
           </p>
-          {active ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onReport(room)}
-            >
-              <Wrench className="w-3.5 h-3.5" />
-              Report an issue
-            </Button>
-          ) : (
-            <span className="text-xs text-muted-foreground">
-              {booking.status === "checked-out"
-                ? "Stay completed"
-                : "Booking cancelled"}
-            </span>
-          )}
-        </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -167,14 +182,19 @@ const MyStays = () => {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {Array.from({ length: 2 }).map((_, i) => (
             <Card key={i} className="p-5">
-              <CardContent className="space-y-3 px-0">
-                <Skeleton className="h-28 w-full" />
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
+              <CardContent className="space-y-4 px-0">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-9 w-9 rounded-lg" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-full rounded-lg" />
+                <Skeleton className="h-4 w-1/2" />
               </CardContent>
             </Card>
           ))}
@@ -203,7 +223,7 @@ const MyStays = () => {
               <h2 className="font-display text-xl text-foreground">
                 Active stays
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {activeBookings.map((booking, idx) => (
                   <BookingCard
                     key={booking._id}
@@ -225,7 +245,7 @@ const MyStays = () => {
               <h2 className="font-display text-xl text-foreground">
                 Past stays
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {pastBookings.map((booking, idx) => (
                   <BookingCard
                     key={booking._id}
