@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/guards/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
+import GuestLayout from "./components/layout/GuestLayout.jsx";
 
 const Home = lazy(() => import("./pages/home/Home"));
 const Login = lazy(() => import("./pages/auth/Login"));
@@ -34,6 +35,7 @@ const MaintenanceDetails = lazy(() =>
 );
 const Billing = lazy(() => import("./pages/billing/Billing.jsx"));
 const MyStay = lazy(() => import("./pages/my-stay/MyStay.jsx"));
+const GuestOverview = lazy(() => import("./pages/guest/Overview.jsx"));
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -53,6 +55,12 @@ const App = () => {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/my-stay" element={<MyStay />} />
+          </Route>
+
+          <Route element={<GuestLayout />}>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/guest" element={<GuestOverview />} />
+            </Route>
           </Route>
 
           <Route element={<DashboardLayout />}>

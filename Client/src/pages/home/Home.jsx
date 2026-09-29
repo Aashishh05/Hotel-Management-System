@@ -208,7 +208,7 @@ const Home = () => {
                 <DropdownMenuItem
                   render={
                     <Link
-                      to={user?.role?.name === "guest" ? "/my-stay" : "/dashboard"}
+                      to={user?.role?.name === "guest" ? "/guest" : "/dashboard"}
                     />
                   }
                 >
@@ -217,7 +217,7 @@ const Home = () => {
                   ) : (
                     <LayoutDashboard className="w-4 h-4" />
                   )}
-                  {user?.role?.name === "guest" ? "My Stay" : "Dashboard"}
+                  {user?.role?.name === "guest" ? "My Dashboard" : "Dashboard"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   variant="destructive"
