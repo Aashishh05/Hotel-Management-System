@@ -35,12 +35,15 @@ const isActive = (booking) => ACTIVE_STATUSES.includes(booking?.status);
 const formatDate = (value) =>
   value ? new Date(value).toLocaleDateString() : "—";
 
-const BookingCard = ({ booking, onReport }) => {
+const BookingCard = ({ booking, onReport, index = 0 }) => {
   const active = isActive(booking);
   const room = booking.room;
 
   return (
-    <Card className="overflow-hidden transition-all hover:ring-2 hover:ring-primary/30">
+    <Card
+      style={{ animationDelay: `${Math.min(index, 5) * 70}ms` }}
+      className="overflow-hidden transition-all hover:ring-2 hover:ring-primary/30 animate-fade-in-up"
+    >
       <div className="h-28 bg-gradient-to-br from-primary/20 via-primary/5 to-background border-b border-border flex items-center justify-center">
         <BedDouble className="w-9 h-9 text-primary/60" strokeWidth={1.5} />
       </div>
@@ -142,7 +145,7 @@ const MyStays = () => {
   const pastBookings = bookings.filter((booking) => !isActive(booking));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <div>
         <Badge
           variant="outline"
@@ -201,11 +204,12 @@ const MyStays = () => {
                 Active stays
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {activeBookings.map((booking) => (
+                {activeBookings.map((booking, idx) => (
                   <BookingCard
                     key={booking._id}
                     booking={booking}
                     onReport={setReportRoom}
+                    index={idx}
                   />
                 ))}
               </div>
@@ -222,11 +226,12 @@ const MyStays = () => {
                 Past stays
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {pastBookings.map((booking) => (
+                {pastBookings.map((booking, idx) => (
                   <BookingCard
                     key={booking._id}
                     booking={booking}
                     onReport={setReportRoom}
+                    index={idx}
                   />
                 ))}
               </div>

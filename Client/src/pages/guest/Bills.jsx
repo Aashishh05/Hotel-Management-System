@@ -53,7 +53,7 @@ const Bills = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <div>
         <Badge
           variant="outline"
@@ -115,12 +115,16 @@ const Bills = () => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {billings.map((billing) => {
+          {billings.map((billing, idx) => {
             const paid = billing.paidAmount || 0;
             const total = billing.totalAmount || 0;
             const due = total - paid;
             return (
-              <Card key={billing._id} className="p-5">
+              <Card
+                key={billing._id}
+                style={{ animationDelay: `${Math.min(idx, 5) * 70}ms` }}
+                className="p-5 animate-fade-in-up"
+              >
                 <CardContent className="space-y-4 px-0">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>

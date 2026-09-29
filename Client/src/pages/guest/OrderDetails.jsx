@@ -83,7 +83,7 @@ const OrderDetails = () => {
     : "—";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in-up">
       <div>
         <Button
           type="button"
@@ -133,7 +133,7 @@ const OrderDetails = () => {
         </Card>
       ) : (
         <div className="space-y-6">
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden animate-fade-in-up animate-delay-100">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-muted/40 px-6 py-5">
               <div className="flex items-center gap-3">
                 <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
@@ -194,7 +194,7 @@ const OrderDetails = () => {
             </div>
           </Card>
 
-          <Card>
+          <Card className="animate-fade-in-up animate-delay-200">
             <CardContent className="p-6">
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="font-display text-lg text-foreground">
@@ -212,7 +212,8 @@ const OrderDetails = () => {
                   return (
                     <li
                       key={item.menuItem?._id || idx}
-                      className="flex items-center justify-between gap-6 rounded-xl border border-border px-4 py-3.5"
+                      style={{ animationDelay: `${Math.min(idx, 6) * 60}ms` }}
+                      className="flex items-center justify-between gap-6 rounded-xl border border-border px-4 py-3.5 animate-fade-in-up"
                     >
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">

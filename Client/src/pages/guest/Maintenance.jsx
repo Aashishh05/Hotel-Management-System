@@ -85,7 +85,7 @@ const Maintenance = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Badge
@@ -147,8 +147,12 @@ const Maintenance = () => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {requests.map((request) => (
-            <Card key={request._id} className="p-5">
+          {requests.map((request, idx) => (
+            <Card
+              key={request._id}
+              style={{ animationDelay: `${Math.min(idx, 5) * 70}ms` }}
+              className="p-5 animate-fade-in-up"
+            >
               <CardContent className="space-y-3 px-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">

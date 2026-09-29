@@ -42,7 +42,7 @@ const Orders = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <div>
         <Badge
           variant="outline"
@@ -89,11 +89,12 @@ const Orders = () => {
         </Card>
       ) : (
         <div className="space-y-3">
-          {orders.map((order) => (
+          {orders.map((order, idx) => (
             <Link
               key={order._id}
               to={`/guest/orders/${order._id}`}
-              className="block rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+              style={{ animationDelay: `${Math.min(idx, 5) * 70}ms` }}
+              className="block rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 animate-fade-in-up"
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">

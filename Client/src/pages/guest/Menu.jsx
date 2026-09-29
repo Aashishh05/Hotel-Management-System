@@ -150,7 +150,7 @@ const Menu = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <div>
         <Badge
           variant="outline"
@@ -227,18 +227,25 @@ const Menu = () => {
             ))}
           </div>
 
-          {Object.entries(visibleGroups).map(([category, items]) => (
-            <section key={category} className="space-y-4">
+          {Object.entries(visibleGroups).map(([category, items], groupIdx) => (
+            <section
+              key={category}
+              className="space-y-4 animate-fade-in-up"
+              style={{ animationDelay: `${Math.min(groupIdx, 4) * 80}ms` }}
+            >
               <h2 className="font-display text-xl text-foreground">
                 {CATEGORY_LABELS[category] || category}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((item) => {
+                {items.map((item, itemIdx) => {
                   const qty = cart[item._id] || 0;
                   return (
                     <Card
                       key={item._id}
-                      className="p-5 transition-all hover:ring-2 hover:ring-primary/30"
+                      style={{
+                        animationDelay: `${Math.min(itemIdx, 6) * 60}ms`,
+                      }}
+                      className="p-5 transition-all hover:ring-2 hover:ring-primary/30 animate-fade-in-up"
                     >
                       <CardContent className="space-y-3 px-0">
                         <div className="flex items-start justify-between gap-3">
@@ -303,7 +310,7 @@ const Menu = () => {
       )}
 
       {cartCount > 0 && !loading && (
-        <div className="sticky bottom-4 z-10">
+        <div className="sticky bottom-4 z-10 animate-fade-in-up">
           <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-lg">
             <div className="flex items-center gap-3">
               <ShoppingBag className="w-5 h-5 text-primary" />

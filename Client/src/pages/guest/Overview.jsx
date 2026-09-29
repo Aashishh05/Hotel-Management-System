@@ -95,7 +95,7 @@ const Overview = () => {
   const firstName = user?.name?.split(" ")[0] || "Guest";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <div>
         <Badge
           variant="outline"
@@ -125,7 +125,7 @@ const Overview = () => {
           </CardContent>
         </Card>
       ) : activeBooking ? (
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden animate-fade-in-up animate-delay-100">
           <div className="grid lg:grid-cols-[1fr_auto] gap-5 p-6">
             <div className="min-w-0">
               <div className="flex items-start justify-between gap-3">
@@ -237,11 +237,12 @@ const Overview = () => {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {QUICK_ACTIONS.map(({ label, description, path, Icon }) => (
+        {QUICK_ACTIONS.map(({ label, description, path, Icon }, idx) => (
           <Link
             key={path}
             to={path}
-            className="group rounded-xl border border-border bg-card p-5 transition-all hover:ring-2 hover:ring-primary/30"
+            style={{ animationDelay: `${200 + Math.min(idx, 5) * 60}ms` }}
+            className="group rounded-xl border border-border bg-card p-5 transition-all hover:ring-2 hover:ring-primary/30 animate-fade-in-up"
           >
             <Icon className="w-6 h-6 text-primary/70" strokeWidth={1.75} />
             <h3 className="mt-3 font-display text-base text-foreground group-hover:text-primary">
