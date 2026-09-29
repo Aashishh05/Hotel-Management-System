@@ -32,6 +32,7 @@ const Maintenance = lazy(() =>
 const MaintenanceDetails = lazy(() =>
   import("./pages/maintenance/MaintenanceDetails.jsx")
 );
+const Billing = lazy(() => import("./pages/billing/Billing.jsx"));
 const MyStay = lazy(() => import("./pages/my-stay/MyStay.jsx"));
 
 const PageLoader = () => (
@@ -70,6 +71,7 @@ const App = () => {
               <Route path="/housekeeping" element={<Housekeeping />} />
               <Route path="/maintenance" element={<Maintenance />} />
               <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
+              <Route path="/billing" element={<Billing />} />
             </Route>
           </Route>
         </Routes>
