@@ -36,6 +36,7 @@ const MaintenanceDetails = lazy(() =>
 const Billing = lazy(() => import("./pages/billing/Billing.jsx"));
 const MyStay = lazy(() => import("./pages/my-stay/MyStay.jsx"));
 const GuestOverview = lazy(() => import("./pages/guest/Overview.jsx"));
+const GuestStays = lazy(() => import("./pages/guest/MyStays.jsx"));
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -60,6 +61,7 @@ const App = () => {
           <Route element={<GuestLayout />}>
             <Route element={<ProtectedRoute />}>
               <Route path="/guest" element={<GuestOverview />} />
+              <Route path="/guest/stays" element={<GuestStays />} />
             </Route>
           </Route>
 
