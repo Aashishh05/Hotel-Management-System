@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ClipboardList, UtensilsCrossed, CalendarDays } from "lucide-react";
+import { ClipboardList, UtensilsCrossed, ChevronRight } from "lucide-react";
 import { getMyOrders } from "../../api/resturantOrderApi";
 import { showToast } from "../../components/common/Toast";
 import { Badge } from "../../components/ui/badge";
@@ -52,21 +52,20 @@ const Orders = () => {
           My Orders
         </Badge>
         <h1 className="mt-3 font-display text-3xl sm:text-4xl text-foreground">
-          Room service orders
+          My orders
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground max-w-lg">
-          Track the orders you placed from the restaurant menu.
-        </p>
       </div>
 
       {loading ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="p-5">
-              <CardContent className="space-y-3 px-0">
-                <Skeleton className="h-5 w-40" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
+            <Card key={i} className="p-4">
+              <CardContent className="px-0 flex items-center justify-between gap-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-44" />
+                </div>
+                <Skeleton className="h-5 w-20" />
               </CardContent>
             </Card>
           ))}
@@ -77,8 +76,8 @@ const Orders = () => {
           <h3 className="mt-4 font-display text-xl text-foreground">
             No orders yet
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-            Hungry? Browse the menu and order room service.
+          <p className="mt-2 text-sm text-muted-foreground">
+            Order room service from the menu.
           </p>
           <Button
             className="mt-5"
@@ -89,67 +88,38 @@ const Orders = () => {
           </Button>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {orders.map((order) => (
-            <Card key={order._id} className="p-5">
-              <CardContent className="space-y-4 px-0">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      Order #{order._id.slice(-6).toUpperCase()}
-                    </p>
-                    <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                      <CalendarDays className="w-3.5 h-3.5" />
-                      {formatDate(order.createdAt)}
-                      {order.room && <span> · Room {order.room.number}</span>}
-                    </p>
-                  </div>
-                    <Badge
-                      variant="outline"
-                      className={`capitalize ${STATUS_META[order.status] || ""}`}
-                    >
-                      {order.status}
-                    </Badge>
-                  </div>
-
-                <ul className="rounded-lg border border-border bg-muted/40 divide-y divide-border">
-                  {order.items.map((item, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-center justify-between gap-3 px-3 py-2 text-sm"
-                    >
-                      <span className="min-w-0 truncate text-foreground">
-                        {item.menuItem?.name || "Menu item"}
-                        <span className="text-muted-foreground">
-                          {" "}× {item.quantity}
-                        </span>
-                      </span>
-                      <span className="shrink-0 text-muted-foreground">
-                        {formatPrice(item.price * item.quantity)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex items-center justify-between border-t border-border pt-3">
-                  <p className="text-sm">
-                    <span className="text-muted-foreground">Total </span>
-                    <span className="font-semibold text-primary">
-                      {formatPrice(order.totalAmount)}
-                    </span>
+            <Link
+              key={order._id}
+              to={`/guest/orders/${order._id}`}
+              className="block rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-foreground">
+                    Order #{order._id.slice(-6).toUpperCase()}
                   </p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    nativeButton={false}
-                    render={<Link to={`/guest/orders/${order._id}`} />}
-                  >
-                    View details
-                  </Button>
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {formatDate(order.createdAt)} · {order.items.length} item
+                    {order.items.length > 1 ? "s" : ""}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="text-sm font-semibold text-primary tabular-nums">
+                    {formatPrice(order.totalAmount)}
+                  </span>
+                  <Badge
+                    variant="outline"
+                    className={`capitalize ${STATUS_META[order.status] || ""}`}
+                  >
+                    {order.status}
+                  </Badge>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       )}
