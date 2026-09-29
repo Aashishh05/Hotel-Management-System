@@ -64,6 +64,11 @@ const formatDate = (value) =>
 
 const formatPrice = (value) => `$${Number(value || 0).toLocaleString()}`;
 
+const orderLabel = (order) =>
+  order?.orderNumber
+    ? `#${order.orderNumber}`
+    : `#${order?._id.slice(-6).toUpperCase()}`;
+
 const guestName = (guest) =>
   guest
     ? `${guest.firstName || ""} ${guest.lastName || ""}`.trim() ||
@@ -295,7 +300,7 @@ const Restaurant = () => {
               visibleOrders.map((order) => (
                 <TableRow key={order._id} className="animate-fade-in-up">
                   <TableCell className="font-semibold text-foreground">
-                    #{order._id.slice(-6).toUpperCase()}
+                    {orderLabel(order)}
                   </TableCell>
                   <TableCell>
                     <p className="font-medium text-foreground">
@@ -390,9 +395,7 @@ const Restaurant = () => {
         {detailOrder && (
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>
-                Order #{detailOrder._id.slice(-6).toUpperCase()}
-              </DialogTitle>
+              <DialogTitle>Order {orderLabel(detailOrder)}</DialogTitle>
               <DialogDescription>
                 Placed on {formatDate(detailOrder.createdAt)}
               </DialogDescription>
@@ -503,7 +506,7 @@ const Restaurant = () => {
       <ConfirmDialog
         open={confirmDelete !== null}
         title="Delete order"
-        message={`Delete order #${confirmDelete?._id.slice(-6).toUpperCase()}? This cannot be undone.`}
+        message={`Delete order ${orderLabel(confirmDelete)}? This cannot be undone.`}
         busy={deleting}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(null)}

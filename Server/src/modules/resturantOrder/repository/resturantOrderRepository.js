@@ -1,4 +1,17 @@
 import RestaurantOrder from "../model/resturantOrderModel.js";
+import Counter from "../model/counterModel.js";
+
+const ORDER_NUMBER_SEQ = "restaurantOrder";
+
+const getNextOrderNumber = async () => {
+  const counter = await Counter.findByIdAndUpdate(
+    ORDER_NUMBER_SEQ,
+    { $inc: { seq: 1 } },
+    { returnDocument: "after", upsert: true, setDefaultsOnInsert: true },
+  );
+
+  return counter.seq;
+};
 
 const createOrder = async (orderData) => {
   return await RestaurantOrder.create(orderData);
@@ -64,6 +77,7 @@ const deleteOrder = async (id) => {
 };
 
 export default {
+  getNextOrderNumber,
   createOrder,
   getAllOrders,
   getOrderById,

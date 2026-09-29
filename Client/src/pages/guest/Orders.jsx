@@ -20,6 +20,11 @@ const formatDate = (value) =>
 
 const formatPrice = (value) => `$${Number(value || 0).toLocaleString()}`;
 
+const orderLabel = (order) =>
+  order?.orderNumber
+    ? `#${order.orderNumber}`
+    : `#${order?._id.slice(-6).toUpperCase()}`;
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,7 +104,7 @@ const Orders = () => {
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-foreground">
-                    Order #{order._id.slice(-6).toUpperCase()}
+                    Order {orderLabel(order)}
                   </p>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     {formatDate(order.createdAt)} · {order.items.length} item

@@ -36,6 +36,11 @@ const formatDate = (value) =>
 
 const formatPrice = (value) => `$${Number(value || 0).toLocaleString()}`;
 
+const orderLabel = (order) =>
+  order?.orderNumber
+    ? `#${order.orderNumber}`
+    : `#${order?._id.slice(-6).toUpperCase()}`;
+
 const OrderDetails = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
@@ -144,7 +149,7 @@ const OrderDetails = () => {
                     Room service order
                   </p>
                   <h1 className="font-display text-2xl text-foreground">
-                    #{order._id.slice(-6).toUpperCase()}
+                    {orderLabel(order)}
                   </h1>
                 </div>
               </div>

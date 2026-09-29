@@ -93,6 +93,7 @@ const createMyOrder = async (orderData, userId) => {
   const totalAmount = calculateTotal(orderItems);
 
   const order = await restaurantOrderRepository.createOrder({
+    orderNumber: await restaurantOrderRepository.getNextOrderNumber(),
     guest: guest._id,
     room: booking.room._id,
     items: orderItems,
@@ -129,6 +130,7 @@ const createOrder = async (orderData, userId) => {
   const totalAmount = calculateTotal(items);
 
   const order = await restaurantOrderRepository.createOrder({
+    orderNumber: await restaurantOrderRepository.getNextOrderNumber(),
     guest,
     room,
     items,

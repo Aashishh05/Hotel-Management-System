@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const restaurantOrderSchema = new mongoose.Schema(
   {
+    orderNumber: {
+      type: Number,
+      required: [true, "Order number is required"],
+      unique: true,
+    },
+
     guest: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Guest",
