@@ -210,10 +210,21 @@ const checkReportEligibility = async (roomId, userId) => {
   return await hasActiveBookingForRoom(userId, roomId);
 };
 
+const getMyRequests = async (userId) => {
+  const user = await userRepository.getUserById(userId);
+
+  if (!user) {
+    throw new ErrorHandler("User not found", 404);
+  }
+
+  return await maintenanceRepository.getRequestsByReporter(userId);
+};
+
 export default {
   createRequest,
   reportIssue,
   checkReportEligibility,
+  getMyRequests,
   getAllRequests,
   getRequestById,
   getRequestsByRoom,

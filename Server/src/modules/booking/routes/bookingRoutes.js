@@ -12,6 +12,7 @@ import {
   getBookingsByGuest,
   getBookingsByRoom,
   getBookingsByStatus,
+  getMyBookings,
   updateBooking,
   confirmBooking,
   checkInBooking,
@@ -19,6 +20,8 @@ import {
 } from "../controller/bookingController.js";
 
 const router = express.Router();
+
+router.get("/mine", protect, auditLog, getMyBookings);
 
 router.post(
   "/create",

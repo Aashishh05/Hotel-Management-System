@@ -6,7 +6,17 @@ export const createOrder = async (orderData) => {
 };
 
 export const getAllOrders = async () => {
-  const res = await api.get("/resturant-order/get");
+  const res = await api.get("/resturant/get");
+  return res.data;
+};
+
+export const getMyOrders = async () => {
+  const res = await api.get("/resturant/mine");
+  return res.data;
+};
+
+export const createMyOrder = async (orderData) => {
+  const res = await api.post("/resturant/mine", orderData);
   return res.data;
 };
 

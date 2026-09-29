@@ -20,6 +20,15 @@ export const getAllBookings = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const getMyBookings = asyncErrorHandler(async (req, res) => {
+  const bookings = await bookingServices.getOwnBookings(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    bookings,
+  });
+});
+
 export const getBookingById = asyncErrorHandler(async (req, res) => {
   const booking = await bookingServices.getBookingById(
     req.params.id,

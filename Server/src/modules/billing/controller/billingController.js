@@ -58,6 +58,15 @@ export const getBillingsByStatus = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const getMyBillings = asyncErrorHandler(async (req, res) => {
+  const billings = await billingServices.getMyBillings(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    billings,
+  });
+});
+
 export const updateBilling = asyncErrorHandler(async (req, res) => {
   const billing = await billingServices.updateBilling(req.params.id, req.body);
 

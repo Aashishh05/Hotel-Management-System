@@ -1,5 +1,6 @@
 import bookingRepository from "../../../modules/booking/repository/bookingRepository.js";
 import guestRepository from "../../../modules/guest/repository/guestRepository.js";
+import userRepository from "../../../modules/user/repository/userRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import billingRepository from "../repository/billingRepository.js";
 
@@ -99,6 +100,22 @@ const getBillingsByGuest = async (guestId) => {
   return await billingRepository.getBillingsByGuest(guestId);
 };
 
+const getMyBillings = async (userId) => {
+  const user = await userRepository.getUserById(userId);
+
+  if (!user?.email) {
+    return [];
+  }
+
+  const ownGuest = await guestRepository.getGuestByEmail(user.email);
+
+  if (!ownGuest) {
+    return [];
+  }
+
+  return await billingRepository.getBillingsByGuest(ownGuest._id);
+};
+
 const getBillingsByStatus = async (status) => {
   const allowedStatuses = ["unpaid", "partial", "paid"];
 
@@ -160,6 +177,7 @@ export default {
   getBillingById,
   getBillingByBooking,
   getBillingsByGuest,
+  getMyBillings,
   getBillingsByStatus,
   updateBilling,
   deleteBilling,

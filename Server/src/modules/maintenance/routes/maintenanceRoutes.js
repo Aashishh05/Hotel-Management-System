@@ -9,6 +9,7 @@ import {
   createRequest,
   deleteRequest,
   getAllRequests,
+  getMyRequests,
   getRequestById,
   getRequestsByRoom,
   getRequestsByEmployee,
@@ -19,6 +20,13 @@ import {
 } from "../controller/maintenanceController.js";
 
 const router = express.Router();
+
+router.get(
+  "/mine",
+  protect,
+  auditLog,
+  getMyRequests,
+);
 
 router.post(
   "/report",

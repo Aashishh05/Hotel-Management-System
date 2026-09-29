@@ -44,6 +44,12 @@ const getRequestsByPriority = async (priority) => {
     .sort({ createdAt: -1 });
 };
 
+const getRequestsByReporter = async (reportedById) => {
+  return await MaintenanceRequest.find({ reportedBy: reportedById })
+    .populate(populateRefs)
+    .sort({ createdAt: -1 });
+};
+
 const updateRequest = async (id, requestData) => {
   return await MaintenanceRequest.findByIdAndUpdate(id, requestData, {
     new: true,
@@ -63,6 +69,7 @@ export default {
   getRequestsByEmployee,
   getRequestsByStatus,
   getRequestsByPriority,
+  getRequestsByReporter,
   updateRequest,
   deleteRequest,
 };

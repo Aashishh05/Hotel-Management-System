@@ -23,6 +23,28 @@ export const getAllOrders = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const createMyOrder = asyncErrorHandler(async (req, res) => {
+  const order = await restaurantOrderServices.createMyOrder(
+    req.body,
+    req.user._id,
+  );
+
+  res.status(201).json({
+    success: true,
+    message: "Order placed successfully",
+    order,
+  });
+});
+
+export const getMyOrders = asyncErrorHandler(async (req, res) => {
+  const orders = await restaurantOrderServices.getMyOrders(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    orders,
+  });
+});
+
 export const getOrderById = asyncErrorHandler(async (req, res) => {
   const order = await restaurantOrderServices.getOrderById(req.params.id);
 

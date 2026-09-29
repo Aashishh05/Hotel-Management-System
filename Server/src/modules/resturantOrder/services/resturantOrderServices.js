@@ -1,5 +1,8 @@
 import guestRepository from "../../guest/repository/guestRepository.js";
 import roomRepository from "../../room/repository/roomRepository.js";
+import userRepository from "../../user/repository/userRepository.js";
+import menuRepository from "../../menu/repository/menuRepository.js";
+import bookingRepository from "../../booking/repository/bookingRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import restaurantOrderRepository from "../repository/resturantOrderRepository.js"
 
@@ -7,6 +10,85 @@ const calculateTotal = (items) => {
   return items.reduce((total, item) => {
     return total + item.price * item.quantity;
   }, 0);
+};
+
+const getOwnGuest = async (userId) => {
+  const user = await userRepository.getUserById(userId);
+
+  if (!user?.email) {
+    throw new ErrorHandler("Guest account not found", 404);
+  }
+
+  const guest = await guestRepository.getGuestByEmail(user.email);
+
+  if (!guest) {
+    throw new ErrorHandler("Guest account not found", 404);
+  }
+
+  return guest;
+};
+
+const getMyOrders = async (userId) => {
+  const guest = await getOwnGuest(userId);
+
+  return await restaurantOrderRepository.getOrdersByGuest(guest._id);
+};
+
+const createMyOrder = async (orderData, userId) => {
+  const { items } = orderData;
+
+  const guest = await getOwnGuest(userId);
+
+  const booking = await bookingRepository.findActiveGuestBooking(guest._id);
+
+  if (!booking) {
+    throw new ErrorHandler(
+      "No active stay. You can only order while staying at the hotel.",
+      400,
+    );
+  }
+
+  if (!items || items.length === 0) {
+    throw new ErrorHandler("Order must contain at least one item", 400);
+  }
+
+  const orderItems = [];
+
+  for (const item of items) {
+    const menuItem = await menuRepository.getMenuItemById(item.menuItem);
+
+    if (!menuItem) {
+      throw new ErrorHandler("Menu item not found", 404);
+    }
+
+    if (!menuItem.isAvailable) {
+      throw new ErrorHandler(`${menuItem.name} is not available`, 400);
+    }
+
+    const quantity = Number(item.quantity);
+
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      throw new ErrorHandler("Quantity must be at least 1", 400);
+    }
+
+    orderItems.push({
+      menuItem: menuItem._id,
+      quantity,
+      price: menuItem.price,
+    });
+  }
+
+  const totalAmount = calculateTotal(orderItems);
+
+  const order = await restaurantOrderRepository.createOrder({
+    guest: guest._id,
+    room: booking.room._id,
+    items: orderItems,
+    totalAmount,
+    takenBy: userId,
+  });
+
+  return await restaurantOrderRepository.getOrderById(order._id);
 };
 
 const createOrder = async (orderData, userId) => {
@@ -145,6 +227,8 @@ const deleteOrder = async (id) => {
 
 export default {
   createOrder,
+  createMyOrder,
+  getMyOrders,
   getAllOrders,
   getOrderById,
   getOrdersByGuest,

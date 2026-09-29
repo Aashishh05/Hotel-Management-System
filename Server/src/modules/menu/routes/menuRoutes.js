@@ -16,6 +16,13 @@ import {
 
 const router = express.Router();
 
+router.get(
+  "/available",
+  protect,
+  auditLog,
+  getAvailableMenuItems,
+);
+
 router.post(
   "/create",
   protect,

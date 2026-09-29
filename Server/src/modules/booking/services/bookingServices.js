@@ -121,7 +121,10 @@ const createBooking = async (bookingData, userId) => {
   );
 
   if (overlappingBooking) {
-    throw new ErrorHandler("Room is already booked for the selected dates", 409);
+    throw new ErrorHandler(
+      "Room is already booked for the selected dates",
+      409,
+    );
   }
 
   return await bookingRepository.createBooking({
@@ -154,7 +157,10 @@ const getBookingById = async (id, userId) => {
 
   const actor = await getActor(userId);
 
-  if (isGuestRole(actor) && !bookingOwnedByUser(booking, await resolveGuestForUser(actor))) {
+  if (
+    isGuestRole(actor) &&
+    !bookingOwnedByUser(booking, await resolveGuestForUser(actor))
+  ) {
     throw new ErrorHandler("Booking not found", 404);
   }
 
@@ -299,7 +305,10 @@ const updateBooking = async (id, bookingData, userId) => {
     );
 
     if (overlappingBooking) {
-      throw new ErrorHandler("Room is already booked for the selected dates", 409);
+      throw new ErrorHandler(
+        "Room is already booked for the selected dates",
+        409,
+      );
     }
   }
 
@@ -399,6 +408,7 @@ const checkOutBooking = async (bookingId, userId) => {
 
 export default {
   createBooking,
+  getOwnBookings,
   getAllBookings,
   getBookingById,
   getBookingsByGuest,

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Hexagon, BedDouble, LogOut, Wrench, CalendarCheck, Users, ArrowLeft } from "lucide-react";
-import { getAllBookings } from "../../api/bookingApi";
+import { getMyBookings } from "../../api/bookingApi";
 import { logoutApi } from "../../api/authApi";
 import useAuth from "../../hooks/useAuth.js";
 import { showToast } from "../../components/common/Toast";
@@ -124,7 +124,7 @@ const MyStay = () => {
 
   useEffect(() => {
     let active = true;
-    getAllBookings()
+    getMyBookings()
       .then((res) => active && setBookings(res?.bookings || []))
       .catch((err) =>
         active &&

@@ -6,8 +6,10 @@ import auditLog from "../../../middleware/auditLogMiddleware.js";
 
 import {
   createOrder,
+  createMyOrder,
   deleteOrder,
   getAllOrders,
+  getMyOrders,
   getOrderById,
   getOrdersByGuest,
   getOrdersByRoom,
@@ -16,6 +18,20 @@ import {
 } from "../controller/resturantOrderController.js";
 
 const router = express.Router();
+
+router.get(
+  "/mine",
+  protect,
+  auditLog,
+  getMyOrders,
+);
+
+router.post(
+  "/mine",
+  protect,
+  auditLog,
+  createMyOrder,
+);
 
 router.post(
   "/create",

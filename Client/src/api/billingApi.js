@@ -10,6 +10,11 @@ export const getAllBillings = async () => {
   return res.data;
 };
 
+export const getMyBillings = async () => {
+  const res = await api.get("/billing/mine");
+  return res.data;
+};
+
 export const getBillingByBooking = async (bookingId) => {
   const res = await api.get(`/billing/get/booking/${bookingId}`);
   return res.data;

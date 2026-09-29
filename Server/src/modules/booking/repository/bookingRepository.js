@@ -80,6 +80,17 @@ const findActiveGuestRoomBooking = async (guestId, roomId) => {
   });
 };
 
+const findActiveGuestBooking = async (guestId) => {
+  return await Booking.findOne({
+    guest: guestId,
+    status: {
+      $in: ["pending", "confirmed", "checked-in"],
+    },
+  })
+    .populate("room")
+    .sort({ createdAt: -1 });
+};
+
 const updateBooking = async (id, bookingData) => {
   return await Booking.findByIdAndUpdate(id, bookingData, {
     new: true,
@@ -103,6 +114,7 @@ export default {
   getBookingsByStatus,
   findOverlappingBooking,
   findActiveGuestRoomBooking,
+  findActiveGuestBooking,
   updateBooking,
   deleteBooking,
 };

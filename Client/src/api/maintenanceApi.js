@@ -24,6 +24,12 @@ export const getAllRequests = async () => {
   return res.data;
 };
 
+export const getMyRequests = async () => {
+  const res = await api.get("/maintenance/mine");
+
+  return res.data;
+};
+
 export const getRequestById = async (id) => {
   const res = await api.get(`/maintenance/get/${id}`);
 

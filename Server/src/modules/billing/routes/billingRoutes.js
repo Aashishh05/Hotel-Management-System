@@ -12,10 +12,18 @@ import {
   getBillingByBooking,
   getBillingsByGuest,
   getBillingsByStatus,
+  getMyBillings,
   updateBilling,
 } from "../controller/billingController.js";
 
 const router = express.Router();
+
+router.get(
+  "/mine",
+  protect,
+  auditLog,
+  getMyBillings,
+);
 
 router.post(
   "/create",

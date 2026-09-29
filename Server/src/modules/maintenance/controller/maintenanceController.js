@@ -48,6 +48,15 @@ export const getAllRequests = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const getMyRequests = asyncErrorHandler(async (req, res) => {
+  const requests = await maintenanceServices.getMyRequests(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    requests,
+  });
+});
+
 export const getRequestById = asyncErrorHandler(async (req, res) => {
   const request = await maintenanceServices.getRequestById(req.params.id);
 
