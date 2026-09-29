@@ -43,6 +43,7 @@ const GuestMaintenance = lazy(() =>
   import("./pages/guest/Maintenance.jsx")
 );
 const GuestBills = lazy(() => import("./pages/guest/Bills.jsx"));
+const MenuAdmin = lazy(() => import("./pages/menu/Menu.jsx"));
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -95,6 +96,7 @@ const App = () => {
               <Route path="/maintenance" element={<Maintenance />} />
               <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
               <Route path="/billing" element={<Billing />} />
+              <Route path="/menu" element={<MenuAdmin />} />
             </Route>
           </Route>
         </Routes>
