@@ -1,7 +1,7 @@
 import api from "./axios.js";
 
 export const createOrder = async (orderData) => {
-  const res = await api.post("/resturant-order/create", orderData);
+  const res = await api.post("/resturant/create", orderData);
   return res.data;
 };
 
@@ -26,31 +26,31 @@ export const createMyOrder = async (orderData) => {
 };
 
 export const getOrderById = async (id) => {
-  const res = await api.get(`/resturant-order/get/${id}`);
+  const res = await api.get(`/resturant/get/${id}`);
   return res.data;
 };
 
 export const getOrdersByGuest = async (guestId) => {
-  const res = await api.get(`/resturant-order/get/guest/${guestId}`);
+  const res = await api.get(`/resturant/get/guest/${guestId}`);
   return res.data;
 };
 
 export const getOrdersByRoom = async (roomId) => {
-  const res = await api.get(`/resturant-order/get/room/${roomId}`);
+  const res = await api.get(`/resturant/get/room/${roomId}`);
   return res.data;
 };
 
 export const getOrdersByStatus = async (status) => {
-  const res = await api.get(`/resturant-order/get/status/${status}`);
+  const res = await api.get(`/resturant/get/status/${status}`);
   return res.data;
 };
 
 export const updateOrder = async (id, orderData) => {
-  const res = await api.put(`/resturant-order/update/${id}`, orderData);
+  const res = await api.put(`/resturant/update/${id}`, orderData);
   return res.data;
 };
 
 export const deleteOrder = async (id) => {
-  const res = await api.delete(`/resturant-order/delete/${id}`);
+  const res = await api.delete(`/resturant/delete/${id}`);
   return res.data;
 };
