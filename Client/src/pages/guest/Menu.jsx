@@ -29,6 +29,7 @@ const Menu = () => {
   const [placing, setPlacing] = useState(false);
   const [activeStay, setActiveStay] = useState(null);
   const [cart, setCart] = useState({});
+  const [activeCategory, setActiveCategory] = useState("all");
 
   useEffect(() => {
     let active = true;
@@ -79,6 +80,26 @@ const Menu = () => {
       return acc;
     }, {});
   }, [rawMenu]);
+
+  const filters = useMemo(
+    () => [
+      { key: "all", label: "All", count: rawMenu.length },
+      ...Object.keys(CATEGORY_LABELS)
+        .filter((category) => grouped[category]?.length)
+        .map((category) => ({
+          key: category,
+          label: CATEGORY_LABELS[category],
+          count: grouped[category].length,
+        })),
+    ],
+    [rawMenu, grouped],
+  );
+
+  const visibleGroups = useMemo(() => {
+    if (activeCategory === "all") return grouped;
+    if (!grouped[activeCategory]) return {};
+    return { [activeCategory]: grouped[activeCategory] };
+  }, [grouped, activeCategory]);
 
   const cartCount = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
 
@@ -180,7 +201,33 @@ const Menu = () => {
             </div>
           )}
 
-          {Object.entries(grouped).map(([category, items]) => (
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+            {filters.map((filter) => (
+              <button
+                key={filter.key}
+                type="button"
+                onClick={() => setActiveCategory(filter.key)}
+                className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  activeCategory === filter.key
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                }`}
+              >
+                {filter.label}
+                <span
+                  className={`ml-1.5 text-xs tabular-nums ${
+                    activeCategory === filter.key
+                      ? "text-primary-foreground/80"
+                      : "text-muted-foreground/70"
+                  }`}
+                >
+                  {filter.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {Object.entries(visibleGroups).map(([category, items]) => (
             <section key={category} className="space-y-4">
               <h2 className="font-display text-xl text-foreground">
                 {CATEGORY_LABELS[category] || category}
