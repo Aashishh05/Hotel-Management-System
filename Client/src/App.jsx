@@ -39,6 +39,9 @@ const GuestOverview = lazy(() => import("./pages/guest/Overview.jsx"));
 const GuestStays = lazy(() => import("./pages/guest/MyStays.jsx"));
 const GuestMenu = lazy(() => import("./pages/guest/Menu.jsx"));
 const GuestOrders = lazy(() => import("./pages/guest/Orders.jsx"));
+const GuestOrderDetails = lazy(() =>
+  import("./pages/guest/OrderDetails.jsx")
+);
 const GuestMaintenance = lazy(() =>
   import("./pages/guest/Maintenance.jsx")
 );
@@ -71,6 +74,10 @@ const App = () => {
               <Route path="/guest/stays" element={<GuestStays />} />
               <Route path="/guest/menu" element={<GuestMenu />} />
               <Route path="/guest/orders" element={<GuestOrders />} />
+              <Route
+                path="/guest/orders/:id"
+                element={<GuestOrderDetails />}
+              />
               <Route
                 path="/guest/maintenance"
                 element={<GuestMaintenance />}

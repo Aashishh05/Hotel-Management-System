@@ -15,6 +15,11 @@ export const getMyOrders = async () => {
   return res.data;
 };
 
+export const getMyOrderById = async (id) => {
+  const res = await api.get(`/resturant/mine/${id}`);
+  return res.data;
+};
+
 export const createMyOrder = async (orderData) => {
   const res = await api.post("/resturant/mine", orderData);
   return res.data;

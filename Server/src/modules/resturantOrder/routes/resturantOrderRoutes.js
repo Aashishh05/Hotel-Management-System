@@ -9,6 +9,7 @@ import {
   createMyOrder,
   deleteOrder,
   getAllOrders,
+  getMyOrderById,
   getMyOrders,
   getOrderById,
   getOrdersByGuest,
@@ -24,6 +25,13 @@ router.get(
   protect,
   auditLog,
   getMyOrders,
+);
+
+router.get(
+  "/mine/:id",
+  protect,
+  auditLog,
+  getMyOrderById,
 );
 
 router.post(

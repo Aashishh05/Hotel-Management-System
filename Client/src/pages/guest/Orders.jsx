@@ -104,13 +104,13 @@ const Orders = () => {
                       {order.room && <span> · Room {order.room.number}</span>}
                     </p>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={`capitalize ${STATUS_META[order.status] || ""}`}
-                  >
-                    {order.status}
-                  </Badge>
-                </div>
+                    <Badge
+                      variant="outline"
+                      className={`capitalize ${STATUS_META[order.status] || ""}`}
+                    >
+                      {order.status}
+                    </Badge>
+                  </div>
 
                 <ul className="rounded-lg border border-border bg-muted/40 divide-y divide-border">
                   {order.items.map((item, idx) => (
@@ -138,6 +138,15 @@ const Orders = () => {
                       {formatPrice(order.totalAmount)}
                     </span>
                   </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    nativeButton={false}
+                    render={<Link to={`/guest/orders/${order._id}`} />}
+                  >
+                    View details
+                  </Button>
                 </div>
               </CardContent>
             </Card>

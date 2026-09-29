@@ -34,6 +34,18 @@ const getMyOrders = async (userId) => {
   return await restaurantOrderRepository.getOrdersByGuest(guest._id);
 };
 
+const getMyOrderById = async (orderId, userId) => {
+  const guest = await getOwnGuest(userId);
+
+  const order = await restaurantOrderRepository.getOrderById(orderId);
+
+  if (!order || order.guest?._id?.toString() !== guest._id.toString()) {
+    throw new ErrorHandler("Order not found", 404);
+  }
+
+  return order;
+};
+
 const createMyOrder = async (orderData, userId) => {
   const { items } = orderData;
 
@@ -228,6 +240,7 @@ const deleteOrder = async (id) => {
 export default {
   createOrder,
   createMyOrder,
+  getMyOrderById,
   getMyOrders,
   getAllOrders,
   getOrderById,
