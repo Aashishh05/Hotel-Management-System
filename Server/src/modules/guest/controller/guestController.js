@@ -2,7 +2,7 @@ import guestServices from "../services/guestServices.js";
 import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 
 export const createGuest = asyncErrorHandler(async (req, res) => {
-  const guest = await guestServices.createGuest(req.body);
+  const guest = await guestServices.createGuest(req.body, req.user?._id);
 
   res.status(201).json({
     success: true,
@@ -30,7 +30,11 @@ export const getGuestById = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateGuest = asyncErrorHandler(async (req, res) => {
-  const guest = await guestServices.updateGuest(req.params.id, req.body);
+  const guest = await guestServices.updateGuest(
+    req.params.id,
+    req.body,
+    req.user?._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -40,7 +44,7 @@ export const updateGuest = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteGuest = asyncErrorHandler(async (req, res) => {
-  await guestServices.deleteGuest(req.params.id);
+  await guestServices.deleteGuest(req.params.id, req.user?._id);
 
   res.status(200).json({
     success: true,

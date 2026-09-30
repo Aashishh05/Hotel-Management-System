@@ -1,7 +1,11 @@
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import guestRepository from "../repository/guestRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
-const createGuest = async (guestData) => {
+const guestLabel = (guest) =>
+  [guest?.name, guest?.email].filter(Boolean).join(" ") || "A guest";
+
+const createGuest = async (guestData, userId) => {
   const { email, phone, idNumber } = guestData;
 
   if (email) {
@@ -31,7 +35,17 @@ const createGuest = async (guestData) => {
     }
   }
 
-  return await guestRepository.createGuest(guestData);
+  const guest = await guestRepository.createGuest(guestData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "guest.created",
+    module: "guests",
+    targetId: guest._id,
+    description: `Guest ${guestLabel(guest)} was added`,
+  });
+
+  return guest;
 };
 
 const getAllGuests = async () => {
@@ -48,7 +62,7 @@ const getGuestById = async (id) => {
   return guest;
 };
 
-const updateGuest = async (id, guestData) => {
+const updateGuest = async (id, guestData, userId) => {
   const guest = await guestRepository.getGuestById(id);
 
   if (!guest) {
@@ -88,17 +102,35 @@ const updateGuest = async (id, guestData) => {
     }
   }
 
-  return await guestRepository.updateGuest(id, guestData);
+  const updated = await guestRepository.updateGuest(id, guestData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "guest.updated",
+    module: "guests",
+    targetId: id,
+    description: `Guest ${guestLabel(guest)} details were updated`,
+  });
+
+  return updated;
 };
 
-const deleteGuest = async (id) => {
+const deleteGuest = async (id, userId) => {
   const guest = await guestRepository.getGuestById(id);
 
   if (!guest) {
     throw new ErrorHandler("Guest not found", 404);
   }
 
-  return await guestRepository.deleteGuest(id);
+  await guestRepository.deleteGuest(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "guest.deleted",
+    module: "guests",
+    targetId: id,
+    description: `Guest ${guestLabel(guest)} was removed`,
+  });
 };
 
 export default {

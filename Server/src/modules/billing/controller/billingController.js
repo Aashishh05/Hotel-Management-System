@@ -2,7 +2,7 @@ import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 import billingServices from "../services/billingServices.js";
 
 export const createBilling = asyncErrorHandler(async (req, res) => {
-  const billing = await billingServices.createBilling(req.body);
+  const billing = await billingServices.createBilling(req.body, req.user?._id);
 
   res.status(201).json({
     success: true,
@@ -68,7 +68,11 @@ export const getMyBillings = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateBilling = asyncErrorHandler(async (req, res) => {
-  const billing = await billingServices.updateBilling(req.params.id, req.body);
+  const billing = await billingServices.updateBilling(
+    req.params.id,
+    req.body,
+    req.user?._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -78,7 +82,7 @@ export const updateBilling = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteBilling = asyncErrorHandler(async (req, res) => {
-  await billingServices.deleteBilling(req.params.id);
+  await billingServices.deleteBilling(req.params.id, req.user?._id);
 
   res.status(200).json({
     success: true,

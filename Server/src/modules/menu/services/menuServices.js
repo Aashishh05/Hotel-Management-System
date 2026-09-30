@@ -1,8 +1,17 @@
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import menuRepository from "../repository/menuRepository.js"
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
-const createMenuItem = async (menuItemData) => {
+const createMenuItem = async (menuItemData, userId) => {
   const menuItem = await menuRepository.createMenuItem(menuItemData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "menu.item_created",
+    module: "menu",
+    targetId: menuItem._id,
+    description: `Menu item "${menuItem.name}" was added`,
+  });
 
   return menuItem;
 };
@@ -35,24 +44,42 @@ const getAvailableMenuItems = async () => {
   return await menuRepository.getAvailableMenuItems();
 };
 
-const updateMenuItem = async (id, menuItemData) => {
+const updateMenuItem = async (id, menuItemData, userId) => {
   const menuItem = await menuRepository.getMenuItemById(id);
 
   if (!menuItem) {
     throw new ErrorHandler("Menu item not found", 404);
   }
 
-  return await menuRepository.updateMenuItem(id, menuItemData);
+  const updated = await menuRepository.updateMenuItem(id, menuItemData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "menu.item_updated",
+    module: "menu",
+    targetId: id,
+    description: `Menu item "${menuItem.name}" was updated`,
+  });
+
+  return updated;
 };
 
-const deleteMenuItem = async (id) => {
+const deleteMenuItem = async (id, userId) => {
   const menuItem = await menuRepository.getMenuItemById(id);
 
   if (!menuItem) {
     throw new ErrorHandler("Menu item not found", 404);
   }
 
-  return await menuRepository.deleteMenuItem(id);
+  await menuRepository.deleteMenuItem(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "menu.item_deleted",
+    module: "menu",
+    targetId: id,
+    description: `Menu item "${menuItem.name}" was removed`,
+  });
 };
 
 export default {

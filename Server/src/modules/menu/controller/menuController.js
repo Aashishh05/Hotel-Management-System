@@ -2,7 +2,7 @@ import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 import menuServices from "../services/menuServices.js";
 
 export const createMenuItem = asyncErrorHandler(async (req, res) => {
-  const menuItem = await menuServices.createMenuItem(req.body);
+  const menuItem = await menuServices.createMenuItem(req.body, req.user?._id);
 
   res.status(201).json({
     success: true,
@@ -50,7 +50,7 @@ export const getAvailableMenuItems = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateMenuItem = asyncErrorHandler(async (req, res) => {
-  const menuItem = await menuServices.updateMenuItem(req.params.id, req.body);
+  const menuItem = await menuServices.updateMenuItem(req.params.id, req.body, req.user?._id);
 
   res.status(200).json({
     success: true,
@@ -60,7 +60,7 @@ export const updateMenuItem = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteMenuItem = asyncErrorHandler(async (req, res) => {
-  await menuServices.deleteMenuItem(req.params.id);
+  await menuServices.deleteMenuItem(req.params.id, req.user?._id);
 
   res.status(200).json({
     success: true,

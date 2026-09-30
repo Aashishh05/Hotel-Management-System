@@ -2,7 +2,7 @@ import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 import roleService from "../services/roleService.js";
 
 export const createRole = asyncErrorHandler(async (req, res) => {
-  const role = await roleService.createRole(req.body);
+  const role = await roleService.createRole(req.body, req.user?._id);
 
   res.status(201).json({
     success: true,
@@ -24,7 +24,7 @@ export const getRoleById = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateRole = asyncErrorHandler(async (req, res) => {
-  const role = await roleService.updateRole(req.params.id, req.body);
+  const role = await roleService.updateRole(req.params.id, req.body, req.user?._id);
 
   res
     .status(201)
@@ -32,7 +32,7 @@ export const updateRole = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteRole = asyncErrorHandler(async (req, res) => {
-  await roleService.deleteRole(req.params.id);
+  await roleService.deleteRole(req.params.id, req.user?._id);
 
   res
     .status(200)

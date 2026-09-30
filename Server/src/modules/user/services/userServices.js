@@ -2,8 +2,9 @@ import ErrorHandler from "../../../utils/ErrorHandler.js";
 import roleRepository from "../../role/repository/roleRepository.js";
 import userRepository from "../repository/userRepository.js";
 import bcrypt from "bcrypt";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
-const createUser = async (userData) => {
+const createUser = async (userData, userId) => {
   const { email, password, role } = userData;
   const esxistingUser = await userRepository.getUserByEmail(email);
 
@@ -30,7 +31,17 @@ const createUser = async (userData) => {
     password: hashedPassword,
   };
 
-  return await userRepository.createUser(newUser);
+  const created = await userRepository.createUser(newUser);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "user.created",
+    module: "users",
+    targetId: created._id,
+    description: `User ${created.name || created.email} was created`,
+  });
+
+  return created;
 };
 
 const getAllUsers = async () => {
@@ -57,7 +68,7 @@ const getUsersByRole = async (roleId) => {
   return await userRepository.getUserByRole(roleId);
 };
 
-const updateUser = async (id, userData) => {
+const updateUser = async (id, userData, userId) => {
   const user = await userRepository.getUserById(id);
 
   if (!user) {
@@ -84,17 +95,35 @@ const updateUser = async (id, userData) => {
     userData.password = await bcrypt.hash(userData.password, 10);
   }
 
-  return await userRepository.updateUser(id, userData);
+  const updated = await userRepository.updateUser(id, userData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "user.updated",
+    module: "users",
+    targetId: id,
+    description: `User ${user.name || user.email} was updated`,
+  });
+
+  return updated;
 };
 
-const deleteUser = async (id) => {
+const deleteUser = async (id, userId) => {
   const user = await userRepository.getUserById(id);
 
   if (!user) {
     throw new ErrorHandler("User not found", 404);
   }
 
-  return await userRepository.deleteUser(id);
+  await userRepository.deleteUser(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "user.deleted",
+    module: "users",
+    targetId: id,
+    description: `User ${user.name || user.email} was removed`,
+  });
 };
 
 export default {

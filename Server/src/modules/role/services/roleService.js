@@ -1,14 +1,25 @@
 import ErrorHandler from "../../../utils/errorHandler.js";
 import roleRepository from "../repository/roleRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
-const createRole = async (roleData) => {
+const createRole = async (roleData, userId) => {
   const existingRole = await roleRepository.getRoleByName(roleData.name);
 
   if (existingRole) {
     throw new ErrorHandler("Role already exists", 400);
   }
 
-  return await roleRepository.createRole(roleData);
+  const created = await roleRepository.createRole(roleData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "role.created",
+    module: "roles",
+    targetId: created._id,
+    description: `Role "${created.name}" was created`,
+  });
+
+  return created;
 };
 const getAllRoles = async () => {
   return await roleRepository.getAllRole();
@@ -24,7 +35,7 @@ export const getRoleById = async (id) => {
   return role;
 };
 
-const updateRole = async (id, roleData) => {
+const updateRole = async (id, roleData, userId) => {
   const role = await roleRepository.getRoleById(id);
 
   if (!role) {
@@ -39,17 +50,35 @@ const updateRole = async (id, roleData) => {
     }
   }
 
-  return await roleRepository.updateRole(id, roleData);
+  const updated = await roleRepository.updateRole(id, roleData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "role.updated",
+    module: "roles",
+    targetId: id,
+    description: `Role "${role.name}" was updated`,
+  });
+
+  return updated;
 };
 
-const deleteRole = async (id) => {
+const deleteRole = async (id, userId) => {
   const role = await roleRepository.getRoleById(id);
 
   if (!role) {
     throw new ErrorHandler("Role not found", 404);
   }
 
-  return await roleRepository.deleteRole(id);
+  await roleRepository.deleteRole(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "role.deleted",
+    module: "roles",
+    targetId: id,
+    description: `Role "${role.name}" was removed`,
+  });
 };
 
 export default { createRole, getRoleById, getAllRoles, updateRole, deleteRole };

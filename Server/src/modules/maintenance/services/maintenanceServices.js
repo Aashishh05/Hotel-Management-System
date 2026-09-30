@@ -4,6 +4,10 @@ import guestRepository from "../../../modules/guest/repository/guestRepository.j
 import bookingRepository from "../../../modules/booking/repository/bookingRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import maintenanceRepository from "../repository/maintenanceRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
+
+const issueLabel = (request) =>
+  `Maintenance request "${(request?.issue || "").trim().slice(0, 60)}"`;
 
 const createRequest = async (requestData, userId) => {
   const { room, reportedBy, assignedTo, issue, priority, status } = requestData;
@@ -34,7 +38,7 @@ const createRequest = async (requestData, userId) => {
     }
   }
 
-  return await maintenanceRepository.createRequest({
+  const created = await maintenanceRepository.createRequest({
     room: room || null,
     reportedBy: reporterId || null,
     assignedTo: assignedTo || null,
@@ -42,6 +46,16 @@ const createRequest = async (requestData, userId) => {
     priority,
     status,
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "maintenance.reported",
+    module: "maintenance",
+    targetId: created._id,
+    description: `${issueLabel(created)} was reported (${priority || "medium"})`,
+  });
+
+  return created;
 };
 
 const getAllRequests = async () => {
@@ -98,7 +112,7 @@ const getRequestsByPriority = async (priority) => {
   return await maintenanceRepository.getRequestsByPriority(priority);
 };
 
-const updateRequest = async (id, requestData) => {
+const updateRequest = async (id, requestData, userId) => {
   const request = await maintenanceRepository.getRequestById(id);
 
   if (!request) {
@@ -129,10 +143,22 @@ const updateRequest = async (id, requestData) => {
     }
   }
 
-  return await maintenanceRepository.updateRequest(id, requestData);
+  const updated = await maintenanceRepository.updateRequest(id, requestData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "maintenance.updated",
+    module: "maintenance",
+    targetId: id,
+    description: `${issueLabel(request)} was updated${
+      requestData.status ? ` to ${requestData.status}` : ""
+    }`,
+  });
+
+  return updated;
 };
 
-const deleteRequest = async (id) => {
+const deleteRequest = async (id, userId) => {
   const request = await maintenanceRepository.getRequestById(id);
 
   if (!request) {
@@ -146,7 +172,15 @@ const deleteRequest = async (id) => {
     );
   }
 
-  return await maintenanceRepository.deleteRequest(id);
+  await maintenanceRepository.deleteRequest(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "maintenance.deleted",
+    module: "maintenance",
+    targetId: id,
+    description: `${issueLabel(request)} was removed`,
+  });
 };
 
 const hasActiveBookingForRoom = async (userId, roomId) => {
@@ -192,7 +226,7 @@ const reportIssue = async (reportData, userId) => {
     throw new ErrorHandler("Issue must be at least 3 characters", 400);
   }
 
-  return await maintenanceRepository.createRequest({
+  const reported = await maintenanceRepository.createRequest({
     room,
     reportedBy: userId,
     assignedTo: null,
@@ -200,6 +234,16 @@ const reportIssue = async (reportData, userId) => {
     priority: priority || "medium",
     status: "open",
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "maintenance.reported",
+    module: "maintenance",
+    targetId: reported._id,
+    description: `${issueLabel(reported)} was reported by a guest`,
+  });
+
+  return reported;
 };
 
 const checkReportEligibility = async (roomId, userId) => {

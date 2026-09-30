@@ -2,7 +2,7 @@ import houseKeepingServices from "../services/houseKeepingServices.js";
 import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js"
 
 export const createTask = asyncErrorHandler(async (req, res) => {
-  const task = await houseKeepingServices.createTask(req.body);
+  const task = await houseKeepingServices.createTask(req.body, req.user._id);
 
   res.status(201).json({
     success: true,
@@ -59,7 +59,7 @@ export const getTasksByStatus = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateTask = asyncErrorHandler(async (req, res) => {
-  const task = await houseKeepingServices.updateTask(req.params.id, req.body);
+  const task = await houseKeepingServices.updateTask(req.params.id, req.body, req.user._id);
 
   res.status(200).json({
     success: true,
@@ -69,7 +69,7 @@ export const updateTask = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteTask = asyncErrorHandler(async (req, res) => {
-  await houseKeepingServices.deleteTask(req.params.id);
+  await houseKeepingServices.deleteTask(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,
@@ -78,7 +78,7 @@ export const deleteTask = asyncErrorHandler(async (req, res) => {
 });
 
 export const startTask = asyncErrorHandler(async (req, res) => {
-  const task = await houseKeepingServices.startTask(req.params.id);
+  const task = await houseKeepingServices.startTask(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,
@@ -88,7 +88,7 @@ export const startTask = asyncErrorHandler(async (req, res) => {
 });
 
 export const completeTask = asyncErrorHandler(async (req, res) => {
-  const task = await houseKeepingServices.completeTask(req.params.id);
+  const task = await houseKeepingServices.completeTask(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,

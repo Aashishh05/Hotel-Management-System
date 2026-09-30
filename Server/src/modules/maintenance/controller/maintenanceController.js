@@ -114,6 +114,7 @@ export const updateRequest = asyncErrorHandler(async (req, res) => {
   const request = await maintenanceServices.updateRequest(
     req.params.id,
     req.body,
+    req.user._id,
   );
 
   res.status(200).json({
@@ -124,7 +125,7 @@ export const updateRequest = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteRequest = asyncErrorHandler(async (req, res) => {
-  await maintenanceServices.deleteRequest(req.params.id);
+  await maintenanceServices.deleteRequest(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,

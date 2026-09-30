@@ -1,8 +1,11 @@
 import roomRepository from "../repository/roomRepository.js";
 import Booking from "../../booking/model/bookingModel.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
-const createRoom = async (roomData) => {
+const roomLabel = (room) => `Room ${room?.number || ""}`.trim();
+
+const createRoom = async (roomData, userId) => {
   const { number } = roomData;
 
   const existingRoom = await roomRepository.getRoomByNumber(number);
@@ -11,7 +14,17 @@ const createRoom = async (roomData) => {
     throw new ErrorHandler("Room number already exists", 400);
   }
 
-  return await roomRepository.createRoom(roomData);
+  const created = await roomRepository.createRoom(roomData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "room.created",
+    module: "rooms",
+    targetId: created._id,
+    description: `${roomLabel(created)} was added`,
+  });
+
+  return created;
 };
 
 const getAllRooms = async () => {
@@ -87,7 +100,7 @@ const getRoomAvailability = async ({ checkIn, checkOut }) => {
   }));
 };
 
-const updateRoom = async (id, roomData) => {
+const updateRoom = async (id, roomData, userId) => {
   const room = await roomRepository.getRoomById(id);
 
   if (!room) {
@@ -104,10 +117,22 @@ const updateRoom = async (id, roomData) => {
     }
   }
 
-  return await roomRepository.updateRoom(id, roomData);
+  const updated = await roomRepository.updateRoom(id, roomData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "room.updated",
+    module: "rooms",
+    targetId: id,
+    description: `${roomLabel(room)} was updated${
+      roomData.status ? ` to ${roomData.status}` : ""
+    }`,
+  });
+
+  return updated;
 };
 
-const deleteRoom = async (id) => {
+const deleteRoom = async (id, userId) => {
   const room = await roomRepository.getRoomById(id);
 
   if (!room) {
@@ -118,7 +143,15 @@ const deleteRoom = async (id) => {
     throw new ErrorHandler("Occupied room cannot be deleted", 400);
   }
 
-  return await roomRepository.deleteRoom(id);
+  await roomRepository.deleteRoom(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "room.deleted",
+    module: "rooms",
+    targetId: id,
+    description: `${roomLabel(room)} was removed`,
+  });
 };
 
 export default {

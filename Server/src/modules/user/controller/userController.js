@@ -2,7 +2,7 @@ import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 import userServices from "../services/userServices.js";
 
 export const createUser = asyncErrorHandler(async (req, res) => {
-  const user = await userServices.createUser(req.body);
+  const user = await userServices.createUser(req.body, req.user?._id);
 
   res.status(201).json({
     success: true,
@@ -39,7 +39,7 @@ export const getUsersByRole = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateUser = asyncErrorHandler(async (req, res) => {
-  const user = await userServices.updateUser(req.params.id, req.body);
+  const user = await userServices.updateUser(req.params.id, req.body, req.user?._id);
 
   res.status(200).json({
     success: true,
@@ -49,7 +49,7 @@ export const updateUser = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteUser = asyncErrorHandler(async (req, res) => {
-  await userServices.deleteUser(req.params.id);
+  await userServices.deleteUser(req.params.id, req.user?._id);
 
   res.status(200).json({
     success: true,

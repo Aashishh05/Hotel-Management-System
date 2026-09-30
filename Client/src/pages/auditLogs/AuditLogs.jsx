@@ -24,6 +24,14 @@ import {
   Trash2,
   Pencil,
   PlusCircle,
+  UserRound,
+  BedDouble,
+  Wrench,
+  Sparkles,
+  ReceiptText,
+  Coffee,
+  Shield,
+  BarChart3,
 } from "lucide-react";
 import {
   getActivityStats,
@@ -61,7 +69,23 @@ import {
 const STATUSES = ["success", "failed"];
 const PAGE_SIZES = [10, 20, 50];
 
-const MODULES = ["auth", "bookings", "restaurant", "payment", "billing", "api"];
+const MODULE_OPTIONS = [
+  { value: "auth", label: "Login / Accounts" },
+  { value: "users", label: "Users" },
+  { value: "roles", label: "Roles & Permissions" },
+  { value: "guests", label: "Guests" },
+  { value: "rooms", label: "Rooms" },
+  { value: "bookings", label: "Bookings / Front Desk" },
+  { value: "housekeeping", label: "Housekeeping" },
+  { value: "maintenance", label: "Maintenance" },
+  { value: "restaurant", label: "Restaurant" },
+  { value: "menu", label: "Menu" },
+  { value: "billing", label: "Billing" },
+  { value: "payment", label: "Payments" },
+  { value: "reports", label: "Reports" },
+];
+
+
 
 const EVENT_META = {
   "auth.login": {
@@ -174,6 +198,141 @@ const EVENT_META = {
     Icon: ShieldAlert,
     tone: "text-red-600 bg-red-500/10 border-red-500/30",
   },
+  "guest.created": {
+    label: "Guest added",
+    Icon: UserRound,
+    tone: "text-sky-600 bg-sky-500/10 border-sky-500/30",
+  },
+  "guest.updated": {
+    label: "Guest updated",
+    Icon: UserRound,
+    tone: "text-sky-600 bg-sky-500/10 border-sky-500/30",
+  },
+  "guest.deleted": {
+    label: "Guest removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "room.created": {
+    label: "Room added",
+    Icon: BedDouble,
+    tone: "text-violet-600 bg-violet-500/10 border-violet-500/30",
+  },
+  "room.updated": {
+    label: "Room updated",
+    Icon: BedDouble,
+    tone: "text-violet-600 bg-violet-500/10 border-violet-500/30",
+  },
+  "room.deleted": {
+    label: "Room removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "maintenance.reported": {
+    label: "Issue reported",
+    Icon: Wrench,
+    tone: "text-amber-600 bg-amber-500/10 border-amber-500/30",
+  },
+  "maintenance.updated": {
+    label: "Request updated",
+    Icon: Wrench,
+    tone: "text-amber-600 bg-amber-500/10 border-amber-500/30",
+  },
+  "maintenance.deleted": {
+    label: "Request removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "housekeeping.task_created": {
+    label: "Task created",
+    Icon: Sparkles,
+    tone: "text-teal-600 bg-teal-500/10 border-teal-500/30",
+  },
+  "housekeeping.task_started": {
+    label: "Task started",
+    Icon: Sparkles,
+    tone: "text-teal-600 bg-teal-500/10 border-teal-500/30",
+  },
+  "housekeeping.task_completed": {
+    label: "Task completed",
+    Icon: CheckCircle2,
+    tone: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
+  },
+  "housekeeping.task_updated": {
+    label: "Task updated",
+    Icon: Sparkles,
+    tone: "text-teal-600 bg-teal-500/10 border-teal-500/30",
+  },
+  "housekeeping.task_deleted": {
+    label: "Task removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "billing.created": {
+    label: "Bill created",
+    Icon: ReceiptText,
+    tone: "text-indigo-600 bg-indigo-500/10 border-indigo-500/30",
+  },
+  "billing.updated": {
+    label: "Bill updated",
+    Icon: ReceiptText,
+    tone: "text-indigo-600 bg-indigo-500/10 border-indigo-500/30",
+  },
+  "billing.deleted": {
+    label: "Bill removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "menu.item_created": {
+    label: "Menu item added",
+    Icon: Coffee,
+    tone: "text-orange-600 bg-orange-500/10 border-orange-500/30",
+  },
+  "menu.item_updated": {
+    label: "Menu item updated",
+    Icon: Coffee,
+    tone: "text-orange-600 bg-orange-500/10 border-orange-500/30",
+  },
+  "menu.item_deleted": {
+    label: "Menu item removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "user.created": {
+    label: "User created",
+    Icon: UserPlus,
+    tone: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
+  },
+  "user.updated": {
+    label: "User updated",
+    Icon: UserPlus,
+    tone: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
+  },
+  "user.deleted": {
+    label: "User removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "role.created": {
+    label: "Role created",
+    Icon: Shield,
+    tone: "text-violet-600 bg-violet-500/10 border-violet-500/30",
+  },
+  "role.updated": {
+    label: "Role updated",
+    Icon: Shield,
+    tone: "text-violet-600 bg-violet-500/10 border-violet-500/30",
+  },
+  "role.deleted": {
+    label: "Role removed",
+    Icon: Trash2,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
+  "report.viewed": {
+    label: "Report viewed",
+    Icon: BarChart3,
+    tone: "text-slate-600 bg-slate-500/10 border-slate-500/30",
+  },
 };
 
 const STATUS_META = {
@@ -218,9 +377,8 @@ const AuditLogs = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
 
-  const [eventFilter, setEventFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [moduleFilter, setModuleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -232,9 +390,8 @@ const AuditLogs = () => {
       if (silent) setRefreshing(true);
 
       const params = { page, limit };
-      if (eventFilter !== "all") params.action = eventFilter;
-      if (statusFilter !== "all") params.status = statusFilter;
       if (moduleFilter !== "all") params.module = moduleFilter;
+      if (statusFilter !== "all") params.status = statusFilter;
 
       const [listRes, statsRes] = await Promise.all([
         getAuditLogs(params),
@@ -258,19 +415,12 @@ const AuditLogs = () => {
 
   useEffect(() => {
     loadLogs();
-  }, [page, limit, eventFilter, statusFilter, moduleFilter]);
-
-  const modules = [
-    ...new Set([
-      ...MODULES,
-      ...logs.map((log) => log.module).filter(Boolean),
-    ]),
-  ].sort();
+  }, [page, limit, moduleFilter, statusFilter]);
 
   const summary = [
     { label: "Total Activity", value: stats?.totalLogs ?? 0, Icon: ScrollText },
     {
-      label: "Check-ins & Bookings",
+      label: "Bookings / Front Desk",
       value: stats?.modules?.bookings ?? 0,
       Icon: CalendarCheck,
     },
@@ -287,14 +437,12 @@ const AuditLogs = () => {
   ];
 
   const resetFilters = () => {
-    setEventFilter("all");
-    setStatusFilter("all");
     setModuleFilter("all");
+    setStatusFilter("all");
     setPage(1);
   };
 
-  const filtersActive =
-    eventFilter !== "all" || statusFilter !== "all" || moduleFilter !== "all";
+  const filtersActive = moduleFilter !== "all" || statusFilter !== "all";
 
   const from = totalLogs === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, totalLogs);
@@ -349,51 +497,25 @@ const AuditLogs = () => {
 
       <div className="flex flex-wrap items-center gap-2">
         <Select
-          value={eventFilter}
-          onValueChange={(value) => {
-            setEventFilter(value);
-            setPage(1);
-          }}
-          items={Object.fromEntries(
-            [
-              "all",
-              ...Object.keys(EVENT_META),
-            ].map((item) => [item, eventLabel(item)]),
-          )}
-          className="w-48"
-        >
-          <SelectTrigger aria-label="Filter by activity">
-            <SelectValue placeholder="Activity" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All activity</SelectItem>
-            {Object.entries(EVENT_META).map(([action, meta]) => (
-              <SelectItem key={action} value={action}>
-                {meta.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
           value={moduleFilter}
           onValueChange={(value) => {
             setModuleFilter(value);
             setPage(1);
           }}
-          items={Object.fromEntries(
-            ["all", ...modules].map((item) => [item, item]),
-          )}
-          className="w-40"
+          items={Object.fromEntries([
+            ["all", "All modules"],
+            ...MODULE_OPTIONS.map((m) => [m.value, m.label]),
+          ])}
+          className="w-56"
         >
           <SelectTrigger aria-label="Filter by module">
             <SelectValue placeholder="Module" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All modules</SelectItem>
-            {modules.map((module) => (
-              <SelectItem key={module} value={module} className="capitalize">
-                {module}
+            {MODULE_OPTIONS.map((module) => (
+              <SelectItem key={module.value} value={module.value}>
+                {module.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -408,7 +530,7 @@ const AuditLogs = () => {
           items={Object.fromEntries(
             ["all", ...STATUSES].map((item) => [item, item]),
           )}
-          className="w-32"
+          className="w-36"
         >
           <SelectTrigger aria-label="Filter by status">
             <SelectValue placeholder="Status" />

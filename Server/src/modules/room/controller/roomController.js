@@ -2,7 +2,7 @@ import roomServices from "../services/roomServices.js";
 import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 
 export const createRoom = asyncErrorHandler(async (req, res) => {
-  const room = await roomServices.createRoom(req.body);
+  const room = await roomServices.createRoom(req.body, req.user?._id);
 
   res.status(201).json({
     success: true,
@@ -69,7 +69,7 @@ export const getPublicRooms = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateRoom = asyncErrorHandler(async (req, res) => {
-  const room = await roomServices.updateRoom(req.params.id, req.body);
+  const room = await roomServices.updateRoom(req.params.id, req.body, req.user?._id);
 
   res.status(200).json({
     success: true,
@@ -79,7 +79,7 @@ export const updateRoom = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteRoom = asyncErrorHandler(async (req, res) => {
-  await roomServices.deleteRoom(req.params.id);
+  await roomServices.deleteRoom(req.params.id, req.user?._id);
 
   res.status(200).json({
     success: true,

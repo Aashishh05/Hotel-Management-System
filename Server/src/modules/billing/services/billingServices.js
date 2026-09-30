@@ -3,6 +3,9 @@ import guestRepository from "../../../modules/guest/repository/guestRepository.j
 import userRepository from "../../../modules/user/repository/userRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import billingRepository from "../repository/billingRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
+
+const money = (value) => `$${(value || 0).toFixed(2)}`;
 
 const calculateTotal = (items) => {
   return items.reduce((total, item) => {
@@ -10,7 +13,7 @@ const calculateTotal = (items) => {
   }, 0);
 };
 
-const createBilling = async (billingData) => {
+const createBilling = async (billingData, userId) => {
   const { booking, guest, items = [], paidAmount = 0, dueDate } = billingData;
 
   const existingBooking = await bookingRepository.getBookingById(booking);
@@ -49,7 +52,7 @@ const createBilling = async (billingData) => {
     status = "partial";
   }
 
-  return await billingRepository.createBilling({
+  const created = await billingRepository.createBilling({
     booking,
     guest,
     items,
@@ -58,6 +61,18 @@ const createBilling = async (billingData) => {
     status,
     dueDate,
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "billing.created",
+    module: "billing",
+    targetId: created._id,
+    description: `Bill for ${existingGuest.name || "guest"} was created for ${money(
+      totalAmount,
+    )} (${status})`,
+  });
+
+  return created;
 };
 
 const getAllBillings = async () => {
@@ -126,7 +141,7 @@ const getBillingsByStatus = async (status) => {
   return await billingRepository.getBillingsByStatus(status);
 };
 
-const updateBilling = async (id, billingData) => {
+const updateBilling = async (id, billingData, userId) => {
   const billing = await billingRepository.getBillingById(id);
 
   if (!billing) {
@@ -154,10 +169,20 @@ const updateBilling = async (id, billingData) => {
     billingData.status = "unpaid";
   }
 
-  return await billingRepository.updateBilling(id, billingData);
+  const updated = await billingRepository.updateBilling(id, billingData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "billing.updated",
+    module: "billing",
+    targetId: id,
+    description: `Bill was updated to ${money(totalAmount)} (${billingData.status})`,
+  });
+
+  return updated;
 };
 
-const deleteBilling = async (id) => {
+const deleteBilling = async (id, userId) => {
   const billing = await billingRepository.getBillingById(id);
 
   if (!billing) {
@@ -168,7 +193,15 @@ const deleteBilling = async (id) => {
     throw new ErrorHandler("Billing with payments cannot be deleted", 400);
   }
 
-  return await billingRepository.deleteBilling(id);
+  await billingRepository.deleteBilling(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "billing.deleted",
+    module: "billing",
+    targetId: id,
+    description: `Bill of ${money(billing.totalAmount)} was removed`,
+  });
 };
 
 export default {

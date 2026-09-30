@@ -2,8 +2,9 @@ import roomRepository from "../../room/repository/roomRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import userRepository from "../../user/repository/userRepository.js";
 import houseKeepingRepository from "../repository/houseKeepingRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
-const createTask = async (taskData) => {
+const createTask = async (taskData, userId) => {
   const { room, assignedTo, type, status, notes, scheduledAt } = taskData;
 
   const existingRoom = await roomRepository.getRoomById(room);
@@ -20,7 +21,7 @@ const createTask = async (taskData) => {
     }
   }
 
-  return await houseKeepingRepository.createTask({
+  const created = await houseKeepingRepository.createTask({
     room,
     assignedTo: assignedTo || null,
     type,
@@ -28,6 +29,16 @@ const createTask = async (taskData) => {
     notes,
     scheduledAt,
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "housekeeping.task_created",
+    module: "housekeeping",
+    targetId: created._id,
+    description: `${type || "Housekeeping"} task was created`,
+  });
+
+  return created;
 };
 
 const getAllTasks = async () => {
@@ -74,7 +85,7 @@ const getTasksByStatus = async (status) => {
   return await houseKeepingRepository.getTasksByStatus(status);
 };
 
-const updateTask = async (id, taskData) => {
+const updateTask = async (id, taskData, userId) => {
   const task = await houseKeepingRepository.getTaskById(id);
 
   if (!task) {
@@ -97,10 +108,22 @@ const updateTask = async (id, taskData) => {
     }
   }
 
-  return await houseKeepingRepository.updateTask(id, taskData);
+  const updated = await houseKeepingRepository.updateTask(id, taskData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "housekeeping.task_updated",
+    module: "housekeeping",
+    targetId: id,
+    description: `${task.type || "Housekeeping"} task was updated${
+      taskData.status ? ` to ${taskData.status}` : ""
+    }`,
+  });
+
+  return updated;
 };
 
-const deleteTask = async (id) => {
+const deleteTask = async (id, userId) => {
   const task = await houseKeepingRepository.getTaskById(id);
 
   if (!task) {
@@ -114,10 +137,18 @@ const deleteTask = async (id) => {
     );
   }
 
-  return await houseKeepingRepository.deleteTask(id);
+  await houseKeepingRepository.deleteTask(id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "housekeeping.task_deleted",
+    module: "housekeeping",
+    targetId: id,
+    description: `${task.type || "Housekeeping"} task was removed`,
+  });
 };
 
-const startTask = async (id) => {
+const startTask = async (id, userId) => {
   const task = await houseKeepingRepository.getTaskById(id);
 
   if (!task) {
@@ -138,13 +169,23 @@ const startTask = async (id) => {
     throw new ErrorHandler("Room is not currently marked for cleaning", 400);
   }
 
-  return await houseKeepingRepository.updateTask(id, {
+  const started = await houseKeepingRepository.updateTask(id, {
     status: "in-progress",
     startedAt: new Date(),
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "housekeeping.task_started",
+    module: "housekeeping",
+    targetId: id,
+    description: `${task.type || "Housekeeping"} task was started`,
+  });
+
+  return started;
 };
 
-const completeTask = async (id) => {
+const completeTask = async (id, userId) => {
   const task = await houseKeepingRepository.getTaskById(id);
 
   if (!task) {
@@ -168,6 +209,14 @@ const completeTask = async (id) => {
 
   await roomRepository.updateRoom(task.room._id, {
     status: "available",
+  });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "housekeeping.task_completed",
+    module: "housekeeping",
+    targetId: id,
+    description: `${task.type || "Housekeeping"} task was completed`,
   });
 
   return updatedTask;
