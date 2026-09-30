@@ -1,28 +1,27 @@
 import AuditLog from "../modules/auditlog/model/auditlogModel.js";
 
-// Successful writes are recorded as readable business events by the
-// services themselves (e.g. "guest.checked_in"), so the raw HTTP row for
-// those is redundant and gets skipped. Reads and failures stay logged.
-const isExplicitlyLogged = (req, res) =>
-  res.statusCode < 400 && req.method !== "GET";
-
+// Successful reads are pure noise and successful writes are already recorded
+// as readable business events by the services, so only rejected requests are
+// kept here.
 const auditLog = (req, res, next) => {
-  const action = req.method;
   const module = req.baseUrl.split("/")[1] || req.path;
 
   res.on("finish", async () => {
-    if (isExplicitlyLogged(req, res)) {
+    if (res.statusCode < 400) {
       return;
     }
 
     try {
       await AuditLog.create({
         user: req.user?._id,
-        action,
+        action: "request.failed",
         module,
+        description: `${req.method} ${req.originalUrl} was rejected with ${
+          res.statusCode
+        }`,
         ipAddress: req.ip,
         userAgent: req.headers["user-agent"],
-        status: res.statusCode < 400 ? "success" : "failed",
+        status: "failed",
       });
     } catch (error) {
       console.error("Audit log error:", error.message);

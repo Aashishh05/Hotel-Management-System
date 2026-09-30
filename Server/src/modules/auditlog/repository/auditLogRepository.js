@@ -1,5 +1,9 @@
 import AuditLog from "../model/auditlogModel.js";
 
+// Matches business events only ("bookings.created", "order.served") and never
+// the legacy raw HTTP rows ("GET", "POST", "PUT", "PATCH", "DELETE").
+const ACTIVITY_FILTER = { action: { $regex: "\\." } };
+
 const getAuditLogs = async (filter = {}, options = {}) => {
   const { page = 1, limit = 20, sort = { createdAt: -1 } } = options;
 
@@ -31,6 +35,7 @@ const getAuditLogById = async (id) => {
 const getActivityStats = async () => {
   const [byModule, byStatus] = await Promise.all([
     AuditLog.aggregate([
+      { $match: ACTIVITY_FILTER },
       {
         $group: {
           _id: "$module",
@@ -41,6 +46,7 @@ const getActivityStats = async () => {
     ]),
 
     AuditLog.aggregate([
+      { $match: ACTIVITY_FILTER },
       {
         $group: {
           _id: "$status",

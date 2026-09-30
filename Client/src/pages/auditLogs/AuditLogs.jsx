@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  ShieldAlert,
   User,
   Globe,
   Monitor,
@@ -16,6 +17,7 @@ import {
   Hash,
   LogIn,
   LogOut,
+  UserPlus,
   CalendarCheck,
   UtensilsCrossed,
   CreditCard,
@@ -59,9 +61,29 @@ import {
 const STATUSES = ["success", "failed"];
 const PAGE_SIZES = [10, 20, 50];
 
-const MODULES = ["bookings", "restaurant", "payment", "billing", "api"];
+const MODULES = ["auth", "bookings", "restaurant", "payment", "billing", "api"];
 
 const EVENT_META = {
+  "auth.login": {
+    label: "Logged in",
+    Icon: LogIn,
+    tone: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30",
+  },
+  "auth.logout": {
+    label: "Logged out",
+    Icon: LogOut,
+    tone: "text-slate-600 bg-slate-500/10 border-slate-500/30",
+  },
+  "auth.registered": {
+    label: "Registered",
+    Icon: UserPlus,
+    tone: "text-sky-600 bg-sky-500/10 border-sky-500/30",
+  },
+  "auth.login_failed": {
+    label: "Login failed",
+    Icon: ShieldAlert,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
   "booking.created": {
     label: "Booking created",
     Icon: PlusCircle,
@@ -147,6 +169,11 @@ const EVENT_META = {
     Icon: Trash2,
     tone: "text-red-600 bg-red-500/10 border-red-500/30",
   },
+  "request.failed": {
+    label: "Request rejected",
+    Icon: ShieldAlert,
+    tone: "text-red-600 bg-red-500/10 border-red-500/30",
+  },
 };
 
 const STATUS_META = {
@@ -168,8 +195,8 @@ const EventBadge = ({ action }) => {
 
   if (!meta) {
     return (
-      <Badge variant="outline" className="font-mono text-[11px]">
-        {action || "request"}
+      <Badge variant="outline" className="capitalize">
+        {eventLabel(action)}
       </Badge>
     );
   }
@@ -272,6 +299,8 @@ const AuditLogs = () => {
   const from = totalLogs === 0 ? 0 : (page - 1) * limit + 1;
   const to = Math.min(page * limit, totalLogs);
 
+  const serialFor = (index) => (page - 1) * limit + index + 1;
+
   return (
     <div className="space-y-6 animate-fade-in-up">
       <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -280,7 +309,7 @@ const AuditLogs = () => {
             Activity Log
           </h1>
           <p className="text-sm text-muted-foreground">
-            Bookings, check-ins, orders and payments as they happen.
+            Logins, bookings, check-ins, orders and payments.
           </p>
         </div>
         <Button
@@ -418,6 +447,7 @@ const AuditLogs = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">#</TableHead>
               <TableHead>Activity</TableHead>
               <TableHead>Details</TableHead>
               <TableHead>By</TableHead>
@@ -430,6 +460,9 @@ const AuditLogs = () => {
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-6" />
+                  </TableCell>
                   <TableCell>
                     <Skeleton className="h-5 w-32" />
                   </TableCell>
@@ -452,7 +485,7 @@ const AuditLogs = () => {
               ))
             ) : logs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-14 text-center">
+                <TableCell colSpan={7} className="py-14 text-center">
                   <ScrollText className="mx-auto w-9 h-9 text-primary" />
                   <p className="mt-3 font-display text-lg text-foreground">
                     Nothing here yet
@@ -460,13 +493,16 @@ const AuditLogs = () => {
                   <p className="mt-1 text-sm text-muted-foreground">
                     {filtersActive
                       ? "Try clearing the filters to see more."
-                      : "Bookings, orders and payments will appear here."}
+                      : "Logins, bookings and orders will appear here."}
                   </p>
                 </TableCell>
               </TableRow>
             ) : (
-              logs.map((log) => (
+              logs.map((log, index) => (
                 <TableRow key={log._id} className="animate-fade-in-up">
+                  <TableCell className="text-xs text-muted-foreground tabular-nums">
+                    {serialFor(index)}
+                  </TableCell>
                   <TableCell>
                     <EventBadge action={log.action} />
                   </TableCell>

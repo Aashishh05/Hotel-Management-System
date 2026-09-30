@@ -27,7 +27,9 @@ const recordActivity = async ({
 const getAuditLogs = async (query) => {
   const { page = 1, limit = 20, action, module, status, user } = query;
 
-  const filter = {};
+  // Only business events ("bookings.created") belong in the activity feed.
+  // Legacy raw HTTP rows ("GET", "POST", ...) are never returned.
+  const filter = { action: { $regex: "\\." } };
 
   if (action) {
     filter.action = action;
