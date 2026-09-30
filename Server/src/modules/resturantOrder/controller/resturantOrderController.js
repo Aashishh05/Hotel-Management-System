@@ -103,6 +103,7 @@ export const updateOrder = asyncErrorHandler(async (req, res) => {
   const order = await restaurantOrderServices.updateOrder(
     req.params.id,
     req.body,
+    req.user._id,
   );
 
   res.status(200).json({
@@ -113,7 +114,7 @@ export const updateOrder = asyncErrorHandler(async (req, res) => {
 });
 
 export const deleteOrder = asyncErrorHandler(async (req, res) => {
-  await restaurantOrderServices.deleteOrder(req.params.id);
+  await restaurantOrderServices.deleteOrder(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,

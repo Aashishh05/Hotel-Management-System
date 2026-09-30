@@ -11,6 +11,16 @@ export const getAuditLogs = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const getActivityStats = asyncErrorHandler(async (req, res) => {
+  const stats = await auditLogServices.getActivityStats();
+
+  res.status(200).json({
+    success: true,
+    message: "Activity stats fetched successfully",
+    data: stats,
+  });
+});
+
 export const getAuditLogById = asyncErrorHandler(async (req, res) => {
   const auditLog = await auditLogServices.getAudutLogById(req.params.id);
 

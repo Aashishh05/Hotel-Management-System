@@ -3,6 +3,7 @@ import roomRepository from "../../room/repository/roomRepository.js";
 import userRepository from "../../user/repository/userRepository.js";
 import menuRepository from "../../menu/repository/menuRepository.js";
 import bookingRepository from "../../booking/repository/bookingRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import restaurantOrderRepository from "../repository/resturantOrderRepository.js"
 
@@ -101,7 +102,19 @@ const createMyOrder = async (orderData, userId) => {
     takenBy: userId,
   });
 
-  return await restaurantOrderRepository.getOrderById(order._id);
+  const savedOrder = await restaurantOrderRepository.getOrderById(order._id);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "order.placed",
+    module: "restaurant",
+    targetId: order._id,
+    description: `${guest.name} placed order #${order.orderNumber} for room ${
+      booking.room?.number
+    } — $${totalAmount.toFixed(2)}`,
+  });
+
+  return savedOrder;
 };
 
 const createOrder = async (orderData, userId) => {
@@ -136,6 +149,16 @@ const createOrder = async (orderData, userId) => {
     items,
     totalAmount,
     takenBy: userId,
+  });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "order.placed",
+    module: "restaurant",
+    targetId: order._id,
+    description: `Order #${order.orderNumber} placed for ${
+      existingGuest.name
+    } in room ${existingRoom.number} — $${totalAmount.toFixed(2)}`,
   });
 
   return order;
@@ -185,7 +208,7 @@ const getOrdersByStatus = async (status) => {
   return await restaurantOrderRepository.getOrdersByStatus(status);
 };
 
-const updateOrder = async (id, orderData) => {
+const updateOrder = async (id, orderData, userId) => {
   const order = await restaurantOrderRepository.getOrderById(id);
 
   if (!order) {
@@ -222,10 +245,27 @@ const updateOrder = async (id, orderData) => {
     orderData,
   );
 
+  if (orderData.status && orderData.status !== order.status) {
+    const verb = {
+      preparing: "is now being prepared",
+      served: "was served",
+      cancelled: "was cancelled",
+      pending: "was reopened",
+    }[orderData.status] || `moved to ${orderData.status}`;
+
+    await auditLogServices.recordActivity({
+      user: userId,
+      action: `order.${orderData.status}`,
+      module: "restaurant",
+      targetId: order._id,
+      description: `Order #${order.orderNumber} for ${order.guest?.name} ${verb}`,
+    });
+  }
+
   return updatedOrder;
 };
 
-const deleteOrder = async (id) => {
+const deleteOrder = async (id, userId) => {
   const order = await restaurantOrderRepository.getOrderById(id);
 
   if (!order) {
@@ -235,6 +275,16 @@ const deleteOrder = async (id) => {
   if (order.status === "served") {
     throw new ErrorHandler("Served orders cannot be deleted", 400);
   }
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "order.deleted",
+    module: "restaurant",
+    targetId: order._id,
+    description: `Order #${order.orderNumber} for ${
+      order.guest?.name
+    } was deleted`,
+  });
 
   return await restaurantOrderRepository.deleteOrder(id);
 };

@@ -2,7 +2,7 @@ import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 import paymentServices from "../services/paymentServices.js";
 
 export const createPayment = asyncErrorHandler(async (req, res) => {
-  const payment = await paymentServices.createPayment(req.body);
+  const payment = await paymentServices.createPayment(req.body, req.user._id);
 
   res.status(201).json({
     success: true,
@@ -50,7 +50,11 @@ export const getPaymentsByStatus = asyncErrorHandler(async (req, res) => {
 });
 
 export const updatePayment = asyncErrorHandler(async (req, res) => {
-  const payment = await paymentServices.updatePayment(req.params.id, req.body);
+  const payment = await paymentServices.updatePayment(
+    req.params.id,
+    req.body,
+    req.user._id,
+  );
 
   res.status(200).json({
     success: true,
@@ -60,7 +64,7 @@ export const updatePayment = asyncErrorHandler(async (req, res) => {
 });
 
 export const deletePayment = asyncErrorHandler(async (req, res) => {
-  await paymentServices.deletePayment(req.params.id);
+  await paymentServices.deletePayment(req.params.id, req.user._id);
 
   res.status(200).json({
     success: true,

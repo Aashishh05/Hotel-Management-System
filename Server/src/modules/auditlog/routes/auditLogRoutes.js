@@ -2,6 +2,7 @@ import express from "express";
 
 import {
   getAuditLogs,
+  getActivityStats,
   getAuditLogById,
 } from "../controller/auditLogController.js";
 
@@ -17,6 +18,14 @@ router.get(
   checkPermission("audit-logs", "read"),
   auditLog,
   getAuditLogs,
+);
+
+// Keep this above "/:id" so "stats" is not treated as an id.
+router.get(
+  "/stats",
+  protect,
+  checkPermission("audit-logs", "read"),
+  getActivityStats,
 );
 
 router.get(

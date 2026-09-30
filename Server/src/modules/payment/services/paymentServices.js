@@ -1,8 +1,9 @@
 import billingRepository from "../../billing/repository/billingRepository.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import paymentRepository from "../repository/paymentRepository.js";
 
-const createPayment = async (paymentData) => {
+const createPayment = async (paymentData, userId) => {
   const {
     billing,
     amount,
@@ -53,7 +54,7 @@ const createPayment = async (paymentData) => {
     paidAt = new Date();
   }
 
-  return await paymentRepository.createPayment({
+  const payment = await paymentRepository.createPayment({
     billing,
     amount,
     method,
@@ -62,6 +63,18 @@ const createPayment = async (paymentData) => {
     paidAt,
     notes,
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: `payment.${status}`,
+    module: "payment",
+    targetId: payment._id,
+    description: `Payment of $${Number(amount).toFixed(2)} recorded via ${
+      method
+    }${status === "completed" ? " and marked completed" : ""}`,
+  });
+
+  return payment;
 };
 
 const getAllPayments = async () => {
@@ -98,7 +111,7 @@ const getPaymentsByStatus = async (status) => {
   return await paymentRepository.getPaymentsByStatus(status);
 };
 
-const updatePayment = async (id, paymentData) => {
+const updatePayment = async (id, paymentData, userId) => {
   const payment = await paymentRepository.getPaymentById(id);
 
   if (!payment) {
@@ -130,10 +143,27 @@ const updatePayment = async (id, paymentData) => {
     paymentData.paidAt = null;
   }
 
-  return await paymentRepository.updatePayment(id, paymentData);
+  const updatedPayment = await paymentRepository.updatePayment(
+    id,
+    paymentData,
+  );
+
+  if (paymentData.status && paymentData.status !== payment.status) {
+    await auditLogServices.recordActivity({
+      user: userId,
+      action: `payment.${paymentData.status}`,
+      module: "payment",
+      targetId: payment._id,
+      description: `Payment of $${Number(
+        updatedPayment.amount,
+      ).toFixed(2)} marked as ${paymentData.status}`,
+    });
+  }
+
+  return updatedPayment;
 };
 
-const deletePayment = async (id) => {
+const deletePayment = async (id, userId) => {
   const payment = await paymentRepository.getPaymentById(id);
 
   if (!payment) {
@@ -143,6 +173,16 @@ const deletePayment = async (id) => {
   if (payment.status === "completed") {
     throw new ErrorHandler("Completed payments cannot be deleted", 400);
   }
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "payment.deleted",
+    module: "payment",
+    targetId: payment._id,
+    description: `Payment of $${Number(payment.amount).toFixed(
+      2,
+    )} was deleted`,
+  });
 
   return await paymentRepository.deletePayment(id);
 };

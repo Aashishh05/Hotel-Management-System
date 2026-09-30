@@ -2,6 +2,7 @@ import guestRepository from "../../../modules/guest/repository/guestRepository.j
 import roomRepository from "../../../modules/room/repository/roomRepository.js";
 import userRepository from "../../../modules/user/repository/userRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
+import auditLogServices from "../../auditlog/services/auditLogServices.js";
 import bookingRepository from "../repository/bookingRepository.js";
 
 const GUEST_ROLE = "guest";
@@ -127,7 +128,7 @@ const createBooking = async (bookingData, userId) => {
     );
   }
 
-  return await bookingRepository.createBooking({
+  const createdBooking = await bookingRepository.createBooking({
     guest: guestId,
     room,
     checkInDate,
@@ -138,6 +139,18 @@ const createBooking = async (bookingData, userId) => {
     status: bookingStatus,
     bookedBy: userId || null,
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "booking.created",
+    module: "bookings",
+    targetId: createdBooking._id,
+    description: `Booking created for room ${existingRoom.number} from ${new Date(
+      checkInDate,
+    ).toLocaleDateString()} to ${new Date(checkOutDate).toLocaleDateString()}`,
+  });
+
+  return createdBooking;
 };
 
 const getAllBookings = async (userId) => {
@@ -238,9 +251,21 @@ const confirmBooking = async (bookingId, userId) => {
     throw new ErrorHandler("Only pending bookings can be confirmed", 400);
   }
 
-  return await bookingRepository.updateBooking(bookingId, {
+  const confirmedBooking = await bookingRepository.updateBooking(bookingId, {
     status: "confirmed",
   });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "booking.confirmed",
+    module: "bookings",
+    targetId: booking._id,
+    description: `Booking confirmed for room ${booking.room?.number} (guest ${
+      booking.guest?.name
+    })`,
+  });
+
+  return confirmedBooking;
 };
 
 const updateBooking = async (id, bookingData, userId) => {
@@ -270,7 +295,19 @@ const updateBooking = async (id, bookingData, userId) => {
       );
     }
 
-    return await bookingRepository.updateBooking(id, { status: "cancelled" });
+    const cancelledBooking = await bookingRepository.updateBooking(id, {
+      status: "cancelled",
+    });
+
+    await auditLogServices.recordActivity({
+      user: userId,
+      action: "booking.cancelled",
+      module: "bookings",
+      targetId: booking._id,
+      description: `Booking for room ${booking.room?.number} was cancelled by the guest`,
+    });
+
+    return cancelledBooking;
   }
 
   const guestId = bookingData.guest || booking.guest._id;
@@ -312,7 +349,19 @@ const updateBooking = async (id, bookingData, userId) => {
     }
   }
 
-  return await bookingRepository.updateBooking(id, bookingData);
+  const updatedBooking = await bookingRepository.updateBooking(id, bookingData);
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "booking.updated",
+    module: "bookings",
+    targetId: booking._id,
+    description: `Booking for room ${booking.room?.number} was updated${
+      bookingData.status ? ` to ${bookingData.status}` : ""
+    }`,
+  });
+
+  return updatedBooking;
 };
 
 const deleteBooking = async (id, userId) => {
@@ -332,6 +381,16 @@ const deleteBooking = async (id, userId) => {
       400,
     );
   }
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "booking.deleted",
+    module: "bookings",
+    targetId: booking._id,
+    description: `Booking for room ${booking.room?.number} (guest ${
+      booking.guest?.name
+    }) was deleted`,
+  });
 
   return await bookingRepository.deleteBooking(id);
 };
@@ -370,6 +429,16 @@ const checkInBooking = async (bookingId, userId) => {
     status: "occupied",
   });
 
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "guest.checked_in",
+    module: "bookings",
+    targetId: booking._id,
+    description: `${booking.guest?.name} checked in to room ${
+      booking.room?.number
+    }`,
+  });
+
   return updatedBooking;
 };
 
@@ -401,6 +470,16 @@ const checkOutBooking = async (bookingId, userId) => {
 
   await roomRepository.updateRoom(booking.room._id, {
     status: "available",
+  });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "guest.checked_out",
+    module: "bookings",
+    targetId: booking._id,
+    description: `${booking.guest?.name} checked out from room ${
+      booking.room?.number
+    }`,
   });
 
   return updatedBooking;

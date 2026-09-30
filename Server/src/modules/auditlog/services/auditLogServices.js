@@ -1,5 +1,28 @@
 import auditLogRepository from "../repository/auditLogRepository.js";
+import AuditLog from "../model/auditlogModel.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
+
+const recordActivity = async ({
+  user,
+  action,
+  module,
+  description,
+  targetId = null,
+  status = "success",
+}) => {
+  try {
+    await AuditLog.create({
+      user: user || null,
+      action,
+      module,
+      description,
+      targetId,
+      status,
+    });
+  } catch (error) {
+    console.error("Activity log error:", error.message);
+  }
+};
 
 const getAuditLogs = async (query) => {
   const { page = 1, limit = 20, action, module, status, user } = query;
@@ -28,6 +51,10 @@ const getAuditLogs = async (query) => {
   return result;
 };
 
+const getActivityStats = async () => {
+  return await auditLogRepository.getActivityStats();
+};
+
 const getAudutLogById = async (id) => {
   const auditLog = await auditLogRepository.getAuditLogById(id);
 
@@ -37,4 +64,9 @@ const getAudutLogById = async (id) => {
   return auditLog;
 };
 
-export default { getAuditLogs, getAudutLogById };
+export default {
+  getAuditLogs,
+  getAudutLogById,
+  getActivityStats,
+  recordActivity,
+};

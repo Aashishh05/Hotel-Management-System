@@ -14,24 +14,22 @@ const RoomDetails = lazy(() => import("./pages/rooms/RoomDetails.jsx"));
 const Guests = lazy(() => import("./pages/guests/Guests.jsx"));
 const GuestDetails = lazy(() => import("./pages/guests/GuestDetails.jsx"));
 const Bookings = lazy(() => import("./pages/bookings/Bookings.jsx"));
-const BookingDetails = lazy(() =>
-  import("./pages/bookings/BookingDetails.jsx")
+const BookingDetails = lazy(
+  () => import("./pages/bookings/BookingDetails.jsx"),
 );
-const CheckInCheckout = lazy(() =>
-  import("./pages/checkin-checkout/CheckInCheckout.jsx")
+const CheckInCheckout = lazy(
+  () => import("./pages/checkin-checkout/CheckInCheckout.jsx"),
 );
 const Users = lazy(() => import("./pages/users/Users.jsx"));
 const UserDetails = lazy(() => import("./pages/users/UserDetails.jsx"));
 const Roles = lazy(() => import("./pages/roles/Roles.jsx"));
 const Permissions = lazy(() => import("./pages/permissions/Permissions.jsx"));
-const Housekeeping = lazy(() =>
-  import("./pages/housekeeping/Housekeeping.jsx")
+const Housekeeping = lazy(
+  () => import("./pages/housekeeping/Housekeeping.jsx"),
 );
-const Maintenance = lazy(() =>
-  import("./pages/maintenance/Maintenance.jsx")
-);
-const MaintenanceDetails = lazy(() =>
-  import("./pages/maintenance/MaintenanceDetails.jsx")
+const Maintenance = lazy(() => import("./pages/maintenance/Maintenance.jsx"));
+const MaintenanceDetails = lazy(
+  () => import("./pages/maintenance/MaintenanceDetails.jsx"),
 );
 const Billing = lazy(() => import("./pages/billing/Billing.jsx"));
 const MyStay = lazy(() => import("./pages/my-stay/MyStay.jsx"));
@@ -39,16 +37,13 @@ const GuestOverview = lazy(() => import("./pages/guest/Overview.jsx"));
 const GuestStays = lazy(() => import("./pages/guest/MyStays.jsx"));
 const GuestMenu = lazy(() => import("./pages/guest/Menu.jsx"));
 const GuestOrders = lazy(() => import("./pages/guest/Orders.jsx"));
-const GuestOrderDetails = lazy(() =>
-  import("./pages/guest/OrderDetails.jsx")
-);
-const GuestMaintenance = lazy(() =>
-  import("./pages/guest/Maintenance.jsx")
-);
+const GuestOrderDetails = lazy(() => import("./pages/guest/OrderDetails.jsx"));
+const GuestMaintenance = lazy(() => import("./pages/guest/Maintenance.jsx"));
 const GuestBills = lazy(() => import("./pages/guest/Bills.jsx"));
 const MenuAdmin = lazy(() => import("./pages/menu/Menu.jsx"));
 const Restaurant = lazy(() => import("./pages/resturant/Restaurant.jsx"));
 const Reports = lazy(() => import("./pages/reports/Reports.jsx"));
+const AuditLogs = lazy(() => import("./pages/auditLogs/AuditLogs.jsx"));
 
 const PageLoader = () => (
   <div className="grid min-h-svh place-items-center">
@@ -76,14 +71,8 @@ const App = () => {
               <Route path="/guest/stays" element={<GuestStays />} />
               <Route path="/guest/menu" element={<GuestMenu />} />
               <Route path="/guest/orders" element={<GuestOrders />} />
-              <Route
-                path="/guest/orders/:id"
-                element={<GuestOrderDetails />}
-              />
-              <Route
-                path="/guest/maintenance"
-                element={<GuestMaintenance />}
-              />
+              <Route path="/guest/orders/:id" element={<GuestOrderDetails />} />
+              <Route path="/guest/maintenance" element={<GuestMaintenance />} />
               <Route path="/guest/billing" element={<GuestBills />} />
             </Route>
           </Route>
@@ -108,6 +97,7 @@ const App = () => {
               <Route path="/menu" element={<MenuAdmin />} />
               <Route path="/restaurant" element={<Restaurant />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/audit-logs" element={<AuditLogs />} />
             </Route>
           </Route>
         </Routes>
