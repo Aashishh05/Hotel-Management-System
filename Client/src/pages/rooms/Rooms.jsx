@@ -141,6 +141,7 @@ const Rooms = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [formTarget, setFormTarget] = useState(null);
   const [imageFiles, setImageFiles] = useState([]);
+  const MAX_ROOM_IMAGES = 10;
   const fileInputRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -662,7 +663,30 @@ const Rooms = () => {
                     multiple
                     className="hidden"
                     onChange={(e) => {
-                      setImageFiles(Array.from(e.target.files || []));
+                      const picked = Array.from(e.target.files || []);
+
+                      setImageFiles((prev) => {
+                        const merged = [...prev, ...picked];
+                        const unique = merged.filter(
+                          (file, i) =>
+                            merged.findIndex(
+                              (f) =>
+                                f.name === file.name && f.size === file.size,
+                            ) === i,
+                        );
+
+                        if (unique.length > MAX_ROOM_IMAGES) {
+                          showToast({
+                            type: "error",
+                            message: `You can select at most ${MAX_ROOM_IMAGES} images per room`,
+                          });
+
+                          return unique.slice(0, MAX_ROOM_IMAGES);
+                        }
+
+                        return unique;
+                      });
+
                       e.target.value = "";
                     }}
                   />
