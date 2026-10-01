@@ -385,6 +385,7 @@ const Home = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {rooms.map((room, i) => {
                 const statusInfo = roomStatus(room.status);
+                const imageUrl = room.images?.[0]?.url;
                 return (
                   <Reveal
                     key={room._id}
@@ -392,9 +393,18 @@ const Home = () => {
                     delay={(i % 3) * 120}
                   >
                     <Card className="flex flex-col p-5 h-full transition-all hover:ring-2 hover:ring-primary/30">
-                      <div className="h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
-                        <BedDouble className="w-10 h-10 text-primary" />
-                      </div>
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={`Room ${room.number}`}
+                          loading="lazy"
+                          className="h-32 w-full rounded-lg object-cover border border-border"
+                        />
+                      ) : (
+                        <div className="h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center">
+                          <BedDouble className="w-10 h-10 text-primary" />
+                        </div>
+                      )}
 
                       <CardHeader className="px-0 pt-4">
                         <div className="flex items-center justify-between gap-2">

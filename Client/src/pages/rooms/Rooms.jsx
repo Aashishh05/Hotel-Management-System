@@ -154,6 +154,7 @@ const Rooms = () => {
   const loadRooms = async () => {
     try {
       const res = await getAllRooms();
+      console.log("Rooms loaded:", res?.rooms);
       setRooms(res?.rooms || []);
       setError("");
     } catch (err) {
