@@ -50,6 +50,16 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
 
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+
+    resetPasswordExpire: {
+      type: Date,
+      default: null,
+    },
+
     lastLogin: {
       type: Date,
       default: null,
@@ -59,7 +69,6 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-
 
 const User = mongoose.model("User", userSchema);
 

@@ -17,9 +17,42 @@ const createUser = async (userData) => {
   return await User.create(userData);
 };
 
+const saveResetToken = async (userId, token, expiry) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    {
+      resetPasswordToken: token,
+      resetPasswordExpire: expiry,
+    },
+    { new: true },
+  );
+};
+
+const findUserByResetToken = async (token) => {
+  return await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+};
+
+const updatePassword = async (userId, hashedPassword) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    {
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordExpire: null,
+    },
+    { new: true },
+  );
+};
+
 export default {
   findUserByEmail,
   findUserById,
   findRoleByName,
   createUser,
+  saveResetToken,
+  findUserByResetToken,
+  updatePassword,
 };
