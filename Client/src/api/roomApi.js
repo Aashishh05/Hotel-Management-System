@@ -1,7 +1,20 @@
 import api from "./axios.js";
 
-export const createRoom = async (roomData) => {
-  const res = await api.post("/room/create", roomData);
+const buildRoomFormData = (roomData, files = []) => {
+  const formData = new FormData();
+
+  Object.entries(roomData || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+    formData.append(key, value);
+  });
+
+  files.forEach((file) => formData.append("images", file));
+
+  return formData;
+};
+
+export const createRoom = async (roomData, files = []) => {
+  const res = await api.post("/room/create", buildRoomFormData(roomData, files));
 
   return res.data;
 };
@@ -44,8 +57,11 @@ export const getRoomById = async (id) => {
   return res.data;
 };
 
-export const updateRoom = async (id, roomData) => {
-  const res = await api.put(`/room/update/${id}`, roomData);
+export const updateRoom = async (id, roomData, files = []) => {
+  const res = await api.put(
+    `/room/update/${id}`,
+    buildRoomFormData(roomData, files),
+  );
 
   return res.data;
 };

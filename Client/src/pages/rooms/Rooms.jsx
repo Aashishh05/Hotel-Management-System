@@ -199,12 +199,12 @@ const Rooms = () => {
         setSaving(true);
         const payload = buildPayload(values);
         if (isCreate) {
-          const res = await createRoom(payload);
+          const res = await createRoom(payload, imageFiles);
           setRooms((prev) => [res?.room, ...prev].filter(Boolean));
           setFormTarget(null);
           showToast({ type: "success", message: "Room added successfully" });
         } else {
-          const res = await updateRoom(targetRoom._id, payload);
+          const res = await updateRoom(targetRoom._id, payload, imageFiles);
           setRooms((prev) =>
             prev.map((room) => (room._id === targetRoom._id ? res?.room : room)),
           );
@@ -419,7 +419,7 @@ const Rooms = () => {
                   <TableCell>
                     {room.images?.[0] ? (
                       <img
-                        src={room.images[0]}
+                        src={room.images[0].url || room.images[0]}
                         alt={`Room ${room.number}`}
                         className="h-10 w-14 rounded object-cover bg-muted"
                         onError={(e) => {

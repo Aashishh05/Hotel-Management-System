@@ -298,22 +298,26 @@ const RoomDetails = () => {
 
             {images.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-3">
-                {images.map((src) => (
-                  <div
-                    key={src}
-                    className="aspect-video overflow-hidden rounded-xl border border-border"
-                  >
-                    <img
-                      src={src}
-                      alt={`Room ${room.number}`}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  </div>
-                ))}
+                {images.map((image, index) => {
+                  const src = image?.url || image;
+
+                  return (
+                    <div
+                      key={image?.publicId || src || index}
+                      className="aspect-video overflow-hidden rounded-xl border border-border"
+                    >
+                      <img
+                        src={src}
+                        alt={`Room ${room.number}`}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
 

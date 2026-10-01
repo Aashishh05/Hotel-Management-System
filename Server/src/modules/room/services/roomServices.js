@@ -9,7 +9,7 @@ import {
 
 const roomLabel = (room) => `Room ${room?.number || ""}`.trim();
 
-const createRoom = async (roomData, files) => {
+const createRoom = async (roomData, files, userId) => {
   let images = [];
 
   if (files && files.length > 0) {
@@ -26,6 +26,14 @@ const createRoom = async (roomData, files) => {
   const room = await roomRepository.createRoom({
     ...roomData,
     images,
+  });
+
+  await auditLogServices.recordActivity({
+    user: userId,
+    action: "room.created",
+    module: "rooms",
+    targetId: room._id,
+    description: `${roomLabel(room)} was added`,
   });
 
   return room;
