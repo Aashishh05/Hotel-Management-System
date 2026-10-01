@@ -16,5 +16,12 @@ cloudinary.config({
   api_secret: apiSecret,
   secure: true,
 });
-
+cloudinary.api
+  .ping()
+  .then(() => {
+    console.log("Cloudinary connected successfully");
+  })
+  .catch((error) => {
+    console.log("Cloudinary connection error:", error);
+  });
 export default cloudinary;
