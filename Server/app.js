@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import mainRoutes from "./src/routes/mainRoutes.js";
+import notFound from "./src/middleware/notFoundMiddleware.js";
 import errorMiddleware from "../Server/src/middleware/errorMiddleware.js";
 
 const app = express();
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
     .json({ success: true, message: "Hotel Management API is running" });
 });
 
+app.use(notFound);
 app.use(errorMiddleware);
 
 export default app;

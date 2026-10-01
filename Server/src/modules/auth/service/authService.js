@@ -77,11 +77,18 @@ const getMe = async (userId) => {
   return user;
 };
 
+const RESET_TOKEN_TTL_MINUTES = 10;
+
+// Sent for every request so the endpoint cannot be used to discover which
+// addresses are registered.
+const RESET_REQUEST_MESSAGE =
+  "If the email is registered, a reset link will be sent.";
+
 const forgotPassword = async (email) => {
   const user = await authRepository.findUserByEmail(email);
 
   if (!user) {
-    throw new ErrorHandler("User not found", 404);
+    return { message: RESET_REQUEST_MESSAGE };
   }
 
   const resetToken = crypto.randomBytes(20).toString("hex");
@@ -91,7 +98,8 @@ const forgotPassword = async (email) => {
     .update(resetToken)
     .digest("hex");  // hex digest of the token for secure storage :(0-9 & a-f)
 
-  const resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  const resetPasswordExpire =
+    Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000;
 
   await authRepository.saveResetToken(
     user._id,
@@ -99,29 +107,44 @@ const forgotPassword = async (email) => {
     resetPasswordExpire,
   );
 
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
   try {
     await sendEmail({
       email: user.email,
-      subject: "HOTEL MANAGEMENT SYSTEM - password reset OTP",
+      subject: "Grand Horizon Hotel - password reset",
       message: `
-        <h2>Password Reset Request</h2>
-        <p>You requested to reset your password.</p>
-        <p>Click the link below to set a new password:</p>
-        <a href="${resetUrl}">Reset Password</a>
-        <p>This link expires in 15 minutes.</p>
-        <p>If you did not request this, you can ignore this email.</p>
+        <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;padding:32px;border:1px solid #e8e2d6;border-radius:12px;">
+          <p style="margin:0 0 4px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#C9A15A;">Grand Horizon Hotel</p>
+          <h1 style="margin:0 0 20px;font-size:24px;color:#1c1917;">Reset your password</h1>
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#44403c;">
+            Hi ${user.name}, we received a request to reset the password for your account.
+          </p>
+          <p style="margin:0 0 24px;">
+            <a href="${resetUrl}" style="display:inline-block;background:#C9A15A;color:#1c1917;text-decoration:none;padding:13px 28px;border-radius:8px;font-weight:600;font-size:15px;">Reset Password</a>
+          </p>
+          <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#57534e;">
+            This link expires in <strong>${RESET_TOKEN_TTL_MINUTES} minutes</strong> and can only be used once.
+          </p>
+          <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#57534e;">
+            If the button does not work, copy and paste this link into your browser:<br>
+            <a href="${resetUrl}" style="color:#C9A15A;word-break:break-all;">${resetUrl}</a>
+          </p>
+          <p style="margin:0;padding-top:16px;border-top:1px solid #e8e2d6;font-size:13px;line-height:1.6;color:#78716c;">
+            If you did not request a password reset, you can safely ignore this email and your password will stay unchanged.
+          </p>
+        </div>
       `,
     });
   } catch (error) {
+    // A stored token the user never received would lock them out, so drop it
+    // and let them try again.
     await authRepository.saveResetToken(user._id, null, null);
-    throw new ErrorHandler("Email could not be sent", 500);
+    throw new ErrorHandler("Email could not be sent. Please try again.", 500);
   }
 
-  return {
-    message: "If the email is registered, a reset link will be sent.",
-  };
+  return { message: RESET_REQUEST_MESSAGE };
 };
 
 const resetPassword = async (refreshToken, newPassword) => {

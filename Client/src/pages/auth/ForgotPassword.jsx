@@ -11,6 +11,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { showToast } from "../../components/common/Toast";
+import { forgotPasswordApi } from "../../api/authApi";
 import ThemeToggle from "../../components/common/ThemeToggle";
 import {
   Card,
@@ -37,16 +38,28 @@ const errorClass = "mt-1.5 text-xs text-destructive";
 const ForgotPassword = () => {
   const navigate = useNavigate();
   const [sentTo, setSentTo] = useState("");
+  const [authError, setAuthError] = useState("");
 
   const formik = useFormik({
     initialValues: { email: "" },
     validationSchema,
     onSubmit: async (values) => {
-      setSentTo(values.email);
-      showToast({
-        type: "success",
-        message: "Reset link sent. Please check your inbox.",
-      });
+      setAuthError("");
+      try {
+        const res = await forgotPasswordApi(values.email);
+
+        setSentTo(values.email);
+        showToast({
+          type: "success",
+          message: res?.message || "Reset link sent. Please check your inbox.",
+        });
+      } catch (err) {
+        const message =
+          err?.response?.data?.message ||
+          "We couldn't send the reset link. Please try again.";
+        setAuthError(message);
+        showToast({ type: "error", message });
+      }
     },
   });
 
@@ -93,7 +106,7 @@ const ForgotPassword = () => {
             </div>
 
             <p className="mt-5 text-sm leading-relaxed text-muted-foreground animate-fade-in-up animate-delay-400">
-              The link expires in 30 minutes. If it doesn&apos;t arrive, check
+              The link expires in 10 minutes. If it doesn&apos;t arrive, check
               your spam folder or request a new one below.
             </p>
 
@@ -102,7 +115,12 @@ const ForgotPassword = () => {
               variant="outline"
               size="lg"
               className="w-full mt-6 uppercase tracking-wider animate-fade-in-up animate-delay-400"
-              onClick={() => setSentTo("")}
+              onClick={() => {
+                setSentTo("");
+                setAuthError("");
+                formik.setFieldValue("email", "");
+                formik.setSubmitCount(0);
+              }}
             >
               Try another email
             </Button>
@@ -182,6 +200,15 @@ const ForgotPassword = () => {
               )}
             </div>
 
+            {authError && (
+              <p
+                role="alert"
+                className="text-sm text-destructive bg-destructive/10 border border-destructive/25 rounded-lg px-3.5 py-2.5"
+              >
+                {authError}
+              </p>
+            )}
+
             <Button
               type="submit"
               size="lg"
@@ -205,7 +232,7 @@ const ForgotPassword = () => {
               aria-hidden="true"
             />
             <p className="text-xs leading-relaxed text-muted-foreground">
-              For your security, the reset link is valid for 30 minutes and can
+              For your security, the reset link is valid for 10 minutes and can
               only be used once.
             </p>
           </div>
