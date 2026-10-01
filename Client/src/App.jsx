@@ -8,6 +8,9 @@ import GuestLayout from "./components/layout/GuestLayout.jsx";
 const Home = lazy(() => import("./pages/home/Home"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
+const ForgotPassword = lazy(
+  () => import("./pages/auth/ForgotPassword"),
+);
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard.jsx"));
 const Rooms = lazy(() => import("./pages/rooms/Rooms.jsx"));
 const RoomDetails = lazy(() => import("./pages/rooms/RoomDetails.jsx"));
@@ -59,6 +62,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/rooms/:id" element={<RoomDetails />} />
 
           <Route element={<ProtectedRoute />}>
