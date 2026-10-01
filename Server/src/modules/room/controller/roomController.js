@@ -2,8 +2,9 @@ import roomServices from "../services/roomServices.js";
 import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 
 export const createRoom = asyncErrorHandler(async (req, res) => {
-  const room = await roomServices.createRoom(req.body, req.user?._id);
+  const roomData = req.body;
 
+  const room = await roomServices.createRoom(roomData, req.file);
   res.status(201).json({
     success: true,
     message: "Room created successfully",
@@ -69,7 +70,11 @@ export const getPublicRooms = asyncErrorHandler(async (req, res) => {
 });
 
 export const updateRoom = asyncErrorHandler(async (req, res) => {
-  const room = await roomServices.updateRoom(req.params.id, req.body, req.user?._id);
+  const room = await roomServices.updateRoom(
+    req.params.id,
+    req.body,
+    req.user?._id,
+  );
 
   res.status(200).json({
     success: true,

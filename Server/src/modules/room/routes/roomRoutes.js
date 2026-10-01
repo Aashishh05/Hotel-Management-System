@@ -14,6 +14,7 @@ import {
   getRoomsByStatus,
   updateRoom,
 } from "../controller/roomController.js";
+import upload from "../../../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.post(
   "/create",
   protect,
   checkPermission("rooms", "create"),
+  upload.array("images", 5),
   auditLog,
   createRoom,
 );
@@ -71,6 +73,7 @@ router.put(
   "/update/:id",
   protect,
   checkPermission("rooms", "update"),
+  upload.array("images", 5),
   auditLog,
   updateRoom,
 );

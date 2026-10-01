@@ -2,29 +2,33 @@ import roomRepository from "../repository/roomRepository.js";
 import Booking from "../../booking/model/bookingModel.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
+import {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} from "../../../utils/cloudinaryUpload.js";
 
 const roomLabel = (room) => `Room ${room?.number || ""}`.trim();
 
-const createRoom = async (roomData, userId) => {
-  const { number } = roomData;
+const createRoom = async (roomData, files) => {
+  let images = [];
 
-  const existingRoom = await roomRepository.getRoomByNumber(number);
+  if (files && files.length > 0) {
+    const uploadResults = await Promise.all(
+      files.map((file) => uploadToCloudinary(file.buffer)),
+    );
 
-  if (existingRoom) {
-    throw new ErrorHandler("Room number already exists", 400);
+    images = uploadResults.map((result) => ({
+      url: result.secure_url,
+      publicId: result.public_id,
+    }));
   }
 
-  const created = await roomRepository.createRoom(roomData);
-
-  await auditLogServices.recordActivity({
-    user: userId,
-    action: "room.created",
-    module: "rooms",
-    targetId: created._id,
-    description: `${roomLabel(created)} was added`,
+  const room = await roomRepository.createRoom({
+    ...roomData,
+    images,
   });
 
-  return created;
+  return room;
 };
 
 const getAllRooms = async () => {
@@ -63,7 +67,10 @@ const getAvailableRooms = async () => {
 
 const getRoomAvailability = async ({ checkIn, checkOut }) => {
   if (!checkIn || !checkOut) {
-    throw new ErrorHandler("checkIn and checkOut query params are required", 400);
+    throw new ErrorHandler(
+      "checkIn and checkOut query params are required",
+      400,
+    );
   }
 
   const checkInDate = new Date(checkIn);
@@ -100,7 +107,7 @@ const getRoomAvailability = async ({ checkIn, checkOut }) => {
   }));
 };
 
-const updateRoom = async (id, roomData, userId) => {
+const updateRoom = async (id, roomData, files, userId) => {
   const room = await roomRepository.getRoomById(id);
 
   if (!room) {
@@ -108,16 +115,36 @@ const updateRoom = async (id, roomData, userId) => {
   }
 
   if (roomData.number && roomData.number !== room.number) {
-    const existingRoom = await roomRepository.getRoomByNumber(
-      roomData.number,
-    );
+    const existingRoom = await roomRepository.getRoomByNumber(roomData.number);
 
     if (existingRoom) {
       throw new ErrorHandler("Room number already exists", 400);
     }
   }
 
-  const updated = await roomRepository.updateRoom(id, roomData);
+  let images = room.images || [];
+
+  if (files && files.length > 0) {
+    if (room.images && room.images.length > 0) {
+      await Promise.all(
+        room.images.map((image) => deleteFromCloudinary(image.publicId)),
+      );
+    }
+
+    const uploadResults = await Promise.all(
+      files.map((file) => uploadToCloudinary(file.buffer)),
+    );
+
+    images = uploadResults.map((result) => ({
+      url: result.secure_url,
+      publicId: result.public_id,
+    }));
+  }
+
+  const updated = await roomRepository.updateRoom(id, {
+    ...roomData,
+    images,
+  });
 
   await auditLogServices.recordActivity({
     user: userId,
@@ -141,6 +168,12 @@ const deleteRoom = async (id, userId) => {
 
   if (room.status === "occupied") {
     throw new ErrorHandler("Occupied room cannot be deleted", 400);
+  }
+
+  if (room.images && room.images.length > 0) {
+    await Promise.all(
+      room.images.map((image) => deleteFromCloudinary(image.publicId)),
+    );
   }
 
   await roomRepository.deleteRoom(id);

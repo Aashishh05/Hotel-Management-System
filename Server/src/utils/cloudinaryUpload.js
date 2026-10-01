@@ -1,6 +1,6 @@
 import cloudinary from "cloudinary";
 
-const uploadToCloudinary = async (
+export const uploadToCloudinary = async (
   fileBuffer,
   folder = "hotel-management-system/rooms",
 ) => {
@@ -22,4 +22,6 @@ const uploadToCloudinary = async (
   });
 };
 
-export default uploadToCloudinary;
+export const deleteFromCloudinary = async (publicId) => {
+  return await cloudinary.uploader.destroy(publicId);
+};

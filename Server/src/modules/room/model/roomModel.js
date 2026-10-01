@@ -19,7 +19,18 @@ const roomSchema = new mongoose.Schema(
         message: "Room type must be single, double, suite, or deluxe",
       },
     },
-
+    images: [
+      {
+        url: {
+          type: String,
+          required: true,
+        },
+        publicId: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     floor: {
       type: Number,
       min: [0, "Floor cannot be negative"],
@@ -39,7 +50,13 @@ const roomSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ["available", "occupied", "cleaning", "maintenance","reserved"],
+        values: [
+          "available",
+          "occupied",
+          "cleaning",
+          "maintenance",
+          "reserved",
+        ],
         message: "Invalid room status",
       },
       default: "available",
