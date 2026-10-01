@@ -108,3 +108,26 @@ export const getMe = asyncErrorHandler(async (req, res) => {
     data: user,
   });
 });
+
+export const forgotPassword = asyncErrorHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const result = await authService.forgotPassword(email);
+
+  res.status(200).json({
+    success: true,
+    message: result.message,
+  });
+});
+
+export const resetPassword = asyncErrorHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const result = await authService.resetPassword(token, password);
+
+  res.status(200).json({
+    success: true,
+    message: result.message,
+  });
+});
