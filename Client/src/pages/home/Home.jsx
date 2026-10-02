@@ -160,13 +160,8 @@ const Home = () => {
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <Hexagon className="w-7 h-7 text-primary" strokeWidth={2.5} />
-          <span className="leading-tight">
-            <span className="block text-sm font-semibold tracking-wide">
-              Grand Horizon
-            </span>
-            <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] text-primary">
-              Hotel Management
-            </span>
+          <span className="text-sm font-semibold tracking-wide leading-tight">
+            Grand Horizon Hotel
           </span>
         </Link>
 
