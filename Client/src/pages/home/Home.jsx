@@ -104,6 +104,13 @@ const Home = () => {
   const [loggingOut, setLoggingOut] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingRoomId, setBookingRoomId] = useState(null);
+  const [activeSection, setActiveSection] = useState("about");
+
+  const navLinks = [
+    { id: "about", label: "About" },
+    { id: "rooms", label: "Rooms" },
+    { id: "amenities", label: "Amenities" },
+  ];
 
   const openBookingForm = () => {
     setBookingRoomId(null);
@@ -146,6 +153,35 @@ const Home = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const sections = navLinks
+      .map(({ id }) => document.getElementById(id))
+      .filter(Boolean);
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveSection(visible[0].target.id);
+      },
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  const handleNavClick = (event, id) => {
+    event.preventDefault();
+    const section = document.getElementById(id);
+    if (!section) return;
+    setActiveSection(id);
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.replaceState(null, "", `#${id}`);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <style>{`
@@ -153,7 +189,7 @@ const Home = () => {
         .font-display { font-family: 'Cormorant Garamond', Georgia, serif; }
       `}</style>
 
-      <header className="sticky top-0 z-20 h-16 bg-background/80 backdrop-blur border-b border-border flex items-center justify-between px-4 lg:px-8 animate-fade-in">
+      <header className="fixed top-0 inset-x-0 z-30 h-16 bg-background/60 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/40 border-b border-border/60 shadow-sm shadow-black/5 flex items-center justify-between px-4 lg:px-8 animate-fade-in">
         <Link
           to="/"
           className="flex items-center gap-2.5 cursor-pointer"
@@ -166,18 +202,27 @@ const Home = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-          <a href="#rooms" className="hover:text-foreground transition-colors">
-            Rooms
-          </a>
-          <a
-            href="#amenities"
-            className="hover:text-foreground transition-colors"
-          >
-            Amenities
-          </a>
-          <a href="#about" className="hover:text-foreground transition-colors">
-            About
-          </a>
+          {navLinks.map(({ id, label }) => {
+            const isActive = activeSection === id;
+            return (
+              <a
+                key={id}
+                href={`#${id}`}
+                onClick={(event) => handleNavClick(event, id)}
+                aria-current={isActive ? "true" : undefined}
+                className={`relative pb-1 transition-colors duration-500 ${
+                  isActive ? "text-foreground" : ""
+                }`}
+              >
+                {label}
+                <span
+                  className={`absolute inset-x-0 bottom-0 h-0.5 origin-left rounded-full bg-primary transition-transform duration-500 ease-out ${
+                    isActive ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
+              </a>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -239,7 +284,7 @@ const Home = () => {
 
       <section
         id="about"
-        className="relative overflow-hidden flex flex-col items-center text-center px-4 pt-20 pb-16 lg:pt-28 lg:pb-24"
+        className="relative overflow-hidden flex flex-col items-center text-center px-4 pt-20 pb-16 lg:pt-28 lg:pb-24 scroll-mt-16"
       >
         <Hexagon
           className="absolute -top-6 right-8 w-64 h-64 text-primary/5 rotate-12 lg:w-96 lg:h-96"
@@ -312,7 +357,7 @@ const Home = () => {
 
       <Separator />
 
-      <section id="rooms" className="px-4 py-16 lg:px-8">
+      <section id="rooms" className="px-4 py-16 lg:px-8 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
           <Reveal className="flex items-end justify-between gap-4 mb-8">
             <div>
@@ -500,7 +545,7 @@ const Home = () => {
 
       <Separator />
 
-      <section id="amenities" className="px-4 py-16 lg:px-8">
+      <section id="amenities" className="px-4 py-16 lg:px-8 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-10">
             <span className="text-xs uppercase tracking-[0.25em] text-primary">
