@@ -107,6 +107,18 @@ body {
   animation-delay: 400ms;
 }
 
+.animate-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animate-delay-600 {
+  animation-delay: 600ms;
+}
+
+.animate-delay-700 {
+  animation-delay: 700ms;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(24px);
