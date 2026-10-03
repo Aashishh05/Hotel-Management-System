@@ -39,7 +39,11 @@ const createRoom = async (roomData, files, userId) => {
   return room;
 };
 
-const getAllRooms = async () => {
+const getAllRooms = async (options = {}) => {
+  const { page, limit } = options;
+  if (page && limit) {
+    return await roomRepository.getAllRoomsWithPagination({ page, limit });
+  }
   return await roomRepository.getAllRooms();
 };
 

@@ -146,17 +146,24 @@ const Rooms = () => {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const roomsPerm = permissions?.modules?.rooms;
   const canCreate = roomsPerm?.create === true;
   const canUpdate = roomsPerm?.update === true;
   const canDelete = roomsPerm?.delete === true;
 
-  const loadRooms = async () => {
+  const loadRooms = async (currentPage = page) => {
     try {
-      const res = await getAllRooms();
-      console.log("Rooms loaded:", res?.rooms);
+      setLoading(true);
+      const res = await getAllRooms({ page: currentPage, limit });
       setRooms(res?.rooms || []);
+      setTotal(res?.total || 0);
+      setTotalPages(res?.totalPages || 1);
+      setPage(res?.page || currentPage);
       setError("");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load rooms");
@@ -166,8 +173,9 @@ const Rooms = () => {
   };
 
   useEffect(() => {
-    loadRooms();
-  }, []);
+    loadRooms(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [limit]);
 
   const isCreate = formTarget === "new";
   const targetRoom = isCreate ? null : formTarget;
@@ -202,16 +210,14 @@ const Rooms = () => {
         const payload = buildPayload(values);
         if (isCreate) {
           const res = await createRoom(payload, imageFiles);
-          setRooms((prev) => [res?.room, ...prev].filter(Boolean));
           setFormTarget(null);
           showToast({ type: "success", message: "Room added successfully" });
+          loadRooms(1);
         } else {
           const res = await updateRoom(targetRoom._id, payload, imageFiles);
-          setRooms((prev) =>
-            prev.map((room) => (room._id === targetRoom._id ? res?.room : room)),
-          );
           setFormTarget(null);
           showToast({ type: "success", message: "Room updated successfully" });
+          loadRooms(page);
         }
       } catch (err) {
         showToast({
@@ -231,9 +237,9 @@ const Rooms = () => {
     try {
       setDeleting(true);
       await deleteRoom(confirmDelete._id);
-      setRooms((prev) => prev.filter((room) => room._id !== confirmDelete._id));
       setConfirmDelete(null);
       showToast({ type: "success", message: "Room deleted successfully" });
+      loadRooms(page);
     } catch (err) {
       showToast({
         type: "error",
@@ -292,7 +298,9 @@ const Rooms = () => {
   ];
 
   const f = form;
-  const editingLabel = isCreate ? "Add room" : `Edit room ${targetRoom?.number}`;
+  const editingLabel = isCreate
+    ? "Add room"
+    : `Edit room ${targetRoom?.number}`;
 
   return (
     <div className="space-y-6 animate-fade-in-up">
@@ -484,6 +492,32 @@ const Rooms = () => {
         </Table>
       </Card>
 
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between py-4">
+          <div className="text-sm text-muted-foreground">
+            Page {page} of {totalPages} ({total} total)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || loading}
+              onClick={() => loadRooms(page - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || loading}
+              onClick={() => loadRooms(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Dialog
         open={formTarget !== null}
         onOpenChange={(open) => !open && closeForm()}
@@ -534,7 +568,7 @@ const Rooms = () => {
                     value={f.values.type}
                     onValueChange={(value) => f.setFieldValue("type", value)}
                     items={Object.fromEntries(
-                      ROOM_TYPES.map((type) => [type, roomTypeLabel[type]])
+                      ROOM_TYPES.map((type) => [type, roomTypeLabel[type]]),
                     )}
                   >
                     <SelectTrigger id="f-type" className="w-full">
@@ -559,7 +593,7 @@ const Rooms = () => {
                       ROOM_STATUSES.map((status) => [
                         status,
                         status.charAt(0).toUpperCase() + status.slice(1),
-                      ])
+                      ]),
                     )}
                   >
                     <SelectTrigger id="f-status" className="w-full">
@@ -630,7 +664,9 @@ const Rooms = () => {
                 </div>
 
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="f-amenities">Amenities (comma separated)</Label>
+                  <Label htmlFor="f-amenities">
+                    Amenities (comma separated)
+                  </Label>
                   <Input
                     id="f-amenities"
                     name="amenities"
@@ -740,11 +776,7 @@ const Rooms = () => {
                 Cancel
               </Button>
               <Button type="submit" form="room-form" disabled={saving}>
-                {saving
-                  ? "Saving…"
-                  : isCreate
-                    ? "Add room"
-                    : "Save changes"}
+                {saving ? "Saving…" : isCreate ? "Add room" : "Save changes"}
               </Button>
             </DialogFooter>
           </DialogContent>

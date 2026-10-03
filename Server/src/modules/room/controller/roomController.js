@@ -16,11 +16,15 @@ export const createRoom = asyncErrorHandler(async (req, res) => {
 });
 
 export const getAllRooms = asyncErrorHandler(async (req, res) => {
-  const rooms = await roomServices.getAllRooms();
+  const { page = 1, limit = 10 } = req.query;
+  const result = await roomServices.getAllRooms({
+    page: Number(page),
+    limit: Number(limit),
+  });
 
   res.status(200).json({
     success: true,
-    rooms,
+    ...result,
   });
 });
 

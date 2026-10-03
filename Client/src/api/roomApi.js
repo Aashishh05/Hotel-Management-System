@@ -19,8 +19,8 @@ export const createRoom = async (roomData, files = []) => {
   return res.data;
 };
 
-export const getAllRooms = async () => {
-  const res = await api.get("/room/get");
+export const getAllRooms = async (params = {}) => {
+  const res = await api.get("/room/get", { params });
 
   return res.data;
 };
