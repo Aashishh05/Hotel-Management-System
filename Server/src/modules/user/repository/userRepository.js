@@ -1,4 +1,5 @@
 import User from "../model/userModel.js";
+import Role from "../../role/model/roleModel.js";
 
 const createUser = async (userData) => {
   return await User.create(userData);
@@ -20,6 +21,14 @@ const getUserByRole = async (roleId) => {
   return await User.findOne({ role: roleId }).populate("role", "name");
 };
 
+const getUsersByRoleName = async (roleName) => {
+  const role = await Role.findOne({ name: roleName });
+
+  if (!role) return [];
+
+  return await User.find({ role: role._id }).populate("role", "name");
+};
+
 const updateUser = async (id, userData) => {
   return await User.findByIdAndUpdate(id, userData, {
     new: true,
@@ -37,6 +46,7 @@ export default {
   getUserById,
   getUserByEmail,
   getUserByRole,
+  getUsersByRoleName,
   updateUser,
   deleteUser,
 };

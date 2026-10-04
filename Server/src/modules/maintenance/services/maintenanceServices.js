@@ -4,10 +4,50 @@ import guestRepository from "../../../modules/guest/repository/guestRepository.j
 import bookingRepository from "../../../modules/booking/repository/bookingRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import maintenanceRepository from "../repository/maintenanceRepository.js";
+import notificationServices from "../../notification/services/notificationServices.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
+
+const MAINTENANCE_ROLE = "maintenance";
 
 const issueLabel = (request) =>
   `Maintenance request "${(request?.issue || "").trim().slice(0, 60)}"`;
+
+const roomLabel = (request) => `Room ${request?.room?.number || "-"}`;
+
+const STATUS_NOTICES = {
+  "in-progress": {
+    title: "Maintenance in progress",
+    message: "Our team has started working on the issue you reported.",
+    type: "info",
+  },
+  resolved: {
+    title: "Maintenance resolved",
+    message: "The issue you reported has been resolved.",
+    type: "success",
+  },
+  closed: {
+    title: "Maintenance closed",
+    message: "Your maintenance request has been closed.",
+    type: "success",
+  },
+};
+
+/**
+ * Alerts the maintenance team about a brand new request. Whoever raised it is
+ * skipped so they don't get an alert for their own action.
+ */
+const alertMaintenanceTeam = async (request, excludeUser) => {
+  await notificationServices.notifyUsersByRole(MAINTENANCE_ROLE, {
+    excludeUser,
+    title: "New maintenance request",
+    message: `${roomLabel(request)}: ${issueLabel(request)} (${
+      request?.priority || "medium"
+    })`,
+    type: "maintenance",
+    targetId: request?._id,
+    targetModule: "maintenance",
+  });
+};
 
 const createRequest = async (requestData, userId) => {
   const { room, reportedBy, assignedTo, issue, priority, status } = requestData;
@@ -54,6 +94,8 @@ const createRequest = async (requestData, userId) => {
     targetId: created._id,
     description: `${issueLabel(created)} was reported (${priority || "medium"})`,
   });
+
+  await alertMaintenanceTeam(created, userId);
 
   return created;
 };
@@ -155,6 +197,28 @@ const updateRequest = async (id, requestData, userId) => {
     }`,
   });
 
+  if (requestData.assignedTo) {
+    await notificationServices.notifyUser({
+      user: requestData.assignedTo,
+      title: "Maintenance request assigned to you",
+      message: `${roomLabel(request)}: ${issueLabel(request)}`,
+      type: "maintenance",
+      targetId: id,
+      targetModule: "maintenance",
+    });
+  }
+
+  const statusNotice = STATUS_NOTICES[requestData.status];
+
+  if (statusNotice && request.reportedBy) {
+    await notificationServices.notifyUser({
+      user: request.reportedBy._id || request.reportedBy,
+      ...statusNotice,
+      targetId: id,
+      targetModule: "maintenance",
+    });
+  }
+
   return updated;
 };
 
@@ -242,6 +306,17 @@ const reportIssue = async (reportData, userId) => {
     targetId: reported._id,
     description: `${issueLabel(reported)} was reported by a guest`,
   });
+
+  await notificationServices.notifyUser({
+    user: userId,
+    title: "Issue reported",
+    message: `We logged your report for ${roomLabel(reported)}: "${reported.issue.trim().slice(0, 60)}". Our team will notify you when it is resolved.`,
+    type: "maintenance",
+    targetId: reported._id,
+    targetModule: "maintenance",
+  });
+
+  await alertMaintenanceTeam(reported, userId);
 
   return reported;
 };

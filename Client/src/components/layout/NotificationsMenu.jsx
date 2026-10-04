@@ -50,7 +50,12 @@ const TYPE_TONES = {
 };
 
 const MODULE_PATHS = {
-  bookings: { staff: "/bookings", guest: "/guest/stays", detail: true },
+  bookings: { staff: "/bookings", guest: "/guest/stays", staffDetail: true },
+  maintenance: {
+    staff: "/maintenance",
+    guest: "/guest/maintenance",
+    staffDetail: true,
+  },
 };
 
 const timeAgo = (value) => {
@@ -145,7 +150,7 @@ const NotificationsMenu = () => {
     if (entry) {
       const base = entry[isGuest ? "guest" : "staff"];
       const path =
-        entry.detail && notification.targetId
+        !isGuest && entry.staffDetail && notification.targetId
           ? `${base}/${notification.targetId}`
           : base;
 
