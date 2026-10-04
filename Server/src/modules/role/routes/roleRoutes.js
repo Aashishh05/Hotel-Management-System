@@ -46,7 +46,9 @@ router.put(
 router.delete(
   "/delete/:id",
   protect,
-  checkPermission("roles", "delete", auditLog, deleteRole),
+  checkPermission("roles", "delete"),
+  auditLog,
+  deleteRole,
 );
 
 export default router;

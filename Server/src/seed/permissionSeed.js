@@ -83,6 +83,12 @@ const createDefaultPermissions = () => ({
     update: false,
     delete: false,
   },
+  "audit-logs": {
+    create: false,
+    read: false,
+    update: false,
+    delete: false,
+  },
 });
 
 const rolePermissions = {
@@ -101,6 +107,7 @@ const rolePermissions = {
     notifications: { create: true, read: true, update: true, delete: true },
     roles: { create: true, read: true, update: true, delete: true },
     permissions: { create: true, read: true, update: true, delete: true },
+    "audit-logs": { create: true, read: true, update: true, delete: true },
   },
   hoteladmin: {
     bookings: { create: true, read: true, update: true, delete: true },
@@ -117,6 +124,7 @@ const rolePermissions = {
     notifications: { create: true, read: true, update: true, delete: true },
     roles: { create: true, read: true, update: true, delete: true },
     permissions: { create: true, read: true, update: true, delete: true },
+    "audit-logs": { create: true, read: true, update: true, delete: true },
   },
   frontdesk: {
     bookings: { create: true, read: true, update: true, delete: true },
