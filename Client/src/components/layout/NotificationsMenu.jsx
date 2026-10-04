@@ -62,6 +62,10 @@ const MODULE_PATHS = {
     staff: { base: "/restaurant", detail: false },
     guest: { base: "/guest/orders", detail: true },
   },
+  billing: {
+    staff: { base: "/billing", detail: false },
+    guest: { base: "/guest/billing", detail: false },
+  },
 };
 
 const timeAgo = (value) => {

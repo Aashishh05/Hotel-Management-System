@@ -4,8 +4,40 @@ import userRepository from "../../../modules/user/repository/userRepository.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import billingRepository from "../repository/billingRepository.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
+import notificationServices from "../../notification/services/notificationServices.js";
 
 const money = (value) => `$${(value || 0).toFixed(2)}`;
+
+const ACCOUNTING_ROLE = "accountant";
+
+const outstanding = (billing) =>
+  money(
+    Math.max(
+      0,
+      (billing?.totalAmount || 0) - (billing?.paidAmount || 0),
+    ),
+  );
+
+
+const STATUS_NOTICES = {
+  unpaid: (billing) => ({
+    title: "Balance outstanding",
+    message: `Your bill now has ${outstanding(billing)} outstanding.`,
+    type: "warning",
+  }),
+  partial: (billing) => ({
+    title: "Payment recorded",
+    message: `We recorded a payment towards your bill. ${outstanding(
+      billing,
+    )} is still outstanding.`,
+    type: "payment",
+  }),
+  paid: () => ({
+    title: "Bill paid in full",
+    message: "Your bill is fully settled. Thank you for staying with us.",
+    type: "success",
+  }),
+};
 
 const calculateTotal = (items) => {
   return items.reduce((total, item) => {
@@ -70,6 +102,29 @@ const createBilling = async (billingData, userId) => {
     description: `Bill for ${existingGuest.name || "guest"} was created for ${money(
       totalAmount,
     )} (${status})`,
+  });
+
+  const dueNote = created.dueDate
+    ? ` Payment due by ${new Date(created.dueDate).toLocaleDateString()}.`
+    : "";
+
+  await notificationServices.notifyUserByEmail(existingGuest.email, {
+    title: "Bill issued",
+    message: `Your bill totals ${money(totalAmount)}.${dueNote}`,
+    type: "payment",
+    targetId: created._id,
+    targetModule: "billing",
+  });
+
+  await notificationServices.notifyUsersByRole(ACCOUNTING_ROLE, {
+    excludeUser: userId,
+    title: "New bill created",
+    message: `Bill of ${money(totalAmount)} for ${
+      existingGuest.name || "guest"
+    } is ${status}.`,
+    type: "payment",
+    targetId: created._id,
+    targetModule: "billing",
   });
 
   return created;
@@ -178,6 +233,17 @@ const updateBilling = async (id, billingData, userId) => {
     targetId: id,
     description: `Bill was updated to ${money(totalAmount)} (${billingData.status})`,
   });
+
+  const notice = STATUS_NOTICES[billingData.status];
+
+  // Only speak up when the status actually moved, not on every unrelated edit.
+  if (notice && billing.status !== billingData.status) {
+    await notificationServices.notifyUserByEmail(billing.guest?.email, {
+      ...notice(updated),
+      targetId: id,
+      targetModule: "billing",
+    });
+  }
 
   return updated;
 };
