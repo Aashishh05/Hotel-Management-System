@@ -2,16 +2,17 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/guards/ProtectedRoute";
+import PermissionRoute from "./components/guards/PermissionRoute";
+import StaffRoute from "./components/guards/StaffRoute";
 import DashboardLayout from "./components/layout/DashboardLayout.jsx";
 import GuestLayout from "./components/layout/GuestLayout.jsx";
 
 const Home = lazy(() => import("./pages/home/Home"));
 const Login = lazy(() => import("./pages/auth/Login"));
 const Register = lazy(() => import("./pages/auth/Register"));
-const ForgotPassword = lazy(
-  () => import("./pages/auth/ForgotPassword"),
-);
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const Unauthorized = lazy(() => import("./pages/auth/Unauthorized"));
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard.jsx"));
 const Rooms = lazy(() => import("./pages/rooms/Rooms.jsx"));
 const RoomDetails = lazy(() => import("./pages/rooms/RoomDetails.jsx"));
@@ -69,6 +70,7 @@ const App = () => {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/my-stay" element={<MyStay />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
           </Route>
 
           <Route element={<GuestLayout />}>
@@ -85,25 +87,82 @@ const App = () => {
 
           <Route element={<DashboardLayout />}>
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/rooms" element={<Rooms />} />
-              <Route path="/guests" element={<Guests />} />
-              <Route path="/guests/:id" element={<GuestDetails />} />
-              <Route path="/bookings" element={<Bookings />} />
-              <Route path="/bookings/:id" element={<BookingDetails />} />
-              <Route path="/checkin-checkout" element={<CheckInCheckout />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/users/:id" element={<UserDetails />} />
-              <Route path="/roles" element={<Roles />} />
-              <Route path="/permissions" element={<Permissions />} />
-              <Route path="/housekeeping" element={<Housekeeping />} />
-              <Route path="/maintenance" element={<Maintenance />} />
-              <Route path="/maintenance/:id" element={<MaintenanceDetails />} />
-              <Route path="/billing" element={<Billing />} />
-              <Route path="/menu" element={<MenuAdmin />} />
-              <Route path="/restaurant" element={<Restaurant />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/audit-logs" element={<AuditLogs />} />
+              <Route element={<StaffRoute />}>
+                {/* StaffRoute keeps the guest role out entirely. Below that,
+                    every page is gated by the same module the sidebar uses to
+                    decide whether to show its link. */}
+                <Route path="/dashboard" element={<Dashboard />} />
+
+                <Route element={<PermissionRoute module="rooms" />}>
+                  <Route path="/rooms" element={<Rooms />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="guests" />}>
+                  <Route path="/guests" element={<Guests />} />
+                  <Route path="/guests/:id" element={<GuestDetails />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="bookings" />}>
+                  <Route path="/bookings" element={<Bookings />} />
+                  <Route path="/bookings/:id" element={<BookingDetails />} />
+                </Route>
+
+                <Route
+                  element={
+                    <PermissionRoute module="bookings" action="update" />
+                  }
+                >
+                  <Route
+                    path="/checkin-checkout"
+                    element={<CheckInCheckout />}
+                  />
+                </Route>
+
+                <Route element={<PermissionRoute module="users" />}>
+                  <Route path="/users" element={<Users />} />
+                  <Route path="/users/:id" element={<UserDetails />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="roles" />}>
+                  <Route path="/roles" element={<Roles />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="permissions" />}>
+                  <Route path="/permissions" element={<Permissions />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="housekeeping" />}>
+                  <Route path="/housekeeping" element={<Housekeeping />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="maintenance" />}>
+                  <Route path="/maintenance" element={<Maintenance />} />
+                  <Route
+                    path="/maintenance/:id"
+                    element={<MaintenanceDetails />}
+                  />
+                </Route>
+
+                <Route element={<PermissionRoute module="billing" />}>
+                  <Route path="/billing" element={<Billing />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="menu" />}>
+                  <Route path="/menu" element={<MenuAdmin />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="restaurant" />}>
+                  <Route path="/restaurant" element={<Restaurant />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="reports" />}>
+                  <Route path="/reports" element={<Reports />} />
+                </Route>
+
+                <Route element={<PermissionRoute module="audit-logs" />}>
+                  <Route path="/audit-logs" element={<AuditLogs />} />
+                </Route>
+              </Route>
             </Route>
           </Route>
         </Routes>
