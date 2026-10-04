@@ -5,8 +5,13 @@ export const createNotification = async (notificationData) => {
   return res.data;
 };
 
-export const getNotifications = async () => {
-  const res = await api.get("/notification/get");
+export const getNotifications = async (params = {}) => {
+  const res = await api.get("/notification/get", { params });
+  return res.data;
+};
+
+export const getUnreadNotificationsCount = async () => {
+  const res = await api.get("/notification/unread-count");
   return res.data;
 };
 
@@ -21,7 +26,7 @@ export const markNotificationAsRead = async (id) => {
 };
 
 export const markAllNotificationsAsRead = async () => {
-  const res = await api.put("/notifications/read-all");
+  const res = await api.put("/notification/read-all");
   return res.data;
 };
 

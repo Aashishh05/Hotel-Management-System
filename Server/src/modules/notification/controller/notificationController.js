@@ -24,6 +24,16 @@ export const getNotifications = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const getUnreadCount = asyncErrorHandler(async (req, res) => {
+  const result = await notificationServices.getUnreadCount(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    message: "Unread count fetched successfully",
+    data: result,
+  });
+});
+
 export const getNotificationById = asyncErrorHandler(async (req, res) => {
   const notification = await notificationServices.getNotificationById(
     req.params.id,

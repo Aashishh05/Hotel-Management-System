@@ -3,6 +3,7 @@ import express from "express";
 import {
   createNotification,
   getNotifications,
+  getUnreadCount,
   getNotificationById,
   markNotificationAsRead,
   markAllNotificationsAsRead,
@@ -24,31 +25,20 @@ router.post(
   createNotification,
 );
 
-router.get("/get", checkPermission("notifications", "read"), getNotifications);
+// Everything below is scoped to req.user._id inside the repository, so a signed
+// in user can always read and dismiss their own notifications regardless of
+// the role permission matrix. Keep these above "/get/:id".
 
-router.get(
-  "/get/:id",
-  checkPermission("notifications", "read"),
-  getNotificationById,
-);
+router.get("/get", getNotifications);
 
-router.put(
-  "/update/:id/read",
-  checkPermission("notifications", "update"),
-  markNotificationAsRead,
-);
+router.get("/unread-count", getUnreadCount);
 
-router.put(
-  "/read-all",
-  checkPermission("notifications", "update"),
-  markAllNotificationsAsRead,
-);
+router.get("/get/:id", getNotificationById);
 
-router.delete(
-  "/delete/:id",
-  checkPermission("notifications", "delete"),
-  auditLog,
-  deleteNotification,
-);
+router.put("/update/:id/read", markNotificationAsRead);
+
+router.put("/read-all", markAllNotificationsAsRead);
+
+router.delete("/delete/:id", auditLog, deleteNotification);
 
 export default router;

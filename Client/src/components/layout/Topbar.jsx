@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Menu, Bell, LogOut, Search } from "lucide-react";
+import { Menu, LogOut, Search } from "lucide-react";
 import useAuth from "../../hooks/useAuth.js";
 import { logoutApi } from "../../api/authApi.js";
 import ConfirmDialog from "../common/ConfirmDialog.jsx";
 import ThemeToggle from "../common/ThemeToggle.jsx";
+import NotificationsMenu from "./NotificationsMenu.jsx";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -72,16 +73,7 @@ const Topbar = ({ onMenuClick }) => {
 
       <ThemeToggle />
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        className="relative text-muted-foreground hover:text-foreground"
-        aria-label="Notifications"
-      >
-        <Bell className="w-5 h-5" />
-        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary" />
-      </Button>
+      <NotificationsMenu />
 
       <div className="h-8 w-px bg-border hidden sm:block" />
 

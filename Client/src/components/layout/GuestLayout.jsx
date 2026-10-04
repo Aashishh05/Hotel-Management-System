@@ -17,6 +17,7 @@ import useAuth from "../../hooks/useAuth.js";
 import { logoutApi } from "../../api/authApi.js";
 import ConfirmDialog from "../common/ConfirmDialog.jsx";
 import ThemeToggle from "../common/ThemeToggle.jsx";
+import NotificationsMenu from "./NotificationsMenu.jsx";
 import { Button } from "../ui/button";
 
 const ROLE_LABELS = {
@@ -204,6 +205,8 @@ const GuestLayout = () => {
           <div className="flex-1" />
 
           <ThemeToggle />
+
+          <NotificationsMenu />
 
           <div className="h-8 w-px bg-border hidden sm:block" />
 

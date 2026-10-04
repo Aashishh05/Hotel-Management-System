@@ -29,6 +29,13 @@ const getNotificationsByUser = async (userId, filter = {}, options = {}) => {
   };
 };
 
+const countUnreadByUser = async (userId) => {
+  return await Notification.countDocuments({
+    user: userId,
+    isRead: false,
+  });
+};
+
 const getNotificationById = async (id, userId) => {
   return await Notification.findOne({
     _id: id,
@@ -73,6 +80,7 @@ const deleteNotification = async (id, userId) => {
 export default {
   createNotification,
   getNotificationsByUser,
+  countUnreadByUser,
   getNotificationById,
   markAsRead,
   markAllAsRead,

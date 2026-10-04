@@ -1,6 +1,7 @@
 import guestRepository from "../../../modules/guest/repository/guestRepository.js";
 import roomRepository from "../../../modules/room/repository/roomRepository.js";
 import userRepository from "../../../modules/user/repository/userRepository.js";
+import notificationServices from "../../notification/services/notificationServices.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
 import bookingRepository from "../repository/bookingRepository.js";
@@ -53,6 +54,20 @@ const bookingOwnedByUser = (booking, user) => {
   const bookingGuestId = String(booking?.guest?._id || "");
 
   return ownGuestId && bookingGuestId === ownGuestId;
+};
+
+const notifyGuest = async (guestId, { title, message, type, targetId }) => {
+  const guest = await guestRepository.getGuestById(guestId);
+
+  if (!guest?.email) return;
+
+  await notificationServices.notifyUserByEmail(guest.email, {
+    title,
+    message,
+    type,
+    targetId,
+    targetModule: "bookings",
+  });
 };
 
 const createBooking = async (bookingData, userId) => {
@@ -148,6 +163,13 @@ const createBooking = async (bookingData, userId) => {
     description: `Booking created for room ${existingRoom.number} from ${new Date(
       checkInDate,
     ).toLocaleDateString()} to ${new Date(checkOutDate).toLocaleDateString()}`,
+  });
+
+  await notifyGuest(guestId, {
+    title: "Booking request received",
+    message: `We received your request for room ${existingRoom.number}. It is pending confirmation.`,
+    type: "booking",
+    targetId: createdBooking._id,
   });
 
   return createdBooking;
@@ -263,6 +285,13 @@ const confirmBooking = async (bookingId, userId) => {
     description: `Booking confirmed for room ${booking.room?.number} (guest ${
       booking.guest?.name
     })`,
+  });
+
+  await notifyGuest(booking.guest._id, {
+    title: "Booking confirmed",
+    message: `Your booking for room ${booking.room?.number} has been confirmed.`,
+    type: "success",
+    targetId: booking._id,
   });
 
   return confirmedBooking;
