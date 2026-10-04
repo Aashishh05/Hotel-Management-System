@@ -50,11 +50,17 @@ const TYPE_TONES = {
 };
 
 const MODULE_PATHS = {
-  bookings: { staff: "/bookings", guest: "/guest/stays", staffDetail: true },
+  bookings: {
+    staff: { base: "/bookings", detail: true },
+    guest: { base: "/guest/stays", detail: false },
+  },
   maintenance: {
-    staff: "/maintenance",
-    guest: "/guest/maintenance",
-    staffDetail: true,
+    staff: { base: "/maintenance", detail: true },
+    guest: { base: "/guest/maintenance", detail: false },
+  },
+  restaurant: {
+    staff: { base: "/restaurant", detail: false },
+    guest: { base: "/guest/orders", detail: true },
   },
 };
 
@@ -148,11 +154,11 @@ const NotificationsMenu = () => {
     const entry = MODULE_PATHS[notification.targetModule];
 
     if (entry) {
-      const base = entry[isGuest ? "guest" : "staff"];
+      const target = entry[isGuest ? "guest" : "staff"];
       const path =
-        !isGuest && entry.staffDetail && notification.targetId
-          ? `${base}/${notification.targetId}`
-          : base;
+        target.detail && notification.targetId
+          ? `${target.base}/${notification.targetId}`
+          : target.base;
 
       setOpen(false);
       navigate(path);

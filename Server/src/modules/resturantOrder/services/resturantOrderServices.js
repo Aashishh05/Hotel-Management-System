@@ -4,8 +4,62 @@ import userRepository from "../../user/repository/userRepository.js";
 import menuRepository from "../../menu/repository/menuRepository.js";
 import bookingRepository from "../../booking/repository/bookingRepository.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
+import notificationServices from "../../notification/services/notificationServices.js";
 import ErrorHandler from "../../../utils/ErrorHandler.js";
 import restaurantOrderRepository from "../repository/resturantOrderRepository.js"
+
+const KITCHEN_ROLES = ["restaurantmanager", "chef"];
+
+const STATUS_NOTICES = {
+  pending: {
+    title: "Order reopened",
+    message: "Your order is back in the queue.",
+    type: "info",
+  },
+  preparing: {
+    title: "Order being prepared",
+    message: "The kitchen has started on your order.",
+    type: "restaurant",
+  },
+  served: {
+    title: "Order served",
+    message: "Your order has been served. Enjoy your meal.",
+    type: "success",
+  },
+  cancelled: {
+    title: "Order cancelled",
+    message: "Your order was cancelled. Please contact the front desk if this was unexpected.",
+    type: "warning",
+  },
+};
+
+const orderLabel = (order) => `Order #${order?.orderNumber}`;
+
+const alertKitchen = async (order, excludeUser) => {
+  await notificationServices.notifyUsersByRole(KITCHEN_ROLES, {
+    excludeUser,
+    title: "New restaurant order",
+    message: `${orderLabel(order)} for room ${
+      order?.room?.number || "-"
+    } — $${Number(order?.totalAmount || 0).toFixed(2)}`,
+    type: "restaurant",
+    targetId: order?._id,
+    targetModule: "restaurant",
+  });
+};
+
+const notifyOrderStatus = async (order, status) => {
+  const notice = STATUS_NOTICES[status];
+
+  if (!notice) return;
+
+  await notificationServices.notifyUserByEmail(order?.guest?.email, {
+    ...notice,
+    message: `${orderLabel(order)}. ${notice.message}`,
+    targetId: order._id,
+    targetModule: "restaurant",
+  });
+};
 
 const calculateTotal = (items) => {
   return items.reduce((total, item) => {
@@ -114,6 +168,19 @@ const createMyOrder = async (orderData, userId) => {
     } — $${totalAmount.toFixed(2)}`,
   });
 
+  await notificationServices.notifyUser({
+    user: userId,
+    title: "Order placed",
+    message: `${orderLabel(savedOrder)} for room ${
+      booking.room?.number
+    } — $${totalAmount.toFixed(2)}. We will let you know when the kitchen starts.`,
+    type: "restaurant",
+    targetId: order._id,
+    targetModule: "restaurant",
+  });
+
+  await alertKitchen(savedOrder || order, userId);
+
   return savedOrder;
 };
 
@@ -160,6 +227,18 @@ const createOrder = async (orderData, userId) => {
       existingGuest.name
     } in room ${existingRoom.number} — $${totalAmount.toFixed(2)}`,
   });
+
+  await notificationServices.notifyUserByEmail(existingGuest.email, {
+    title: "Order placed",
+    message: `${orderLabel(order)} was placed for you in room ${
+      existingRoom.number
+    } — $${totalAmount.toFixed(2)}.`,
+    type: "restaurant",
+    targetId: order._id,
+    targetModule: "restaurant",
+  });
+
+  await alertKitchen({ ...order, room: existingRoom }, userId);
 
   return order;
 };
@@ -260,6 +339,8 @@ const updateOrder = async (id, orderData, userId) => {
       targetId: order._id,
       description: `Order #${order.orderNumber} for ${order.guest?.name} ${verb}`,
     });
+
+    await notifyOrderStatus(order, orderData.status);
   }
 
   return updatedOrder;

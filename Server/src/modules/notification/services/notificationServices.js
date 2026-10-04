@@ -52,21 +52,26 @@ const notifyUserByEmail = async (email, payload) => {
 
 /**
  * Broadcasts to every user holding a role, e.g. alerting the maintenance team
- * about a new request. Use excludeUser to skip whoever triggered the event.
+ * about a new request. Accepts a single role name or a list. Use excludeUser to
+ * skip whoever triggered the event.
  */
 const notifyUsersByRole = async (
-  roleName,
+  roleNames,
   { excludeUser, ...payload },
 ) => {
   try {
-    const users = await userRepository.getUsersByRoleName(roleName);
+    const names = Array.isArray(roleNames) ? roleNames : [roleNames];
 
-    const targets = users.filter(
+    const results = await Promise.all(
+      names.map((name) => userRepository.getUsersByRoleName(name)),
+    );
+
+    const users = results.flat().filter(
       (user) => String(user._id) !== String(excludeUser || ""),
     );
 
     return await Promise.all(
-      targets.map((user) => notifyUser({ ...payload, user: user._id })),
+      users.map((user) => notifyUser({ ...payload, user: user._id })),
     );
   } catch (error) {
     console.error("Notification error:", error.message);
