@@ -9,7 +9,6 @@ import {
   Sparkles,
   ArrowRight,
   BedDouble,
-  LayoutGrid,
   LayoutDashboard,
   LogOut,
 } from "lucide-react";
@@ -40,6 +39,7 @@ import {
 } from "../../components/ui/dropdown-menu";
 import Reveal from "../../components/common/Reveal";
 import ThemeToggle from "../../components/common/ThemeToggle";
+import ScrollToTopButton from "../../components/common/ScrollToTopButton";
 
 const roomTypeLabel = (type) => {
   const labels = {
@@ -573,31 +573,20 @@ const Home = () => {
         </div>
       </section>
 
-      <footer className="border-t border-border px-4 py-8 lg:px-8">
+      <footer className="border-t border-border px-4 py-12 lg:px-8">
         <Reveal>
-          <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 text-center">
-            <div className="flex items-center gap-2">
-              <Hexagon className="w-6 h-6 text-primary" strokeWidth={2.5} />
-              <span className="font-semibold text-sm tracking-wide">
+          <div className="max-w-6xl mx-auto flex flex-col items-center gap-5 text-center">
+            <div className="flex items-center gap-3">
+              <Hexagon className="w-8 h-8 text-primary" strokeWidth={2.5} />
+              <span className="font-display text-2xl font-semibold tracking-wide text-foreground">
                 Grand Horizon Hotel
               </span>
             </div>
 
-            <div className="flex items-center gap-5 text-sm text-muted-foreground">
-              <Link
-                to="/login"
-                className="hover:text-foreground transition-colors"
-              >
-                Staff sign in
-              </Link>
-              <span className="flex items-center gap-1">
-                <LayoutGrid className="w-3.5 h-3.5" />
-                <span>Multi-module management</span>
-              </span>
-            </div>
+            <span className="h-px w-16 bg-border" />
 
-            <p className="text-xs text-muted-foreground/70">
-              © {new Date().getFullYear()} Grand Horizon Hotel. All rights
+            <p className="text-sm text-muted-foreground">
+              &copy; {new Date().getFullYear()} Grand Horizon Hotel. All rights
               reserved.
             </p>
           </div>
@@ -619,6 +608,8 @@ const Home = () => {
           }}
         />
       )}
+
+      <ScrollToTopButton />
     </div>
   );
 };
