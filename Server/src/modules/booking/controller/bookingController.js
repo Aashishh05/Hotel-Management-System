@@ -12,11 +12,15 @@ export const createBooking = asyncErrorHandler(async (req, res) => {
 });
 
 export const getAllBookings = asyncErrorHandler(async (req, res) => {
-  const bookings = await bookingServices.getAllBookings(req.user._id);
+  const { page = 1, limit = 10 } = req.query;
+  const result = await bookingServices.getAllBookings(req.user._id, {
+    page: Number(page),
+    limit: Number(limit),
+  });
 
   res.status(200).json({
     success: true,
-    bookings,
+    ...result,
   });
 });
 

@@ -175,12 +175,31 @@ const createBooking = async (bookingData, userId) => {
   return createdBooking;
 };
 
-const getAllBookings = async (userId) => {
+const getAllBookings = async (userId, options = {}) => {
   if (isGuestRole(await getActor(userId))) {
-    return await getOwnBookings(userId);
+    const bookings = await getOwnBookings(userId);
+    if (options.page && options.limit) {
+      const page = Number(options.page);
+      const limit = Number(options.limit);
+      const total = bookings.length;
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      return {
+        bookings: bookings.slice(start, end),
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      };
+    }
+    return { bookings };
   }
 
-  return await bookingRepository.getAllBookings();
+  if (options.page && options.limit) {
+    return await bookingRepository.getAllBookingsWithPagination(options);
+  }
+
+  return { bookings: await bookingRepository.getAllBookings() };
 };
 
 const getBookingById = async (id, userId) => {

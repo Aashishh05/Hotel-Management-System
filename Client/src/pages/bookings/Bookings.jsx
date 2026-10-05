@@ -64,10 +64,22 @@ const Bookings = () => {
   const canDelete = bookingsPerm?.delete === true;
   const canManage = canUpdate && !isGuest;
 
-  const loadBookings = async () => {
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const loadBookings = async (currentPage = page) => {
     try {
-      const results = await Promise.all([getAllBookings(), getAllRooms()]);
+      setLoading(true);
+      const results = await Promise.all([
+        getAllBookings({ page: currentPage, limit }),
+        getAllRooms(),
+      ]);
       setBookings(results[0]?.bookings || []);
+      setTotal(results[0]?.total || 0);
+      setTotalPages(results[0]?.totalPages || 1);
+      setPage(results[0]?.page || currentPage);
       setRooms(results[1]?.rooms || []);
       setError("");
     } catch (err) {
@@ -78,7 +90,8 @@ const Bookings = () => {
   };
 
   useEffect(() => {
-    loadBookings();
+    loadBookings(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openForm = () => setFormOpen(true);
@@ -131,9 +144,9 @@ const Bookings = () => {
     try {
       setDeleting(true);
       await deleteBooking(confirmDelete._id);
-      setBookings((prev) => prev.filter((b) => b._id !== confirmDelete._id));
       setConfirmDelete(null);
       showToast({ type: "success", message: "Booking deleted successfully" });
+      loadBookings(page);
     } catch (err) {
       showToast({
         type: "error",
@@ -397,6 +410,32 @@ const Bookings = () => {
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(null)}
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between py-4">
+          <div className="text-sm text-muted-foreground">
+            Page {page} of {totalPages} ({total} total)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || loading}
+              onClick={() => loadBookings(page - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || loading}
+              onClick={() => loadBookings(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
