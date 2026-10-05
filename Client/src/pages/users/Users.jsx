@@ -107,16 +107,24 @@ const Users = () => {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const usersPerm = permissions?.modules?.users;
   const canCreate = usersPerm?.create === true;
   const canUpdate = usersPerm?.update === true;
   const canDelete = usersPerm?.delete === true;
 
-  const loadUsers = async () => {
+  const loadUsers = async (currentPage = page) => {
     try {
-      const res = await getAllUsers();
+      setLoading(true);
+      const res = await getAllUsers({ page: currentPage, limit });
       setUsers(res?.users || []);
+      setTotal(res?.total || 0);
+      setTotalPages(res?.totalPages || 1);
+      setPage(res?.page || currentPage);
       setError("");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load users");
@@ -126,7 +134,8 @@ const Users = () => {
   };
 
   useEffect(() => {
-    loadUsers();
+    loadUsers(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -185,17 +194,13 @@ const Users = () => {
         if (isCreate) {
           await createUser(payload);
           setFormTarget(null);
-          loadUsers();
           showToast({ type: "success", message: "User created successfully" });
+          loadUsers(1);
         } else {
           const res = await updateUser(targetUser._id, payload);
-          setUsers((prev) =>
-            prev.map((user) =>
-              user._id === targetUser._id ? res?.user : user,
-            ),
-          );
           setFormTarget(null);
           showToast({ type: "success", message: "User updated successfully" });
+          loadUsers(page);
         }
       } catch (err) {
         showToast({
@@ -215,9 +220,9 @@ const Users = () => {
     try {
       setDeleting(true);
       await deleteUser(confirmDelete._id);
-      setUsers((prev) => prev.filter((u) => u._id !== confirmDelete._id));
       setConfirmDelete(null);
       showToast({ type: "success", message: "User deleted successfully" });
+      loadUsers(page);
     } catch (err) {
       showToast({
         type: "error",
@@ -632,6 +637,32 @@ const Users = () => {
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(null)}
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between py-4">
+          <div className="text-sm text-muted-foreground">
+            Page {page} of {totalPages} ({total} total)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || loading}
+              onClick={() => loadUsers(page - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || loading}
+              onClick={() => loadUsers(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

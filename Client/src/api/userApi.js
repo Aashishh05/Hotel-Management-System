@@ -6,8 +6,8 @@ export const createUser = async (userData) => {
   return res.data;
 };
 
-export const getAllUsers = async () => {
-  const res = await api.get("/user/get");
+export const getAllUsers = async (params = {}) => {
+  const res = await api.get("/user/get", { params });
 
   return res.data;
 };

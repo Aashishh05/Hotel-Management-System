@@ -6,7 +6,22 @@ const createUser = async (userData) => {
 };
 
 const getAllUser = async () => {
-  return await User.find().populate("role", "name");
+  return await User.find().populate("role", "name").sort({ createdAt: -1 });
+};
+
+const getAllUserWithPagination = async ({ page = 1, limit = 10 }) => {
+  const skip = (page - 1) * limit;
+  const [users, total] = await Promise.all([
+    User.find().populate("role", "name").sort({ createdAt: -1 }).skip(skip).limit(limit),
+    User.countDocuments(),
+  ]);
+  return {
+    users,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
 };
 
 const getUserById = async (id) => {
@@ -43,6 +58,7 @@ const deleteUser = async (id) => {
 export default {
   createUser,
   getAllUser,
+  getAllUserWithPagination,
   getUserById,
   getUserByEmail,
   getUserByRole,

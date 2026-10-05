@@ -44,8 +44,11 @@ const createUser = async (userData, userId) => {
   return created;
 };
 
-const getAllUsers = async () => {
-  return await userRepository.getAllUser();
+const getAllUsers = async (options = {}) => {
+  if (options.page && options.limit) {
+    return await userRepository.getAllUserWithPagination(options);
+  }
+  return { users: await userRepository.getAllUser() };
 };
 
 const getUserById = async (id) => {

@@ -12,11 +12,15 @@ export const createUser = asyncErrorHandler(async (req, res) => {
 });
 
 export const getAllUsers = asyncErrorHandler(async (req, res) => {
-  const users = await userServices.getAllUsers();
+  const { page = 1, limit = 10 } = req.query;
+  const result = await userServices.getAllUsers({
+    page: Number(page),
+    limit: Number(limit),
+  });
 
   res.status(200).json({
     success: true,
-    users,
+    ...result,
   });
 });
 
