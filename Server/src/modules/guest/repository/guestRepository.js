@@ -5,7 +5,22 @@ const createGuest = async (guestData) => {
 };
 
 const getAllGuests = async () => {
-  return await Guest.find();
+  return await Guest.find().sort({ createdAt: -1 });
+};
+
+const getAllGuestsWithPagination = async ({ page = 1, limit = 10 }) => {
+  const skip = (page - 1) * limit;
+  const [guests, total] = await Promise.all([
+    Guest.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Guest.countDocuments(),
+  ]);
+  return {
+    guests,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit) || 1,
+  };
 };
 
 const getGuestById = async (id) => {
@@ -38,10 +53,11 @@ const deleteGuest = async (id) => {
 export default {
   createGuest,
   getAllGuests,
-  getGuestByEmail,
+  getAllGuestsWithPagination,
   getGuestById,
-  getGuestByIdNumber,
+  getGuestByEmail,
   getGuestByPhone,
+  getGuestByIdNumber,
   updateGuest,
   deleteGuest,
 };

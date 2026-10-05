@@ -12,11 +12,15 @@ export const createGuest = asyncErrorHandler(async (req, res) => {
 });
 
 export const getAllGuests = asyncErrorHandler(async (req, res) => {
-  const guests = await guestServices.getAllGuests();
+  const { page = 1, limit = 10 } = req.query;
+  const result = await guestServices.getAllGuests({
+    page: Number(page),
+    limit: Number(limit),
+  });
 
   res.status(200).json({
     success: true,
-    guests,
+    ...result,
   });
 });
 

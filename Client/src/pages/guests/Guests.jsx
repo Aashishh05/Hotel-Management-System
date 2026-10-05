@@ -102,16 +102,24 @@ const Guests = () => {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const guestsPerm = permissions?.modules?.guests;
   const canCreate = guestsPerm?.create === true;
   const canUpdate = guestsPerm?.update === true;
   const canDelete = guestsPerm?.delete === true;
 
-  const loadGuests = async () => {
+  const loadGuests = async (currentPage = page) => {
     try {
-      const res = await getAllGuests();
+      setLoading(true);
+      const res = await getAllGuests({ page: currentPage, limit });
       setGuests(res?.guests || []);
+      setTotal(res?.total || 0);
+      setTotalPages(res?.totalPages || 1);
+      setPage(res?.page || currentPage);
       setError("");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load guests");
@@ -121,7 +129,8 @@ const Guests = () => {
   };
 
   useEffect(() => {
-    loadGuests();
+    loadGuests(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isCreate = formTarget === "new";
@@ -149,18 +158,14 @@ const Guests = () => {
         const payload = buildPayload(values);
         if (isCreate) {
           const res = await createGuest(payload);
-          setGuests((prev) => [res?.guest, ...prev].filter(Boolean));
           setFormTarget(null);
           showToast({ type: "success", message: "Guest added successfully" });
+          loadGuests(1);
         } else {
           const res = await updateGuest(targetGuest._id, payload);
-          setGuests((prev) =>
-            prev.map((guest) =>
-              guest._id === targetGuest._id ? res?.guest : guest,
-            ),
-          );
           setFormTarget(null);
           showToast({ type: "success", message: "Guest updated successfully" });
+          loadGuests(page);
         }
       } catch (err) {
         showToast({
@@ -180,11 +185,9 @@ const Guests = () => {
     try {
       setDeleting(true);
       await deleteGuest(confirmDelete._id);
-      setGuests((prev) =>
-        prev.filter((guest) => guest._id !== confirmDelete._id),
-      );
       setConfirmDelete(null);
       showToast({ type: "success", message: "Guest deleted successfully" });
+      loadGuests(page);
     } catch (err) {
       showToast({
         type: "error",
@@ -535,6 +538,32 @@ const Guests = () => {
         onConfirm={handleDelete}
         onCancel={() => setConfirmDelete(null)}
       />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between py-4">
+          <div className="text-sm text-muted-foreground">
+            Page {page} of {totalPages} ({total} total)
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1 || loading}
+              onClick={() => loadGuests(page - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages || loading}
+              onClick={() => loadGuests(page + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -48,8 +48,11 @@ const createGuest = async (guestData, userId) => {
   return guest;
 };
 
-const getAllGuests = async () => {
-  return await guestRepository.getAllGuests();
+const getAllGuests = async (options = {}) => {
+  if (options.page && options.limit) {
+    return await guestRepository.getAllGuestsWithPagination(options);
+  }
+  return { guests: await guestRepository.getAllGuests() };
 };
 
 const getGuestById = async (id) => {

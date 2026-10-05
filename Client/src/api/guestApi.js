@@ -5,8 +5,8 @@ export const createGuest = async (guestData) => {
   return res.data;
 };
 
-export const getAllGuests = async () => {
-  const res = await api.get("/guest/get");
+export const getAllGuests = async (params = {}) => {
+  const res = await api.get("/guest/get", { params });
   return res.data;
 };
 
