@@ -10,6 +10,7 @@ import roles from "./rolesSeed.js";
 import { createDefaultPermissions, rolePermissions } from "./permissionSeed.js";
 
 import seedAdmin from "./adminSeed.js";
+import seedRooms from "./roomsSeed.js";
 
 
 const seedDatabase = async () => {
@@ -63,6 +64,9 @@ const seedDatabase = async () => {
 
     // Seed SuperAdmin
     await seedAdmin();
+
+    // Wipe old rooms + linked test data, then create fresh rooms with images
+    await seedRooms();
 
     console.log("Data seeding completed successfully");
 
