@@ -16,6 +16,7 @@ const Unauthorized = lazy(() => import("./pages/auth/Unauthorized"));
 const Dashboard = lazy(() => import("./pages/dashboard/Dashboard.jsx"));
 const Rooms = lazy(() => import("./pages/rooms/Rooms.jsx"));
 const RoomDetails = lazy(() => import("./pages/rooms/RoomDetails.jsx"));
+const ExploreRooms = lazy(() => import("./pages/rooms/ExploreRooms.jsx"));
 const Guests = lazy(() => import("./pages/guests/Guests.jsx"));
 const GuestDetails = lazy(() => import("./pages/guests/GuestDetails.jsx"));
 const Bookings = lazy(() => import("./pages/bookings/Bookings.jsx"));
@@ -67,6 +68,7 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/rooms/:id" element={<RoomDetails />} />
+          <Route path="/all-rooms" element={<ExploreRooms />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/my-stay" element={<MyStay />} />
