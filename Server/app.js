@@ -1,12 +1,22 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import mainRoutes from "./src/routes/mainRoutes.js";
 import notFound from "./src/middleware/notFoundMiddleware.js";
 import errorMiddleware from "../Server/src/middleware/errorMiddleware.js";
 
 const app = express();
+
+// Security headers. CSP stays off because this is a JSON API only, but the
+// other defaults (HSTS, no-sniff, frameguard, CORP/COEP...) always apply.
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 app.use(
   cors({

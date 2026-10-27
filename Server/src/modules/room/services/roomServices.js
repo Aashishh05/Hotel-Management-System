@@ -47,6 +47,34 @@ const getAllRooms = async (options = {}) => {
   return await roomRepository.getAllRooms();
 };
 
+// The public listing should stay lean: paginated when asked, full list
+// otherwise for the filter page that needs everything in one request.
+// Always resolves to an object so controllers can spread it safely.
+const getPublicRooms = async (options = {}) => {
+  if (options.page === undefined && options.limit === undefined) {
+    const rooms = await roomRepository.getAllRooms();
+    return { rooms };
+  }
+
+  const page = Number.parseInt(options.page, 10);
+  const limit = Number.parseInt(options.limit, 10);
+
+  if (
+    Number.isNaN(page) ||
+    Number.isNaN(limit) ||
+    page < 1 ||
+    limit < 1 ||
+    limit > 50
+  ) {
+    throw new ErrorHandler(
+      "page and limit must be positive integers (limit max 50)",
+      400,
+    );
+  }
+
+  return roomRepository.getAllRoomsWithPagination({ page, limit });
+};
+
 const getRoomById = async (id) => {
   const room = await roomRepository.getRoomById(id);
 
@@ -202,6 +230,7 @@ const deleteRoom = async (id, userId) => {
 export default {
   createRoom,
   getAllRooms,
+  getPublicRooms,
   getRoomById,
   getRoomsByStatus,
   getAvailableRooms,

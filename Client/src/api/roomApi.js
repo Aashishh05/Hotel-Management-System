@@ -25,8 +25,10 @@ export const getAllRooms = async (params = {}) => {
   return res.data;
 };
 
-export const getPublicRooms = async () => {
-  const res = await api.get("/room/public");
+export const getPublicRooms = async (params = {}) => {
+  const res = await api.get("/room/public", {
+    params: Object.keys(params).length ? params : undefined,
+  });
 
   return res.data;
 };

@@ -1,6 +1,9 @@
 import authRepository from "../repository/authRepository.js";
 import bcrypt from "bcrypt";
-import { generateToken } from "../../../utils/jwt.js";
+import {
+  generateToken,
+  generateRefreshToken,
+} from "../../../utils/jwt.js";
 import ErrorHandler from "../../../utils/errorHandler.js";
 import crypto from "crypto";
 import sendEmail from "../../../utils/sendEmail.js";
@@ -58,13 +61,35 @@ const login = async ({ email, password }) => {
     throw new ErrorHandler("Invalid email or password", 401);
   }
 
-  const token = generateToken({
-    id: user._id,
-    name: user.name,
-    role: user.role.name,
-  });
+  return {
+    user,
+    accessToken: generateToken({
+      id: user._id,
+      name: user.name,
+      role: user.role.name,
+    }),
+    refreshToken: generateRefreshToken({ id: user._id }),
+  };
+};
 
-  return { user, token };
+// Fresh role data on every refresh, so permission changes apply without
+// waiting for the refresh token to expire.
+const refreshSession = async (userId) => {
+  const user = await authRepository.findUserById(userId);
+
+  if (!user) {
+    throw new ErrorHandler("User not found", 401);
+  }
+
+  return {
+    user,
+    accessToken: generateToken({
+      id: user._id,
+      name: user.name,
+      role: user.role.name,
+    }),
+    refreshToken: generateRefreshToken({ id: user._id }),
+  };
 };
 
 const getMe = async (userId) => {
@@ -170,6 +195,7 @@ const resetPassword = async (refreshToken, newPassword) => {
 export default {
   register,
   login,
+  refreshSession,
   getMe,
   forgotPassword,
   resetPassword,

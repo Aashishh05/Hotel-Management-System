@@ -1,9 +1,22 @@
 import authService from "../service/authService.js";
 import asyncErrorHandler from "../../../middleware/asyncErrorHandler.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
-import { verifyToken } from "../../../utils/jwt.js";
+import {
+  verifyToken,
+  verifyRefreshToken,
+} from "../../../utils/jwt.js";
+import ErrorHandler from "../../../utils/ErrorHandler.js";
 
 const roleName = (user) => user?.role?.name || "guest";
+
+const ACCESS_COOKIE_MAX_AGE = 15 * 60 * 1000; // 15 minutes
+const REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+const cookieOptions = () => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+});
 
 export const register = asyncErrorHandler(async (req, res) => {
   const user = await authService.register(req.body);
@@ -25,10 +38,11 @@ export const register = asyncErrorHandler(async (req, res) => {
 
 export const login = asyncErrorHandler(async (req, res) => {
   let user;
-  let token;
+  let accessToken;
+  let refreshToken;
 
   try {
-    ({ user, token } = await authService.login(req.body));
+    ({ user, accessToken, refreshToken } = await authService.login(req.body));
   } catch (error) {
     await auditLogServices.recordActivity({
       user: null,
@@ -41,11 +55,14 @@ export const login = asyncErrorHandler(async (req, res) => {
     throw error;
   }
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  res.cookie("token", accessToken, {
+    ...cookieOptions(),
+    maxAge: ACCESS_COOKIE_MAX_AGE,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieOptions(),
+    maxAge: REFRESH_COOKIE_MAX_AGE,
   });
 
   await auditLogServices.recordActivity({
@@ -64,11 +81,10 @@ export const login = asyncErrorHandler(async (req, res) => {
 });
 
 export const logout = asyncErrorHandler(async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  });
+  const options = cookieOptions();
+
+  res.clearCookie("token", options);
+  res.clearCookie("refreshToken", options);
 
   const token = req.cookies?.token;
 
@@ -96,8 +112,52 @@ export const logout = asyncErrorHandler(async (req, res) => {
   });
 });
 
+export const refresh = asyncErrorHandler(async (req, res) => {
+  const token = req.cookies?.refreshToken;
+
+  if (!token) {
+    throw new ErrorHandler("No refresh token provided", 401);
+  }
+
+  let decoded;
+
+  try {
+    decoded = verifyRefreshToken(token);
+  } catch {
+    throw new ErrorHandler("Invalid or expired refresh token", 401);
+  }
+
+  const { user, accessToken, refreshToken } = await authService.refreshSession(
+    decoded.id,
+  );
+
+  res.cookie("token", accessToken, {
+    ...cookieOptions(),
+    maxAge: ACCESS_COOKIE_MAX_AGE,
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    ...cookieOptions(),
+    maxAge: REFRESH_COOKIE_MAX_AGE,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Access token refreshed",
+    data: user,
+  });
+});
+
 export const getMe = asyncErrorHandler(async (req, res) => {
   if (!req.user) {
+    if (req.authExpired) {
+      // Access token present but expired/invalid. The client interceptor
+      // catches this and refreshes before retrying.
+      return res
+        .status(401)
+        .json({ success: false, message: "Access token expired" });
+    }
+
     return res.status(200).json({ success: true, data: null });
   }
 

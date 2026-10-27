@@ -5,6 +5,7 @@ import {
   register,
   login,
   logout,
+  refresh,
   getMe,
   forgotPassword,
   resetPassword,
@@ -63,6 +64,7 @@ const resetPasswordValidation = [
 
 router.post("/register", registerValidation, validate, register);
 router.post("/login", loginRateLimiter, loginValidation, validate, login);
+router.post("/refresh", refresh);
 router.post("/logout", logout);
 router.get("/me", protectOptional, getMe);
 router.post(

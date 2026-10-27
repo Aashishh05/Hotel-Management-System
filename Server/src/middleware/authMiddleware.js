@@ -41,13 +41,20 @@ const protectOptional = async (req, res, next) => {
       return next();
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id)
-      .select("-password")
-      .populate("role", "name");
+      const user = await User.findById(decoded.id)
+        .select("-password")
+        .populate("role", "name");
 
-    req.user = user;
+      req.user = user || null;
+    } catch {
+      // Distinguish "expired access token" from "not logged in" so /auth/me
+      // can return 401 for the former and let the client silently refresh.
+      req.user = null;
+      req.authExpired = true;
+    }
 
     next();
   } catch (error) {

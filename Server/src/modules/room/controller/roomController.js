@@ -68,11 +68,13 @@ export const getRoomAvailability = asyncErrorHandler(async (req, res) => {
 });
 
 export const getPublicRooms = asyncErrorHandler(async (req, res) => {
-  const rooms = await roomServices.getAllRooms();
+  const result = await roomServices.getPublicRooms(req.query);
 
+  // Unpaginated: { rooms }. Paginated: rooms + total/page metadata for hints
+  // like "Showing 6 of 12 rooms".
   res.status(200).json({
     success: true,
-    rooms,
+    ...result,
   });
 });
 

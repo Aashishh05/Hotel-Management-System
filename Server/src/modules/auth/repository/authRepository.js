@@ -6,7 +6,9 @@ const findUserByEmail = async (email) => {
 };
 
 const findUserById = async (id) => {
-  return await User.findById(id).populate("role", "name");
+  return await User.findById(id)
+    .select("-password")
+    .populate("role", "name");
 };
 
 const findRoleByName = async (name) => {

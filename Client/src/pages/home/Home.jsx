@@ -52,6 +52,7 @@ const FEATURED_ROOMS_LIMIT = 6;
 const Home = () => {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
+  const [roomsTotal, setRoomsTotal] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user, logoutUser } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -97,8 +98,12 @@ const Home = () => {
 
   useEffect(() => {
     let active = true;
-    getPublicRooms()
-      .then((res) => active && setRooms(res?.rooms || []))
+    getPublicRooms({ page: 1, limit: 6 })
+      .then((res) => {
+        if (!active) return;
+        setRooms(res?.rooms || []);
+        setRoomsTotal(res?.total ?? null);
+      })
       .catch(() => active && setRooms([]))
       .finally(() => active && setLoading(false));
     return () => {
@@ -389,9 +394,9 @@ const Home = () => {
               </div>
 
               <div className="mt-8 flex flex-col items-center gap-2">
-                {rooms.length > FEATURED_ROOMS_LIMIT && (
+                {roomsTotal !== null && roomsTotal > FEATURED_ROOMS_LIMIT && (
                   <p className="text-xs text-muted-foreground">
-                    Showing {FEATURED_ROOMS_LIMIT} of {rooms.length} rooms
+                    Showing {FEATURED_ROOMS_LIMIT} of {roomsTotal} rooms
                   </p>
                 )}
                 <Button
