@@ -84,7 +84,7 @@ const RelatedRoomCard = ({ room }) => {
   };
 
   return (
-    <Card className="group flex flex-col p-5 h-full transition-all hover:ring-2 hover:ring-primary/30">
+    <Card className="group flex flex-col p-4 min-[420px]:p-5 h-full transition-all hover:ring-2 hover:ring-primary/30">
       <button
         type="button"
         className="relative flex h-28 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/15 via-primary/5 to-background border border-border transition-colors group-hover:border-primary/40"
@@ -220,7 +220,7 @@ const RoomDetails = () => {
             <ArrowLeft className="w-4 h-4" />
             Back to home
           </Link>
-          <Card className="mt-6 p-10 text-center">
+          <Card className="mt-6 p-7 min-[420px]:p-10 text-center">
             <p className="text-sm text-destructive">
               {error || "Room not found"}
             </p>
@@ -267,8 +267,8 @@ const RoomDetails = () => {
         </Link>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 lg:px-8 py-8 space-y-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <main className="mx-auto max-w-6xl px-4 lg:px-8 py-6 space-y-8 sm:py-8 sm:space-y-10">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="lg:col-span-3">
             <div className="relative flex h-72 sm:h-96 items-center justify-center overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/20 via-primary/5 to-background">
               <Hexagon
@@ -479,7 +479,7 @@ onError={(e) => {
 
         {otherRooms.length > 0 && (
           <div>
-            <div className="flex items-end justify-between gap-4 mb-5">
+            <div className="flex items-end justify-between gap-4 mb-4 sm:mb-5">
               <div>
                 <span className="text-xs uppercase tracking-[0.25em] text-primary">
                   More to explore
@@ -496,7 +496,7 @@ onError={(e) => {
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {otherRooms.map((other) => (
                 <RelatedRoomCard key={other._id} room={other} />
               ))}

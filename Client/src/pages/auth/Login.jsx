@@ -101,7 +101,7 @@ const Login = () => {
           fontFamily: "'Montserrat', ui-sans-serif, system-ui, sans-serif",
         }}
       >
-        <CardContent className="p-8">
+        <CardContent className="p-6 min-[420px]:p-8">
           <CardHeader className="flex flex-col items-center text-center mb-8 px-0">
             <Hexagon
               className="w-10 h-10 text-primary animate-fade-in-up animate-delay-100 cursor-pointer"
@@ -111,7 +111,7 @@ const Login = () => {
             <span className="mt-3 text-xs tracking-[0.25em] uppercase text-primary animate-fade-in-up animate-delay-200">
               Grand Horizon Hotel
             </span>
-            <CardTitle className="font-display text-3xl mt-4 animate-fade-in-up animate-delay-300">
+            <CardTitle className="font-display text-2xl min-[420px]:text-3xl mt-4 animate-fade-in-up animate-delay-300">
               Welcome back
             </CardTitle>
             <CardDescription className="animate-fade-in-up animate-delay-400">

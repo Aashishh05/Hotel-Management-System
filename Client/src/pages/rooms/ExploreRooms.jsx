@@ -165,7 +165,7 @@ const ExploreRooms = () => {
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <Hexagon className="w-7 h-7 text-primary" strokeWidth={2.5} />
-            <span className="text-sm font-semibold tracking-wide leading-tight">
+            <span className="hidden min-[400px]:inline text-sm font-semibold tracking-wide leading-tight">
               Grand Horizon Hotel
             </span>
           </Link>
@@ -189,7 +189,13 @@ const ExploreRooms = () => {
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/login" />}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden sm:inline-flex"
+                nativeButton={false}
+                render={<Link to="/login" />}
+              >
                 Sign in
               </Button>
               <Button size="sm" nativeButton={false} render={<Link to="/register" />}>
@@ -200,7 +206,7 @@ const ExploreRooms = () => {
         </div>
       </header>
 
-      <section className="px-4 pt-24 pb-10 lg:px-8">
+      <section className="px-4 pt-20 pb-7 sm:pt-24 sm:pb-10 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center">
             <Badge
@@ -210,10 +216,10 @@ const ExploreRooms = () => {
               <Sparkles className="w-3.5 h-3.5" />
               {user ? `Welcome back, ${firstName}` : "Luxury stays, reimagined"}
             </Badge>
-            <h1 className="mt-5 font-display text-4xl sm:text-5xl text-foreground animate-fade-in-up animate-delay-100">
+            <h1 className="mt-3 sm:mt-5 font-display text-3xl min-[420px]:text-4xl sm:text-5xl text-foreground animate-fade-in-up animate-delay-100">
               All Rooms &amp; Suites
             </h1>
-            <p className="mt-4 max-w-xl mx-auto text-sm text-muted-foreground animate-fade-in-up animate-delay-200">
+            <p className="mt-2.5 sm:mt-4 max-w-xl mx-auto text-sm text-muted-foreground animate-fade-in-up animate-delay-200">
               Browse every room Grand Horizon has to offer. Filter by type,
               price, floor and availability to find your perfect stay.
             </p>
@@ -221,12 +227,12 @@ const ExploreRooms = () => {
         </div>
       </section>
 
-      <section className="px-4 pb-16 lg:px-8">
+      <section className="px-4 pb-10 sm:pb-16 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <Reveal>
-            <Card className="p-5 mb-8">
-              <CardContent className="px-0 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="p-4 min-[420px]:p-5 mb-6 sm:mb-8">
+              <CardContent className="px-0 space-y-3.5 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   <div className="space-y-2 lg:col-span-2">
                     <Label htmlFor="f-search">Search</Label>
                     <Input
@@ -281,7 +287,7 @@ const ExploreRooms = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label>Floor</Label>
                     <Select
@@ -369,9 +375,9 @@ const ExploreRooms = () => {
           </Reveal>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="p-5">
+                <Card key={i} className="p-4 min-[420px]:p-5">
                   <CardContent className="space-y-4 px-0">
                     <Skeleton className="h-32 w-full" />
                     <Skeleton className="h-4 w-24" />
@@ -384,7 +390,7 @@ const ExploreRooms = () => {
             </div>
           ) : rooms.length === 0 ? (
             <Reveal>
-              <Card className="p-10 text-center">
+              <Card className="p-7 min-[420px]:p-10 text-center">
                 <BedDouble className="mx-auto w-10 h-10 text-primary" />
                 <h3 className="mt-4 font-display text-xl text-foreground">
                   No rooms available yet
@@ -397,7 +403,7 @@ const ExploreRooms = () => {
             </Reveal>
           ) : filteredRooms.length === 0 ? (
             <Reveal>
-              <Card className="p-10 text-center">
+              <Card className="p-7 min-[420px]:p-10 text-center">
                 <BedDouble className="mx-auto w-10 h-10 text-primary" />
                 <h3 className="mt-4 font-display text-xl text-foreground">
                   No rooms match your filters
@@ -419,7 +425,7 @@ const ExploreRooms = () => {
               </Card>
             </Reveal>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {filteredRooms.map((room, i) => (
                 <Reveal
                   key={room._id}
@@ -432,7 +438,7 @@ const ExploreRooms = () => {
             </div>
           )}
 
-          <Reveal className="mt-10 flex flex-col items-center gap-2">
+          <Reveal className="mt-7 sm:mt-10 flex flex-col items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -448,12 +454,12 @@ const ExploreRooms = () => {
 
       <Separator />
 
-      <footer className="border-t border-border px-4 py-10 lg:px-8">
+      <footer className="border-t border-border px-4 py-8 sm:py-10 lg:px-8">
         <Reveal>
-          <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 text-center">
-            <div className="flex items-center gap-3">
-              <Hexagon className="w-8 h-8 text-primary" strokeWidth={2.5} />
-              <span className="font-display text-2xl font-semibold tracking-wide text-foreground">
+          <div className="max-w-6xl mx-auto flex flex-col items-center gap-3 sm:gap-4 text-center">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Hexagon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" strokeWidth={2.5} />
+              <span className="font-display text-xl sm:text-2xl font-semibold tracking-wide text-foreground">
                 Grand Horizon Hotel
               </span>
             </div>

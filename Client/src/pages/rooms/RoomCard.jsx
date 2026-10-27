@@ -64,7 +64,7 @@ const RoomCard = ({ room, user, onBook }) => {
   const imageUrl = room.images?.[0]?.url;
 
   return (
-    <Card className="flex flex-col p-5 h-full transition-all hover:ring-2 hover:ring-primary/30">
+    <Card className="flex flex-col p-4 min-[420px]:p-5 h-full transition-all hover:ring-2 hover:ring-primary/30">
       {imageUrl ? (
         <img
           src={imageUrl}
@@ -78,9 +78,9 @@ const RoomCard = ({ room, user, onBook }) => {
         </div>
       )}
 
-      <CardHeader className="px-0 pt-4">
+      <CardHeader className="px-0 pt-3 min-[420px]:pt-4">
         <div className="flex items-center justify-between gap-2">
-          <CardTitle>
+          <CardTitle className="text-sm min-[420px]:text-base">
             Room {room.number} · {roomTypeLabel(room.type)}
           </CardTitle>
           <Badge variant="outline" className={statusInfo.className}>

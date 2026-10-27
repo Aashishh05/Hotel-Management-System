@@ -25,7 +25,7 @@ const Unauthorized = () => {
       `}</style>
 
       <Card className="w-full max-w-md text-center animate-fade-in-up">
-        <CardContent className="p-8">
+        <CardContent className="p-6 min-[420px]:p-8">
           <CardHeader className="flex flex-col items-center text-center px-0">
             <Hexagon
               className="w-10 h-10 text-primary cursor-pointer"
@@ -40,7 +40,7 @@ const Unauthorized = () => {
               <ShieldAlert className="w-7 h-7" />
             </div>
 
-            <CardTitle className="font-display text-3xl mt-4">
+            <CardTitle className="font-display text-2xl min-[420px]:text-3xl mt-4">
               Access denied
             </CardTitle>
             <CardDescription className="mt-2">

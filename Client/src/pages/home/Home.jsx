@@ -11,6 +11,8 @@ import {
   BedDouble,
   LayoutDashboard,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { getPublicRooms } from "../../api/roomApi";
 import { logoutApi } from "../../api/authApi";
@@ -59,6 +61,7 @@ const Home = () => {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingRoomId, setBookingRoomId] = useState(null);
   const [activeSection, setActiveSection] = useState("about");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
     { id: "about", label: "About" },
@@ -237,19 +240,125 @@ const Home = () => {
               </Button>
             </div>
           )}
+
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="md:hidden"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
         </div>
       </header>
 
+      {menuOpen && (
+        <>
+          {/* Tap anywhere outside the panel to close it */}
+          <div
+            className="fixed top-16 inset-x-0 bottom-0 z-20 md:hidden"
+            onClick={() => setMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          <nav
+            id="mobile-nav"
+            className="fixed top-16 inset-x-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur-xl backdrop-saturate-150 shadow-lg shadow-black/5 animate-fade-in md:hidden"
+          >
+            <div className="px-4 py-3 flex flex-col">
+              {navLinks.map(({ id, label }) => {
+                const isActive = activeSection === id;
+                return (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    aria-current={isActive ? "true" : undefined}
+                    onClick={(event) => {
+                      handleNavClick(event, id);
+                      setMenuOpen(false);
+                    }}
+                    className={`relative py-3 text-sm transition-colors duration-500 border-b border-border/40 last:border-b-0 ${
+                      isActive
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {label}
+                  </a>
+                );
+              })}
+
+              <div className="mt-3 pt-3 border-t border-border/40 flex items-center gap-2">
+                {user ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      nativeButton={false}
+                      render={
+                        <Link
+                          to={
+                            user?.role?.name === "guest"
+                              ? "/guest"
+                              : "/dashboard"
+                          }
+                        />
+                      }
+                    >
+                      {user?.role?.name === "guest" ? "My Dashboard" : "Dashboard"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-muted-foreground hover:text-destructive"
+                      disabled={loggingOut}
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      {loggingOut ? "Logging out…" : "Log out"}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      nativeButton={false}
+                      render={<Link to="/login" />}
+                    >
+                      Sign in
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      nativeButton={false}
+                      render={<Link to="/register" />}
+                    >
+                      Get started
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </nav>
+        </>
+      )}
+
       <section
         id="about"
-        className="relative overflow-hidden flex flex-col items-center text-center px-4 pt-20 pb-16 lg:pt-28 lg:pb-24 scroll-mt-16"
+        className="relative overflow-hidden flex flex-col items-center text-center px-4 pt-14 pb-10 sm:pt-20 sm:pb-16 lg:pt-28 lg:pb-24 scroll-mt-16"
       >
         <Hexagon
-          className="absolute -top-6 right-8 w-64 h-64 text-primary/5 rotate-12 lg:w-96 lg:h-96"
+          className="absolute -top-6 right-8 w-44 h-44 sm:w-64 sm:h-64 text-primary/5 rotate-12 lg:w-96 lg:h-96"
           strokeWidth={1}
         />
         <Hexagon
-          className="absolute top-24 -left-16 w-72 h-72 text-primary/5 -rotate-12 lg:w-96 lg:h-96"
+          className="absolute top-24 -left-16 w-52 h-52 sm:w-72 sm:h-72 text-primary/5 -rotate-12 lg:w-96 lg:h-96"
           strokeWidth={1}
         />
 
@@ -271,18 +380,18 @@ const Home = () => {
           </Badge>
         )}
 
-        <h1 className="mt-6 max-w-3xl font-display text-4xl sm:text-5xl lg:text-6xl leading-tight text-foreground animate-fade-in-up animate-delay-100">
+        <h1 className="mt-4 sm:mt-6 max-w-3xl font-display text-3xl min-[420px]:text-4xl sm:text-5xl lg:text-6xl leading-tight text-foreground animate-fade-in-up animate-delay-100">
           Experience Luxury,
           <span className="text-primary"> Welcome Home</span>
         </h1>
 
-        <p className="mt-5 max-w-xl text-muted-foreground animate-fade-in-up animate-delay-200">
+        <p className="mt-3 sm:mt-5 max-w-xl text-sm sm:text-base text-muted-foreground animate-fade-in-up animate-delay-200">
           Grand Horizon Hotel blends refined comfort with modern convenience.
           Explore our rooms, unwind in our amenities, and let us host an
           unforgettable stay.
         </p>
 
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-in-up animate-delay-300">
+        <div className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-3 animate-fade-in-up animate-delay-300">
           <Button
             size="lg"
             className="uppercase tracking-wider"
@@ -315,14 +424,14 @@ const Home = () => {
 
       <Separator />
 
-      <section id="rooms" className="px-4 py-16 lg:px-8 scroll-mt-16">
+      <section id="rooms" className="px-4 py-10 sm:py-16 lg:px-8 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
-          <Reveal className="flex items-end justify-between gap-4 mb-8">
+          <Reveal className="flex items-end justify-between gap-4 mb-6 sm:mb-8">
             <div>
               <span className="text-xs uppercase tracking-[0.25em] text-primary">
                 Featured rooms
               </span>
-              <h2 className="font-display text-3xl mt-2 text-foreground">
+              <h2 className="font-display text-2xl sm:text-3xl mt-2 text-foreground">
                 Rooms & Suites
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -355,7 +464,7 @@ const Home = () => {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="p-5">
+                <Card key={i} className="p-4 min-[420px]:p-5">
                   <CardContent className="space-y-4 px-0">
                     <Skeleton className="h-32 w-full" />
                     <Skeleton className="h-4 w-24" />
@@ -368,7 +477,7 @@ const Home = () => {
             </div>
           ) : rooms.length === 0 ? (
             <Reveal>
-              <Card className="p-10 text-center">
+              <Card className="p-7 min-[420px]:p-10 text-center">
                 <BedDouble className="mx-auto w-10 h-10 text-primary" />
                 <h3 className="mt-4 font-display text-xl text-foreground">
                   No rooms available yet
@@ -393,7 +502,7 @@ const Home = () => {
                 ))}
               </div>
 
-              <div className="mt-8 flex flex-col items-center gap-2">
+              <div className="mt-6 sm:mt-8 flex flex-col items-center gap-2">
                 {roomsTotal !== null && roomsTotal > FEATURED_ROOMS_LIMIT && (
                   <p className="text-xs text-muted-foreground">
                     Showing {FEATURED_ROOMS_LIMIT} of {roomsTotal} rooms
@@ -416,25 +525,25 @@ const Home = () => {
 
       <Separator />
 
-      <section id="amenities" className="px-4 py-16 lg:px-8 scroll-mt-16">
+      <section id="amenities" className="px-4 py-10 sm:py-16 lg:px-8 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
-          <Reveal className="text-center mb-10">
+          <Reveal className="text-center mb-7 sm:mb-10">
             <span className="text-xs uppercase tracking-[0.25em] text-primary">
               What we offer
             </span>
-            <h2 className="font-display text-3xl mt-2 text-foreground">
+            <h2 className="font-display text-2xl sm:text-3xl mt-2 text-foreground">
               World-class amenities
             </h2>
           </Reveal>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {amenitiesSample.map(({ Icon, label }, i) => (
               <Reveal key={label} className="h-full" delay={i * 100}>
-                <div className="flex h-full flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 text-center">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <div className="flex h-full flex-col items-center gap-2.5 sm:gap-3 rounded-xl border border-border bg-card p-4 sm:p-6 text-center">
+                  <div className="flex size-10 sm:size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-xs sm:text-sm font-medium text-foreground">
                     {label}
                   </span>
                 </div>
@@ -444,12 +553,12 @@ const Home = () => {
         </div>
       </section>
 
-      <footer className="border-t border-border px-4 py-12 lg:px-8">
+      <footer className="border-t border-border px-4 py-9 sm:py-12 lg:px-8">
         <Reveal>
-          <div className="max-w-6xl mx-auto flex flex-col items-center gap-5 text-center">
-            <div className="flex items-center gap-3">
-              <Hexagon className="w-8 h-8 text-primary" strokeWidth={2.5} />
-              <span className="font-display text-2xl font-semibold tracking-wide text-foreground">
+          <div className="max-w-6xl mx-auto flex flex-col items-center gap-3.5 sm:gap-5 text-center">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Hexagon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" strokeWidth={2.5} />
+              <span className="font-display text-xl sm:text-2xl font-semibold tracking-wide text-foreground">
                 Grand Horizon Hotel
               </span>
             </div>
