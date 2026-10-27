@@ -31,7 +31,7 @@ const UserDetails = lazy(() => import("./pages/users/UserDetails.jsx"));
 const Roles = lazy(() => import("./pages/roles/Roles.jsx"));
 const Permissions = lazy(() => import("./pages/permissions/Permissions.jsx"));
 const Housekeeping = lazy(
-  () => import("./pages/housekeeping/Housekeeping.jsx"),
+  () => import("./pages/houseKeeping/Housekeeping.jsx"),
 );
 const Maintenance = lazy(() => import("./pages/maintenance/Maintenance.jsx"));
 const MaintenanceDetails = lazy(
