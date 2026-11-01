@@ -131,7 +131,7 @@ your existing MongoDB Atlas. Nothing in the codebase is provider-specific.
 
 **Client (Vercel)**
 - Build command: `npm run build` · Output dir: `dist`
-- Set `VITE_BASE_URL` to the API URL (e.g. `https://your-api.onrender.com/api`) — Vite bakes it in at build time
+- `VITE_BASE_URL` points at the deployed API via the committed `Client/.env.production` (used automatically by `vite build`); set the same variable in the dashboard to override per environment
 - Deploy, then update the API's `CLIENT_URL` to the final frontend URL
 
 ## License
