@@ -133,10 +133,12 @@ const forgotPassword = async (email) => {
   );
 
   // CLIENT_URL is comma-separated (see app.js); reset links always point at
-  // the first URL, the production frontend.
+  // the first URL, the production frontend. Normalized the same way so a
+  // trailing slash in the dashboard value cannot create a double slash.
   const clientUrl = (process.env.CLIENT_URL || "http://localhost:5173")
     .split(",")[0]
-    .trim();
+    .trim()
+    .replace(/\/+$/, "");
   const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
   try {

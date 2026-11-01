@@ -27,13 +27,20 @@ app.use(
     origin: (origin, callback) => {
       // CLIENT_URL holds the frontend origin(s) as a comma-separated list —
       // Vercel serves a project from a production, branch and per-deploy
-      // domain. Any local dev port is always welcome.
+      // domain. Entries are normalized (trimmed, no trailing slash,
+      // lowercase) so dashboard typos cannot break the allowlist, and any
+      // local dev port is always welcome.
+      const normalize = (url) => url.trim().replace(/\/+$/, "").toLowerCase();
       const allowed = (process.env.CLIENT_URL || "")
         .split(",")
-        .map((url) => url.trim())
+        .map(normalize)
         .filter(Boolean);
 
-      if (!origin || origin.startsWith("http://localhost:") || allowed.includes(origin)) {
+      if (
+        !origin ||
+        origin.startsWith("http://localhost:") ||
+        allowed.includes(normalize(origin))
+      ) {
         return callback(null, true);
       }
       return callback(new Error("Not allowed by CORS"));
