@@ -132,7 +132,11 @@ const forgotPassword = async (email) => {
     resetPasswordExpire,
   );
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  // CLIENT_URL is comma-separated (see app.js); reset links always point at
+  // the first URL, the production frontend.
+  const clientUrl = (process.env.CLIENT_URL || "http://localhost:5173")
+    .split(",")[0]
+    .trim();
   const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
   try {

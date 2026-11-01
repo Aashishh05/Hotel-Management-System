@@ -25,9 +25,13 @@ app.use(
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Deployed frontend origin comes from CLIENT_URL; any local dev port
-      // is always welcome.
-      const allowed = [process.env.CLIENT_URL].filter(Boolean);
+      // CLIENT_URL holds the frontend origin(s) as a comma-separated list —
+      // Vercel serves a project from a production, branch and per-deploy
+      // domain. Any local dev port is always welcome.
+      const allowed = (process.env.CLIENT_URL || "")
+        .split(",")
+        .map((url) => url.trim())
+        .filter(Boolean);
 
       if (!origin || origin.startsWith("http://localhost:") || allowed.includes(origin)) {
         return callback(null, true);
