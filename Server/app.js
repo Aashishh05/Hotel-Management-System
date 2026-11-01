@@ -27,10 +27,14 @@ app.use(
     origin: (origin, callback) => {
       // CLIENT_URL holds the frontend origin(s) as a comma-separated list —
       // Vercel serves a project from a production, branch and per-deploy
-      // domain. Entries are normalized (trimmed, no trailing slash,
-      // lowercase) so dashboard typos cannot break the allowlist, and any
-      // local dev port is always welcome.
-      const normalize = (url) => url.trim().replace(/\/+$/, "").toLowerCase();
+      // domain. Entries are normalized (scheme added when missing, trimmed,
+      // no trailing slash, lowercase) so dashboard typos cannot break the
+      // allowlist, and any local dev port is always welcome.
+      const normalize = (url) => {
+        const raw = url.trim();
+        const withScheme = /^https?:\/\//.test(raw) ? raw : `https://${raw}`;
+        return withScheme.replace(/\/+$/, "").toLowerCase();
+      };
       const allowed = (process.env.CLIENT_URL || "")
         .split(",")
         .map(normalize)
