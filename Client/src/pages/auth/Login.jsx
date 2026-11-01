@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Hexagon } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Hexagon, KeyRound } from "lucide-react";
 import { loginApi } from "../../api/authApi";
 import { getMyPermissions } from "../../api/permissionApi";
 import { login } from "../../redux/authSlice";
@@ -31,6 +31,11 @@ const validationSchema = Yup.object({
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
 });
+
+// Seeded SuperAdmin account (Server/.env: SUPERADMIN_EMAIL / SUPERADMIN_PASSWORD).
+// Shown on the login page so reviewers and visitors can try the dashboard instantly.
+const DEMO_EMAIL = "admin@gmail.com";
+const DEMO_PASSWORD = "admin123";
 
 const fieldClass = (hasError) =>
   `pl-10 pr-10 h-10 w-full ${hasError ? "aria-invalid" : ""}`;
@@ -84,6 +89,20 @@ const Login = () => {
 
   const emailError = formik.submitCount > 0 && formik.errors.email;
   const passwordError = formik.submitCount > 0 && formik.errors.password;
+
+  // Fills the form with the demo SuperAdmin account; the user still submits
+  // through the normal Sign in button, so there is a single login code path.
+  const useDemoCredentials = () => {
+    formik.setValues({
+      email: DEMO_EMAIL,
+      password: DEMO_PASSWORD,
+      remember: false,
+    });
+    showToast({
+      type: "success",
+      message: "Demo SuperAdmin credentials filled. Press Sign in.",
+    });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -226,6 +245,33 @@ const Login = () => {
               )}
             </Button>
           </form>
+
+          <div className="mt-5 rounded-lg border border-dashed border-primary/40 bg-muted/30 px-4 py-3 animate-fade-in-up animate-delay-200">
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex items-center gap-1.5 text-xs uppercase tracking-[0.2em] text-primary">
+                <KeyRound className="w-3.5 h-3.5" />
+                Demo access
+              </span>
+              <button
+                type="button"
+                onClick={useDemoCredentials}
+                disabled={formik.isSubmitting}
+                className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors hover:underline uppercase tracking-wider disabled:opacity-50"
+              >
+                Use demo login
+              </button>
+            </div>
+            <dl className="mt-2 grid gap-0.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <dt className="uppercase tracking-wider">Email</dt>
+                <dd className="font-mono text-foreground select-all">{DEMO_EMAIL}</dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <dt className="uppercase tracking-wider">Password</dt>
+                <dd className="font-mono text-foreground select-all">{DEMO_PASSWORD}</dd>
+              </div>
+            </dl>
+          </div>
 
           <div className="flex items-center gap-3 mt-5">
             <Separator className="flex-1" />
