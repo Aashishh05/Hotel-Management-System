@@ -4,7 +4,7 @@ import {
   generateToken,
   generateRefreshToken,
 } from "../../../utils/jwt.js";
-import ErrorHandler from "../../../utils/errorHandler.js";
+import ErrorHandler from "../../../utils/ErrorHandler.js";
 import crypto from "crypto";
 import sendEmail from "../../../utils/sendEmail.js";
 

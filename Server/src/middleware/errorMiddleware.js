@@ -1,4 +1,4 @@
-import ErrorHandler from "../utils/errorHandler.js";
+import ErrorHandler from "../utils/ErrorHandler.js";
 
 const errorMiddleware = (err, req, res, next) => {
   // Default error values

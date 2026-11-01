@@ -1,4 +1,4 @@
-import ErrorHandler from "../../../utils/errorHandler.js";
+import ErrorHandler from "../../../utils/ErrorHandler.js";
 import roleRepository from "../repository/roleRepository.js";
 import auditLogServices from "../../auditlog/services/auditLogServices.js";
 
